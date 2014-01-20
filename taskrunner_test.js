@@ -8,7 +8,7 @@ suite('run_task', function() {
   var docker;
   setup(function() {
     docker = new Docker({
-      host: 'http://localhost', port: 60034
+      host: 'http://localhost', port: 4243
     });
   });
 
