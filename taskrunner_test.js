@@ -1,15 +1,13 @@
 suite('run_task', function() {
   var Promise = require('promise'),
       TaskFactory = require('taskcluster-task-factory'),
-      Docker = require('dockerode-promise'),
+      Docker = require('./test/docker'),
       TaskRunner = require('./taskrunner'),
       PassStream = require('stream').PassThrough;
 
   var docker;
   setup(function() {
-    docker = new Docker({
-      host: 'http://localhost', port: 4243
-    });
+    docker = new Docker();
   });
 
   var repo = 'lightsofapollo/test-taskenv';
