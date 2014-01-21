@@ -2,7 +2,6 @@ TARGET?=taskcluster/docker-worker
 
 .PHONY: docker_worker
 docker_worker:
-	make -C docker_worker
 	docker build -t $(TARGET) docker_worker
 
 .PHONY: taskenv_fail
