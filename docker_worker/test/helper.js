@@ -1,4 +1,7 @@
-if (!('DOCKER_HOST' in process.env)) {
+var envs = process.env;
+var host = envs.DOCKER_PORT || envs.DOCKER_PORT;
+
+if (!host) {
   console.error('DOCKER_HOST is not present');
   process.exit(1);
 }

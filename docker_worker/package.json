@@ -4,7 +4,7 @@
   "description": "Taskcluster host",
   "main": "index.js",
   "scripts": {
-    "test": "make test"
+    "test": "./node_modules/.bin/mocha *_test.js"
   },
   "repository": {
     "type": "git",

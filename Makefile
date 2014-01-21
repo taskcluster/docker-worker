@@ -1,10 +1,19 @@
+TARGET?=taskcluster/docker-worker
+
+.PHONY: docker_worker
+docker_worker:
+	make -C docker_worker
+	docker build -t $(TARGET) docker_worker
+
+.PHONY: taskenv_fail
+taskenv_fail:
+	docker build -t taskcluster/test-taskenv:fail taskenv_fail
+
+.PHONY: taskenv_pass
+taskenv_pass:
+	docker build -t taskcluster/test-taskenv:pass taskenv_pass
+
 .PHONY: test
-test: node_modules
-	./node_modules/.bin/mocha $(wildcard *_test.js)
+test: taskenv_fail taskenv_pass docker_worker
+	./test $(TARGET)
 
-node_modules: package.json
-	npm install
-
-.PHONY: test_image
-test_image:
-	docker -t lightsofapollo/test-taskenv

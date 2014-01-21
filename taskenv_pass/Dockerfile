@@ -11,6 +11,6 @@ workdir /home/tester
 env HOME /home/tester
 env PATH /home/tester/bin:$PATH
 run mkdir bin
-add ./bin/taskhost-who /home/tester/bin/taskhost-who
+add ./taskhost-who /home/tester/bin/taskhost-who
 run chmod u+x bin/taskhost-who
 

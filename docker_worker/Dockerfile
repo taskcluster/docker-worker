@@ -3,7 +3,8 @@ maintainer James Lal [:lightsofapollo]
 
 env HOME /home/dockerworker
 run useradd dockerworker --create-home
-user dockerworker
-workdir /home/dockerworker
 add . /home/dockerworker/app
-cmd cd /home/dockerworker/app && npm install
+run chown -R dockerworker:dockerworker /home/dockerworker/
+USER dockerworker
+workdir /home/dockerworker/app
+run npm install
