@@ -3,9 +3,9 @@ var URL = require('url'),
 
 
 module.exports = function docker() {
-  var host = process.env.DOCKER_PORT || process.env.DOCKER_HOST;
+  var host = process.env.DOCKER_PORT;
   var parts = URL.parse(host);
-  console.log(host);
+
   return new Docker({
     host: 'http://' + parts.host,
     port: parts.port
