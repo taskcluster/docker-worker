@@ -26,12 +26,15 @@ api]([http://docs.docker.io/en/latest/api/docker_remote_api_v1.8/)
 The docker worker not only used docker to run tasks but it also is
 deployed via docker. 
 
-## Dependencies 
+## Development
 
-  - docker
-  - make
+You need [vagrant](http://www.vagrantup.com/) so start with the usual
+`vagrant up` the vagrant image is very minimal and once its downloading
+creating/destroying the machines should be fast.
 
-## Running tests
+(All the below assume your in the vagrant vm)
+
+### Running tests
 
 Individual tests can be run from the `docker_worker/` folder as you
 would for any nodejs project using mocha but to run the entire test
