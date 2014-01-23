@@ -1,13 +1,8 @@
 var URL = require('url'),
-    Docker = require('dockerode-promise');
-
+    Docker = require('dockerode-promise'),
+    dockerOpts = require('dockerode-options');
 
 module.exports = function docker() {
-  var host = process.env.DOCKER_PORT;
-  var parts = URL.parse(host);
-
-  return new Docker({
-    host: 'http://' + parts.host,
-    port: parts.port
-  });
+  // DOCKER_PORT is setup by linking the dind docker image to the tests
+  return new Docker(dockerOpts(process.env.DOCKER_PORT));
 };
