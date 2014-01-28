@@ -14,5 +14,4 @@ taskenv_pass:
 
 .PHONY: test
 test: taskenv_fail taskenv_pass docker_worker
-	./test $(TARGET)
-
+	./docker_worker/node_modules/.bin/docker-services exec app npm test

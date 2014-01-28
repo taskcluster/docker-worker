@@ -1,0 +1,23 @@
+{
+  "app": {
+    "image": "taskcluster/docker-worker",
+    "links": ["docker:docker", "rabbitmq:rabbitmq"]
+  },
+
+  "rabbitmq": {
+    "image": "networld/rabbitmq"
+  },
+
+  "docker": {
+    "image": "jpetazzo/dind",
+    "createConfig": {
+      "Env": ["PORT=4444"],
+      "ExposedPorts": {
+        "4444/tcp": {}
+      }
+    },
+    "startConfig": {
+      "Privileged": true
+    }
+  }
+}
