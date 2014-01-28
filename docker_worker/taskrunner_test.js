@@ -45,8 +45,6 @@ suite('run_task', function() {
       }
     });
 
-    console.log(task);
-
     var subject;
     setup(function() {
       subject = new TaskRunner(docker, task);

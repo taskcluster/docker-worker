@@ -1,5 +1,6 @@
 var Promise = require('promise');
 var request = require('superagent-promise');
+var debug = require('debug')('taskcluster-docker-worker:jobapi');
 
 function JobAPI(options) {
   this.job = options.job;
@@ -35,6 +36,7 @@ JobAPI.prototype = {
   @return Promise
   */
   sendClaim: function() {
+    debug('send claim', this.claim);
     // post with no content
     return request('POST', this.claim).end();
   },
@@ -45,6 +47,7 @@ JobAPI.prototype = {
   @return Promise
   */
   sendFinish: function(result) {
+    debug('send finish', this.finish);
     var job = {};
 
     // don't mutate state of this object. Copy the properties over and send
