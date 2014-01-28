@@ -86,7 +86,7 @@ TaskRunner.prototype = {
   execute: function(outputStream) {
     var docker = this.docker;
     var command = [
-      '/bin/bash', '-c',
+      '/bin/sh', '-c',
       this.command.join(' ')
     ];
 

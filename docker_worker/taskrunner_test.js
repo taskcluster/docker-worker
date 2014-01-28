@@ -3,7 +3,18 @@ suite('run_task', function() {
       TaskFactory = require('taskcluster-task-factory'),
       Docker = require('./test/docker'),
       TaskRunner = require('./taskrunner'),
-      PassStream = require('stream').PassThrough;
+      PassThrough = require('stream').PassThrough;
+
+  function passResult() {
+    var stream = new PassThrough();
+    stream.text = '';
+
+    stream.on('data', function(value) {
+      stream.text += value.toString();
+    });
+
+    return stream;
+  }
 
   var docker;
   setup(function() {
@@ -24,7 +35,7 @@ suite('run_task', function() {
   suite('#execute - no image download', function() {
     var task = TaskFactory.create({
       // give us a compelling exit code
-      command: ['exit', '222'],
+      command: ['echo', '123'],
 
       machine: {
         // use generic ubuntu image
@@ -43,10 +54,11 @@ suite('run_task', function() {
 
     test('within ubuntu container', function(done) {
       assert.equal(subject.state, TaskRunner.STATES.off);
+      var stream = passResult();
 
-      var promise = subject.execute(process.stdout).then(
+      var promise = subject.execute(stream).then(
         function(result) {
-          assert.equal(result.statusCode, 222);
+          assert.equal(stream.text.trim().slice(-3), '123');
           assert.ok(subject.container);
           assert.equal(subject.state, TaskRunner.STATES.done);
         }
@@ -74,9 +86,10 @@ suite('run_task', function() {
     });
 
     test('taskrunner-who result', function(done) {
-      return subject.execute(process.stdout).then(
+      var stream = passResult();
+      return subject.execute(stream).then(
         function(result) {
-          assert.equal(result.statusCode, 66);
+          assert.ok(stream.text.indexOf('exit 66') !== -1);
         }
       );
     });
@@ -100,18 +113,13 @@ suite('run_task', function() {
 
     test('taskrunner-who result', function(done) {
       var gotUniq;
-      var stream = new PassStream();
-
-      stream._transform = function(data, type, done) {
-        if (data.toString().trim() === token) gotUniq = true;
-        done();
-      };
+      var stream = passResult();
 
       return subject.execute(stream).then(
         function(result) {
            //ensure we are getting stdout
           assert.equal(result.statusCode, 0);
-          assert.ok(gotUniq, 'got __UNIQ__');
+          assert.ok(stream.text.indexOf('__UNIQ__') !== -1);
         }
       );
     });
