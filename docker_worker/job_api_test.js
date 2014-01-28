@@ -80,7 +80,4 @@ suite('job api', function() {
       );
     });
   });
-
-
-
 });
