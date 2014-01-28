@@ -1,6 +1,6 @@
 suite('run_task', function() {
   var Promise = require('promise'),
-      TaskFactory = require('taskcluster-task-factory'),
+      TaskFactory = require('taskcluster-task-factory/task'),
       Docker = require('./test/docker'),
       TaskRunner = require('./taskrunner'),
       PassThrough = require('stream').PassThrough;
@@ -37,11 +37,15 @@ suite('run_task', function() {
       // give us a compelling exit code
       command: ['echo', '123'],
 
-      machine: {
-        // use generic ubuntu image
-        image: 'ubuntu'
+      parameters: {
+        docker: {
+          // use generic ubuntu image
+          image: 'ubuntu'
+        }
       }
     });
+
+    console.log(task);
 
     var subject;
     setup(function() {
@@ -75,8 +79,10 @@ suite('run_task', function() {
       // give us a compelling exit code
       command: ['taskhost-who'],
 
-      machine: {
-        image: 'lightsofapollo/test-taskenv:fail'
+      parameters: {
+        docker: {
+          image: 'lightsofapollo/test-taskenv:fail'
+        }
       }
     });
 
@@ -101,8 +107,10 @@ suite('run_task', function() {
       // give us a compelling exit code
       command: ['taskhost-who', token],
 
-      machine: {
-        image: 'lightsofapollo/test-taskenv:pass'
+      parameters: {
+        docker: {
+          image: 'lightsofapollo/test-taskenv:pass'
+        }
       }
     });
 
@@ -130,9 +138,11 @@ suite('run_task', function() {
       // give us a compelling exit code
       command: ['/bin/bash', '-c', 'echo woot'],
 
-      machine: {
-        // use generic ubuntu image
-        image: 'ubuntu'
+      parameters: {
+        docker: {
+          // use generic ubuntu image
+          image: 'ubuntu'
+        }
       }
     });
 

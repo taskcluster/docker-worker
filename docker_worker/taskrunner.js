@@ -36,7 +36,9 @@ function TaskRunner(docker, task) {
   this.task = task;
 
   // machine specs
-  var image = task.machine && task.machine.image;
+  var image = task.parameters &&
+              task.parameters.docker &&
+              task.parameters.docker.image;
 
   if (!image) {
     throw new Error('cannot run docker task without .machine.image type');
