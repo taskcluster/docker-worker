@@ -25,6 +25,6 @@
     "mocha-as-promised": "~2.0.0",
     "taskcluster-task-factory": "0.0.1",
     "dockerode-options": "~0.1.0",
-    "docker-services": "~0.2.0"
+    "docker-services": "~0.2.1"
   }
 }

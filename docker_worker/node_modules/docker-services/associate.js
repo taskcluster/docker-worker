@@ -8,8 +8,7 @@ file manages those "associate" dockers which contain the details of the
 groups.
 */
 
-var IMAGE = 'lightsofapollo/docker-service-associate';
-var IMAGE_TAG = require('./package.json').version;
+var IMAGE = 'lightsofapollo/docker-service-associate:0.2.0';
 
 var Promise = require('promise');
 var dockerUtils = require('./docker_utils');
@@ -151,7 +150,7 @@ Associate.prototype = {
   _start: function() {
     var createConfig = {
       name: this.name,
-      Image: IMAGE + ':' + IMAGE_TAG,
+      Image: IMAGE,
       AttachStdin: false,
       AttachStdout: true,
       AttachStderr: true,

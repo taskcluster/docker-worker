@@ -51,9 +51,9 @@ GroupContainers.prototype = {
   */
   _remove: function(containerId) {
     debug('remove container', containerId);
-    return this._stop(containerId).then(
+    var containerInterface = this.docker.getContainer(containerId);
+    return containerInterface.kill().then(
       function stopped() {
-        var containerInterface = this.docker.getContainer(containerId);
         return containerInterface.remove();
       }.bind(this)
     );
