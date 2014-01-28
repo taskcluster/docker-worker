@@ -30,6 +30,7 @@
     "taskcluster-task-factory": "0.2.0",
     "dockerode-options": "~0.1.0",
     "docker-services": "~0.2.1",
-    "express": "~3.4.8"
+    "express": "~3.4.8",
+    "uuid": "~1.4.1"
   }
 }

@@ -1,9 +1,12 @@
 var express = require('express');
 var Promise = require('promise');
+var uuid = require('uuid')
 
 function getServer() {
   return new Promise(function(accept, reject) {
     var app = express();
+    app.use(express.json());
+
     var server;
 
     function url(path) {
@@ -11,16 +14,17 @@ function getServer() {
       return 'http://' + addr.address + ':' + addr.port + path;
     }
 
-    app.endpoint = function(method, path, handler) {
+    function endpoint(method, handler) {
+      var path = '/' + uuid.v4();
       app[method](path, handler);
       return url(path);
     };
 
     app.once('error', reject);
     server = app.listen(0, function() {
-      accept(app);
+      server.endpoint = endpoint;
+      accept(server);
     });
-
   });
 }
 

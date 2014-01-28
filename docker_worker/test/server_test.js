@@ -11,16 +11,20 @@ suite('test server test', function() {
     );
   });
 
+  teardown(function(done) {
+    subject.close(done);
+  });
+
   suite('#urlEndpoint', function() {
     test('issue request to given url', function() {
-      var url = subject.endpoint('get', '/xfoo', function(req, res) {
-        res.send({woot: true}, 200);
+      var url = subject.endpoint('get', function(req, res) {
+        res.send(200, { woot: true });
       });
 
       return agent('GET', url).end().then(
         function(res) {
-          assert.deepEqual(res.body, { woot: true });
           assert.equal(res.statusCode, 200);
+          assert.deepEqual(res.body, { woot: true });
         }
       );
     });
