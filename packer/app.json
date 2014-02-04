@@ -1,16 +1,10 @@
 {
   "description": "taskcluster docker worker vm",
   "variables": {
-    "docker_worker": ""
+    "docker_worker": "",
+    "source_ami": "ami-7c4e2d4c"
   },
   "provisioners": [
-    {
-      "type": "shell",
-      "scripts": [
-        "vm/scripts/docker.sh",
-        "vm/scripts/node.sh"
-      ]
-    },
     {
       "type": "file",
       "source": "{{user `docker_worker`}}",
@@ -18,7 +12,7 @@
     },
     {
       "type": "file",
-      "source": "vm/scripts/deploy.sh",
+      "source": "packer/app/scripts/deploy.sh",
       "destination": "/tmp/deploy.sh"
     },
     {
@@ -34,7 +28,7 @@
     {
       "type": "amazon-ebs",
       "region": "us-west-2",
-      "source_ami": "ami-62e78652",
+      "source_ami": "{{user `source_ami`}}",
       "instance_type": "m3.large",
       "ssh_username": "ubuntu",
       "ami_name": "taskcluster-docker-worker {{timestamp}}",
@@ -48,8 +42,9 @@
   "post-processors": [
     {
       "type": "vagrant",
-      "output": "vm/docker_worker_aws.box",
+      "output": "packer/app.box",
       "keep_input_artifact": true
     }
   ]
 }
+

@@ -14,12 +14,14 @@ usage() {
 }
 
 cmd_packer() {
-  local archive=$(cmd_build)
-  packer build -var "docker_worker=$archive" packer.json
+  packer build -var "docker_worker=$(cmd_build)" packer/app.json
 }
 
 cmd_build() {
-  npm pack docker_worker
+  local version=$(git rev-parse HEAD)
+  local path='docker-worker-'$version'.tgz'
+  git archive --format tar.gz -9 HEAD . > $path
+  echo $path
 }
 
 case "$1" in
