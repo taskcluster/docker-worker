@@ -10,10 +10,10 @@ usage() {
   echo "  Commands:"
   echo
   echo "    build - do a dry run build the .tar.gz and output its name"
-  echo "    app-ami [packer opts] - build the image and hand off deploy to packer"
+  echo "    packer [packer opts] - build the image and hand off deploy to packer"
 }
 
-cmd_app_ami() {
+cmd_packer() {
   packer build -var "docker_worker=$(cmd_build)" $@ packer/app.json
 }
 
@@ -28,11 +28,10 @@ case "$1" in
 "build")
   cmd_build ${@:2}
   ;;
-"app-ami")
-  cmd_app_ami ${@:2}
+"packer")
+  cmd_packer ${@:2}
   ;;
 *)
   usage
   ;;
 esac
-
