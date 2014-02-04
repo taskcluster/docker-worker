@@ -1,4 +1,4 @@
-#! /bin/bash -vex
+#! /bin/bash -evx
 
 usage() {
   echo
@@ -14,7 +14,7 @@ usage() {
 }
 
 cmd_packer() {
-  packer build -var "docker_worker=$(cmd_build)" packer/app.json
+  packer build -var "docker_worker=$(cmd_build)" $rest_args packer/app.json
 }
 
 cmd_build() {
@@ -23,6 +23,8 @@ cmd_build() {
   git archive --format tar.gz -9 HEAD . > $path
   echo $path
 }
+
+rest_args=${@:2}
 
 case "$1" in
 "build")
