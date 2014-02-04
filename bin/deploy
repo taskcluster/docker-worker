@@ -1,0 +1,36 @@
+#! /bin/bash -vex
+
+usage() {
+  echo
+  echo "  Usage: ./bin/deploy [command]"
+  echo
+  echo "  Package and deploy the worker with packer... Only git committed resources in the"
+  echo "  docker_worker folder."
+  echo
+  echo "  Commands:"
+  echo
+  echo "    build - do a dry run build the .tar.gz and output its name"
+  echo "    packer [packer opts] - build the image and hand off deploy to packer"
+}
+
+cmd_packer() {
+  local archive=$(cmd_build)
+  packer build -var "docker_worker=$archive" packer.json
+}
+
+cmd_build() {
+  npm pack docker_worker
+}
+
+case "$1" in
+"build")
+  cmd_build
+  ;;
+"packer")
+  cmd_packer
+  ;;
+*)
+  usage
+  ;;
+esac
+
