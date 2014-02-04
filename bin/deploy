@@ -1,4 +1,4 @@
-#! /bin/bash -evx
+#! /bin/bash -e
 
 usage() {
   echo
@@ -10,11 +10,11 @@ usage() {
   echo "  Commands:"
   echo
   echo "    build - do a dry run build the .tar.gz and output its name"
-  echo "    packer [packer opts] - build the image and hand off deploy to packer"
+  echo "    app-ami [packer opts] - build the image and hand off deploy to packer"
 }
 
-cmd_packer() {
-  packer build -var "docker_worker=$(cmd_build)" $rest_args packer/app.json
+cmd_app_ami() {
+  packer build -var "docker_worker=$(cmd_build)" $@ packer/app.json
 }
 
 cmd_build() {
@@ -24,14 +24,12 @@ cmd_build() {
   echo $path
 }
 
-rest_args=${@:2}
-
 case "$1" in
 "build")
-  cmd_build
+  cmd_build ${@:2}
   ;;
-"packer")
-  cmd_packer
+"app-ami")
+  cmd_app_ami ${@:2}
   ;;
 *)
   usage
