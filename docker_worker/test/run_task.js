@@ -28,7 +28,7 @@ module.exports = function(amqp) {
       server().then(
         function serverListening(testServer) {
           request.claim = testServer.endpoint('post', function(req, res) {
-            taskStatus.claimed = true;
+            taskStatus.claimed = req.body;
             res.send(200);
           });
 

@@ -58,6 +58,9 @@ AMQPConusmer.prototype = {
       extra_info: {}
     };
 
+    // details to send during the claim.
+    var claim = {};
+
     var api = new JobAPI(message);
     var task = new Task(api.job);
     var middleware = new Middleware();
@@ -80,9 +83,11 @@ AMQPConusmer.prototype = {
       create: task.createContainerConfig()
     });
 
-    return middleware.run('start', task, dockerProcess).then(
-      function() {
-        return api.sendClaim();
+    debug('run task', api.job);
+    return middleware.run('start', claim, task, dockerProcess).then(
+      function(claimPayload) {
+        debug('claim payload', claimPayload);
+        return api.sendClaim(claimPayload);
       }
     ).then(
       function initiateExecute(value) {

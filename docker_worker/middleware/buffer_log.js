@@ -7,8 +7,9 @@ function BufferLog() {
   var stream = new GhettoStream();
 
   return {
-    start: function(task, dockerProcess) {
+    start: function(claim, task, dockerProcess) {
       dockerProcess.stdout.pipe(stream);
+      return claim;
     },
 
     end: function(output) {

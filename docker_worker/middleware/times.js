@@ -4,9 +4,9 @@ Times middleware keeps track of the starting and ending times of a task.
 function Times() {
   var started;
   return {
-    start: function(value) {
+    start: function(claim, value) {
       started = Date.now();
-      return value;
+      return claim;
     },
 
     end: function(value) {

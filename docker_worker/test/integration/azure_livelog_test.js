@@ -31,6 +31,8 @@ suite('azure logging', function() {
     return runTask(task).then(
       function(taskStatus) {
         assert.ok(taskStatus.claimed);
+        assert.ok(taskStatus.claimed.log);
+
         result = taskStatus.finish.result;
 
         assert.ok(result.artifacts.log, 'has artifact for log url');

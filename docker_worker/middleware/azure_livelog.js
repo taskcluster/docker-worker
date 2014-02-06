@@ -19,7 +19,7 @@ AzureLiveLog.prototype = {
   Ensure the azure container exists then create a new blob stream to pipe
   the docker output into.
   */
-  start: function(task, dockerProcess) {
+  start: function(claim, task, dockerProcess) {
     var container;
     var url;
     var path;
@@ -29,6 +29,9 @@ AzureLiveLog.prototype = {
     container = this.container = 'taskclusterlogs';
     url = this.url = this.blobService.getBlobUrl(container, path);
 
+    // add the log url to the claim so consumers can read from it immediately.
+    claim.log = url;
+
     return this.createContainer(
       container,
       // list, get, etc... are public
@@ -37,6 +40,7 @@ AzureLiveLog.prototype = {
       function pipeToAzure() {
         this.stream = new BlobStream(this.blobService, container, path);
         dockerProcess.stdout.pipe(this.stream);
+        return claim;
       }.bind(this)
     );
   },
