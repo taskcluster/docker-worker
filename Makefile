@@ -6,11 +6,11 @@ docker_worker:
 
 .PHONY: taskenv_fail
 taskenv_fail:
-	docker build -t taskcluster/test-taskenv:fail taskenv_fail
+	docker build -t lightsofapollo/test-taskenv:fail taskenv_fail
 
 .PHONY: taskenv_pass
 taskenv_pass:
-	docker build -t taskcluster/test-taskenv:pass taskenv_pass
+	docker build -t lightsofapollo/test-taskenv:pass taskenv_pass
 
 .PHONY: test
 test: taskenv_fail taskenv_pass

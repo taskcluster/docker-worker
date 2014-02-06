@@ -46,7 +46,7 @@ function startWorker(queue, cmd) {
 program.
   version(require('../package.json').version).
   command('start <queue>').
-  option('--amqp <url>', 'full amqp url', 'amqp://guest:guest@127.0.0.1/').
+  option('--amqp <url>', 'full amqp url', 'amqp://guest:guest@127.0.0.1').
   description('bind worker to a particular amqp queue').
   action(startWorker);
 
