@@ -5,9 +5,9 @@ suite('echo test', function() {
 
   var TaskFactory = require('taskcluster-task-factory/task');
 
-  test('successful task', function() {
+  test('recording of timing details', function() {
     var task = TaskFactory.create({
-      command: ['echo', 'first command!'],
+      command: ['sleep', '1'],
       parameters: {
         docker: { image: 'ubuntu' }
       }
@@ -18,9 +18,10 @@ suite('echo test', function() {
         assert.ok(taskStatus.claimed);
         var result = taskStatus.finish.result;
 
-        assert.ok(result.extra_info.log.indexOf('first command') !== -1);
+        assert.ok(result.times.runtime_seconds > 1, 'runtime seconds');
         assert.equal(result.task_result.exit_status, 0);
       }
     );
   });
 });
+
