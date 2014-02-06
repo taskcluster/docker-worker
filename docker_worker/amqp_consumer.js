@@ -11,7 +11,8 @@ var assert = require('assert');
 
 var MIDDLEWARES = {
   times: require('./middleware/times'),
-  bufferLog: require('./middleware/buffer_log')
+  bufferLog: require('./middleware/buffer_log'),
+  azureLiveLog: require('./middleware/azure_livelog')
 };
 
 /**
@@ -53,6 +54,7 @@ AMQPConusmer.prototype = {
   read: function(message) {
     // task result/output
     var output = {
+      artifacts: {},
       extra_info: {}
     };
 
@@ -60,16 +62,25 @@ AMQPConusmer.prototype = {
     var task = new Task(api.job);
     var middleware = new Middleware();
 
-    // enable all the middleware needed based on what the task needs
+    // always turn on times
     middleware.use(MIDDLEWARES.times());
-    middleware.use(MIDDLEWARES.bufferLog());
+
+    // this is mostly a debugging middleware so its off by default
+    if (task.feature('buffer_log', false)) {
+      middleware.use(MIDDLEWARES.bufferLog());
+    }
+
+    // live logging should always be on
+    if (task.feature('azure_livelog', true)) {
+      middleware.use(MIDDLEWARES.azureLiveLog());
+    }
 
     var dockerProcess = new DockerProc(this.docker, {
       start: task.startContainerConfig(),
       create: task.createContainerConfig()
     });
 
-    middleware.run('start', task, dockerProcess).then(
+    return middleware.run('start', task, dockerProcess).then(
       function() {
         return api.sendClaim();
       }
@@ -95,6 +106,7 @@ AMQPConusmer.prototype = {
         );
       }
     ).then(
+      null,
       function epicFail(err) {
         // XXX: this should either nack or "finish" with an error.
         debug('FAILED to process task', err);

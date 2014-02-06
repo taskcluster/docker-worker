@@ -16,7 +16,6 @@ suite('echo test', function() {
     return runTask(task).then(
       function(taskStatus) {
         assert.ok(taskStatus.claimed);
-        console.log(taskStatus.finish);
         var result = taskStatus.finish.result;
 
         assert.ok(result.times.runtime_seconds > 1, 'runtime seconds');

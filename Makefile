@@ -14,4 +14,4 @@ taskenv_pass:
 
 .PHONY: test
 test: taskenv_fail taskenv_pass
-	cd docker_worker && npm test
+	cd docker_worker && make test

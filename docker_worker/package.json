@@ -29,7 +29,10 @@
     "commander": "~2.1.0",
     "debug": "~0.7.4",
     "dockerode-process": "0.1.0",
-    "middleware-object-hooks": "0.0.2"
+    "middleware-object-hooks": "0.0.2",
+    "azure": "~0.8.1",
+    "uuid": "~1.4.1",
+    "taskcluster-azure-blobstream": "0.0.1"
   },
   "devDependencies": {
     "mocha": "~1.16.2",
