@@ -6,12 +6,12 @@ var Middleware = require('middleware-object-hooks');
 
 var debug = require('debug')('taskclsuter-docker-worker:amqp_consumer');
 
-var ghettoStream = require('./ghetto_stream');
 var stream = require('stream');
 var assert = require('assert');
 
 var MIDDLEWARES = {
-  times: require('./middleware/times')
+  times: require('./middleware/times'),
+  bufferLog: require('./middleware/buffer_log')
 };
 
 /**
@@ -52,23 +52,22 @@ AMQPConusmer.prototype = {
   */
   read: function(message) {
     // task result/output
-    var output = {};
+    var output = {
+      extra_info: {}
+    };
 
-    var stream = ghettoStream();
     var api = new JobAPI(message);
     var task = new Task(api.job);
     var middleware = new Middleware();
 
     // enable all the middleware needed based on what the task needs
     middleware.use(MIDDLEWARES.times());
+    middleware.use(MIDDLEWARES.bufferLog());
 
     var dockerProcess = new DockerProc(this.docker, {
       start: task.startContainerConfig(),
       create: task.createContainerConfig()
     });
-
-    // we are always in TTY mode which only outputs to stdout
-    dockerProcess.stdout.pipe(stream);
 
     middleware.run('start', task, dockerProcess).then(
       function() {
@@ -80,10 +79,6 @@ AMQPConusmer.prototype = {
       }
     ).then(
       function processRun(code) {
-        // stream as text output for our alpha version
-        output.extra_info = {
-          log: stream.text
-        };
 
         output.task_result = {
           exit_status: code
