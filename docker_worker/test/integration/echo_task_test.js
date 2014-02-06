@@ -1,7 +1,7 @@
 suite('consumer', function() {
-  var amqp = require('./test/amqp')();
-  var worker = require('./test/worker')();
-  var runTask = require('./test/run_task')(amqp);
+  var amqp = require('../amqp')();
+  var worker = require('../worker')();
+  var runTask = require('../run_task')(amqp);
 
   var TaskFactory = require('taskcluster-task-factory/task');
 
