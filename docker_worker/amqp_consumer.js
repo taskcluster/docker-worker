@@ -2,12 +2,17 @@ var Consumer = require('amqpworkers/consumer');
 var JobAPI = require('./job_api');
 var Task = require('./task');
 var DockerProc = require('dockerode-process');
+var Middleware = require('middleware-object-hooks');
 
 var debug = require('debug')('taskclsuter-docker-worker:amqp_consumer');
 
 var ghettoStream = require('./ghetto_stream');
 var stream = require('stream');
 var assert = require('assert');
+
+var MIDDLEWARES = {
+  times: require('./middleware/times')
+};
 
 /**
 Build the create configuration for the docker container.
@@ -46,19 +51,16 @@ AMQPConusmer.prototype = {
   Handle a message from the incoming queue.
   */
   read: function(message) {
-    // running time details of this task
-    var times = {
-      started_timestamp: Date.now()
-    };
-
     // task result/output
-    var output = {
-      times: times
-    };
+    var output = {};
 
     var stream = ghettoStream();
     var api = new JobAPI(message);
     var task = new Task(api.job);
+    var middleware = new Middleware();
+
+    // enable all the middleware needed based on what the task needs
+    middleware.use(MIDDLEWARES.times());
 
     var dockerProcess = new DockerProc(this.docker, {
       start: task.startContainerConfig(),
@@ -68,12 +70,16 @@ AMQPConusmer.prototype = {
     // we are always in TTY mode which only outputs to stdout
     dockerProcess.stdout.pipe(stream);
 
-    return api.sendClaim().then(
+    middleware.run('start', task, dockerProcess).then(
+      function() {
+        return api.sendClaim();
+      }
+    ).then(
       function initiateExecute(value) {
         return dockerProcess.run();
       }
     ).then(
-      function executeResult(code) {
+      function processRun(code) {
         // stream as text output for our alpha version
         output.extra_info = {
           log: stream.text
@@ -83,20 +89,17 @@ AMQPConusmer.prototype = {
           exit_status: code
         };
 
-        times.finished_timestamp = Date.now();
-
-        // / 1000 since this is JS and we are in MS land.
-        times.runtime_seconds =
-          (times.finished_timestamp - times.started_timestamp) / 1000;
-
-        // send the result
+        return middleware.run('end', output, task, dockerProcess);
+      }
+    ).then(
+      function sendFinish(output) {
         return api.sendFinish(output).then(
-          // remove the container
           function() {
             return dockerProcess.remove();
           }
         );
-      },
+      }
+    ).then(
       function epicFail(err) {
         // XXX: this should either nack or "finish" with an error.
         debug('FAILED to process task', err);
