@@ -19,6 +19,19 @@ function Task(def) {
 Task.prototype = {
 
   /**
+  Checks to see if the task has a particular feature
+  @param {String} feature name.
+  @param {Object} defaults value for the flag.
+  @return {Object}
+  */
+  feature: function(feature, defaults) {
+    var features = this.task.features || {};
+
+    if (!(feature in features)) return defaults;
+    return features[feature];
+  },
+
+  /**
   Docker create configuration based on the task definition.
 
   @return {Object}

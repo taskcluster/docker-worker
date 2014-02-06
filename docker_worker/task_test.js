@@ -19,6 +19,21 @@ suite('task', function() {
     subject = new Task(task);
   });
 
+  suite('#feature', function() {
+    test('with no feature field', function() {
+      assert.equal(subject.feature('diesInstantly', false), false);
+    });
+
+    test('with feature field', function() {
+      subject = new Task({
+        features: {
+          xfoo: 'xfoo'
+        }
+      });
+      assert.equal(subject.feature('xfoo'), 'xfoo');
+    });
+  });
+
   test('#createContainerConfig', function() {
     assert.deepEqual(
       subject.createContainerConfig(),
