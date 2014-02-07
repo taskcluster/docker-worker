@@ -46,7 +46,7 @@ suite('task', function() {
         Tty: true,
         OpenStdin: false,
         StdinOnce: false,
-        Cmd: ['/bin/bash', '-c', 'echo 123'],
+        Cmd: ['echo', '123'],
         Image: 'ubuntu'
       }
     );

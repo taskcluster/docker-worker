@@ -7,7 +7,7 @@ suite('echo test', function() {
 
   test('recording of timing details', function() {
     var task = TaskFactory.create({
-      command: ['sleep', '1'],
+      command: ['/bin/bash', '-c', 'sleep 1'],
       features: {
         azure_livelog: false,
         buffer_log: false

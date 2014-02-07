@@ -37,12 +37,11 @@ Task.prototype = {
   @return {Object}
   */
   createContainerConfig: function() {
-    var cmd = this.task.command.join(' ');
     var taskDockerConfig = this.task.parameters.docker;
 
     var config = {
       Image: taskDockerConfig.image,
-      Cmd: ['/bin/bash', '-c', cmd]
+      Cmd: this.task.command
     };
 
     for (var key in CREATE_CONFIG) config[key] = CREATE_CONFIG[key];

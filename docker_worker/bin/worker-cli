@@ -1,0 +1,107 @@
+#! /usr/bin/env node
+
+var Promise = require('promise');
+var Publisher = require('amqpworkers/publisher');
+var Message = require('amqpworkers/message');
+var amqplib = require('amqplib');
+var ngrok = require('ngrok');
+var serverFactory = require('../test/server');
+var logStream = require('taskcluster-logstream');
+
+var ngrokConnect = Promise.denodeify(ngrok.connect);
+
+function parseArgv() {
+  var args = process.argv.slice(2);
+  var image = args.shift();
+
+  return {
+    command: args,
+    parameters: {
+      docker: { image: image }
+    }
+  };
+}
+
+function initializeHttp(http) {
+  // start ngrok on the port
+  var port = http.address().port;
+  var reader;
+
+  return ngrokConnect(port).then(function(host) {
+    // create the http endpoints used in testing
+    var claim = http.endpoint('post', host, function onClaim(req, res) {
+      reader = logStream(req.body.log, {
+        intervalMS: 10,
+        headers: { 'x-ms-version': '2013-08-15' }
+      });
+
+      reader.pipe(process.stdout);
+      res.send(200);
+    });
+
+    var finish = http.endpoint('post', host, function onFinish(req, res) {
+      var pending = 2;
+      var result = req.body.result;
+
+      function next() {
+        if (--pending === 0) {
+          process.exit(result.task_result.exit_status);
+        }
+      }
+
+      res.once('finish', next);
+      reader.once('end', next);
+      res.send(200);
+    });
+
+    return {
+      claim: claim,
+      finish: finish
+    };
+  });
+}
+
+/* main */
+var request = parseArgv();
+var http;
+var amqp;
+
+function createQueue(amqp) {
+  return amqp.createChannel().then(
+    function(channel) {
+      channel.assertQueue('jobs').then(
+        channel.close.bind(channel)
+      );
+    }
+  );
+}
+
+var connection = 'amqp://rsrveqlh:P51PGxChA5MfeBoRVFeq3s_khDx1OCcA@red-crocodile.rmq.cloudamqp.com/rsrveqlh';
+Promise.all([serverFactory(), amqplib.connect(connection)]).then(
+  function initialize(services) {
+    http = services.shift();
+    amqp = services.shift();
+    return createQueue(amqp).then(initializeHttp.bind(this, http));
+  }
+).then(
+  function sendAMQPMessage(endpoints) {
+    var publisher = new Publisher(amqp);
+    var message = {
+      claim: endpoints.claim,
+      finish: endpoints.finish,
+      job: request
+    };
+
+    publisher.publish('', 'jobs', new Message({
+      claim: endpoints.claim,
+      finish: endpoints.finish,
+      job: request
+    }));
+  }
+).then(
+  null,
+  function error(err) {
+    console.error(err.stack);
+    process.exit(1);
+  }
+);

@@ -15,7 +15,7 @@ suite('azure logging', function() {
 
   test('azure logger', function() {
     var task = TaskFactory.create({
-      command: ['echo', 'first command!'],
+      command: ['/bin/bash', '-c', 'echo "first command!"'],
       features: {
         azure_livelog: true,
         // turn on buffer log for testing
