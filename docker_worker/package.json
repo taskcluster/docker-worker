@@ -32,7 +32,8 @@
     "middleware-object-hooks": "0.0.2",
     "azure": "~0.8.1",
     "uuid": "~1.4.1",
-    "taskcluster-azure-blobstream": "0.0.1"
+    "taskcluster-azure-blobstream": "0.0.1",
+    "ngrok": "~0.1.5"
   },
   "devDependencies": {
     "mocha": "~1.16.2",
