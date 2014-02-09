@@ -33,7 +33,8 @@
     "taskcluster-azure-blobstream": "0.0.1",
     "ngrok": "~0.1.5",
     "proxied-promise-object": "~0.1.0",
-    "taskcluster-logstream": "~0.1.3"
+    "taskcluster-logstream": "~0.1.3",
+    "iron_mq": "~0.2.0"
   },
   "devDependencies": {
     "mocha": "~1.16.2",

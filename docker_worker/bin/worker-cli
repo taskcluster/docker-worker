@@ -1,9 +1,7 @@
 #! /usr/bin/env node
 
 var Promise = require('promise');
-var Publisher = require('amqpworkers/publisher');
-var Message = require('amqpworkers/message');
-var amqplib = require('amqplib');
+var IronMQ = require('../ironmq');
 var ngrok = require('ngrok');
 var serverFactory = require('../test/server');
 var logStream = require('taskcluster-logstream');
@@ -17,7 +15,6 @@ var dockerArgs = process.argv.slice(4);
 program.
   command('run <docker_image> [options]').
   description('run a docker image on a taskcluster worker').
-  option('-mq, --amqp', 'amqp credentials to use').
   action(function(image, cmd) {
     var task = {
       command: dockerArgs,
@@ -79,35 +76,28 @@ function initializeHttp(http) {
   });
 }
 
-function createQueue(amqp) {
-  return amqp.createChannel().then(
-    function(channel) {
-      channel.assertQueue('jobs').then(
-        channel.close.bind(channel)
-      );
-    }
-  );
-}
-
 function main(task) {
-  var amqpCredentials = process.env.TASKCLUSTER_AMQP_URL;
+  var queue = new IronMQ('aws-docker');
 
-  Promise.all([serverFactory(), amqplib.connect(amqpCredentials)]).then(
-    function initialize(services) {
-      http = services.shift();
-      amqp = services.shift();
-      return createQueue(amqp).then(initializeHttp.bind(this, http));
+  serverFactory().then(
+    function initialize(http) {
+      return initializeHttp(http);
     }
   ).then(
-    function sendAMQPMessage(endpoints) {
-      var publisher = new Publisher(amqp);
+    function postMessage(endpoints) {
       var message = {
         claim: endpoints.claim,
         finish: endpoints.finish,
         job: task
       };
-      console.log(message);
-      return publisher.publish('', 'jobs', new Message(message));
+
+      return queue.post({
+        // 30 minutes
+        timeout: 60 * 30,
+        // one day
+        expires_in: 60 * 60 * 24,
+        body: JSON.stringify(message)
+      });
     }
   ).then(
     function(value) {

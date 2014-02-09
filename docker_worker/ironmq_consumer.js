@@ -1,4 +1,4 @@
-var Promise = require('Promise');
+var Promise = require('promise');
 var IronMQ = require('./ironmq');
 var assert = require('assert');
 var taskrunner = require('./taskrunner');
