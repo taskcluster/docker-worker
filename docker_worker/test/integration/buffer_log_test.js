@@ -1,7 +1,5 @@
 suite('buffer log test', function() {
-  var amqp = require('../amqp')();
-  var worker = require('../worker')();
-  var runTask = require('../run_task')(amqp);
+  var runTask = require('../run_task')();
 
   var TaskFactory = require('taskcluster-task-factory/task');
 

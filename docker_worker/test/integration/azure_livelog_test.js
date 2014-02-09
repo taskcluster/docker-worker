@@ -6,10 +6,7 @@ suite('azure logging', function() {
     return;
   }
 
-  var amqp = require('../amqp')();
-  var worker = require('../worker')();
-  var runTask = require('../run_task')(amqp);
-
+  var runTask = require('../run_task')();
   var request = require('superagent-promise');
   var TaskFactory = require('taskcluster-task-factory/task');
 

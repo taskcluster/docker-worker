@@ -2,18 +2,13 @@
 This is a test helper "rollup" intended to be used in integration testing the
 public worker amqp interface.
 */
-module.exports = function(amqp) {
+module.exports = function() {
   var server = require('./server');
   var worker = require('./worker')();
 
-  var Publisher = require('amqpworkers/publisher');
-  var Message = require('amqpworkers/message');
   var Promise = require('promise');
-
-  var publisher;
-  setup(function() {
-    publisher = new Publisher(amqp.connection);
-  });
+  var IronMQ = require('../ironmq');
+  var queue = new IronMQ(worker.id);
 
   /**
   Starts a http server and runs a task (and reports back to the server)
@@ -40,11 +35,12 @@ module.exports = function(amqp) {
         }
       ).then(
         function() {
-          return publisher.publish(
-            '',
-            'tasks',
-            new Message(request)
-          );
+          var body = JSON.stringify(request);
+          return queue.post({
+            body: body,
+            timeout: 60,
+            expires_in: 60
+          });
         },
         reject
       );

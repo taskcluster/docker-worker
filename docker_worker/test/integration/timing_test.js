@@ -1,9 +1,6 @@
 suite('echo test', function() {
-  var amqp = require('../amqp')();
-  var worker = require('../worker')();
-  var runTask = require('../run_task')(amqp);
-
   var TaskFactory = require('taskcluster-task-factory/task');
+  var runTask = require('../run_task')();
 
   test('recording of timing details', function() {
     var task = TaskFactory.create({
