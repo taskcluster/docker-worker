@@ -7,20 +7,31 @@ var amqplib = require('amqplib');
 var ngrok = require('ngrok');
 var serverFactory = require('../test/server');
 var logStream = require('taskcluster-logstream');
-
 var ngrokConnect = Promise.denodeify(ngrok.connect);
+var program = require('commander');
 
-function parseArgv() {
-  var args = process.argv.slice(2);
-  var image = args.shift();
+// raw args to pass to docker
+var cliArgs = process.argv.slice(0, 4);
+var dockerArgs = process.argv.slice(4);
 
-  return {
-    command: args,
-    parameters: {
-      docker: { image: image }
-    }
-  };
-}
+program.
+  command('run <docker_image> [options]').
+  description('run a docker image on a taskcluster worker').
+  option('-mq, --amqp', 'amqp credentials to use').
+  action(function(image, cmd) {
+    var task = {
+      command: dockerArgs,
+      parameters: {
+        docker: {
+          image: image
+        }
+      }
+    };
+
+    main(task);
+  });
+
+program.parse(cliArgs);
 
 function initializeHttp(http) {
   // start ngrok on the port
@@ -30,6 +41,7 @@ function initializeHttp(http) {
   return ngrokConnect(port).then(function(host) {
     // create the http endpoints used in testing
     var claim = http.endpoint('post', host, function onClaim(req, res) {
+      console.log('claim', req.body);
       reader = logStream(req.body.log, {
         intervalMS: 10,
         headers: { 'x-ms-version': '2013-08-15' }
@@ -40,17 +52,23 @@ function initializeHttp(http) {
     });
 
     var finish = http.endpoint('post', host, function onFinish(req, res) {
+      console.log('finish', req.body);
       var pending = 2;
       var result = req.body.result;
 
-      function next() {
+      function next(type) {
         if (--pending === 0) {
           process.exit(result.task_result.exit_status);
         }
       }
 
-      res.once('finish', next);
-      reader.once('end', next);
+      res.once('finish', next.bind(this, 'finish'));
+      if (!reader._readableState.ended) {
+        reader.once('end', next.bind(this, 'reader end'));
+      } else {
+        next();
+      }
+
       res.send(200);
     });
 
@@ -60,11 +78,6 @@ function initializeHttp(http) {
     };
   });
 }
-
-/* main */
-var request = parseArgv();
-var http;
-var amqp;
 
 function createQueue(amqp) {
   return amqp.createChannel().then(
@@ -76,32 +89,33 @@ function createQueue(amqp) {
   );
 }
 
-var connection = 'amqp://rsrveqlh:P51PGxChA5MfeBoRVFeq3s_khDx1OCcA@red-crocodile.rmq.cloudamqp.com/rsrveqlh';
-Promise.all([serverFactory(), amqplib.connect(connection)]).then(
-  function initialize(services) {
-    http = services.shift();
-    amqp = services.shift();
-    return createQueue(amqp).then(initializeHttp.bind(this, http));
-  }
-).then(
-  function sendAMQPMessage(endpoints) {
-    var publisher = new Publisher(amqp);
-    var message = {
-      claim: endpoints.claim,
-      finish: endpoints.finish,
-      job: request
-    };
+function main(task) {
+  var amqpCredentials = process.env.TASKCLUSTER_AMQP_URL;
 
-    publisher.publish('', 'jobs', new Message({
-      claim: endpoints.claim,
-      finish: endpoints.finish,
-      job: request
-    }));
-  }
-).then(
-  null,
-  function error(err) {
-    console.error(err.stack);
-    process.exit(1);
-  }
-);
+  Promise.all([serverFactory(), amqplib.connect(amqpCredentials)]).then(
+    function initialize(services) {
+      http = services.shift();
+      amqp = services.shift();
+      return createQueue(amqp).then(initializeHttp.bind(this, http));
+    }
+  ).then(
+    function sendAMQPMessage(endpoints) {
+      var publisher = new Publisher(amqp);
+      var message = {
+        claim: endpoints.claim,
+        finish: endpoints.finish,
+        job: task
+      };
+      console.log(message);
+      return publisher.publish('', 'jobs', new Message(message));
+    }
+  ).then(
+    function(value) {
+      console.log('sent?', value);
+    },
+    function error(err) {
+      console.error(err.stack);
+      process.exit(1);
+    }
+  );
+}
