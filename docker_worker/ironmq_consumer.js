@@ -10,15 +10,17 @@ function IronMQConsumer(options) {
   assert(options.queue, 'has queue name');
   assert(options.docker, 'passes docker');
 
+  this.interval = options.interval || INTERVAL;
   this.docker = options.docker;
   this.queue = new IronMQ(options.queue);
 }
 
 IronMQConsumer.prototype = {
+  interval: 0,
   timerId: null,
 
   _poll: function() {
-    this.timerId = setTimeout(this.poll.bind(this), INTERVAL);
+    this.timerId = setTimeout(this.poll.bind(this), this.interval);
   },
 
   poll: function() {
