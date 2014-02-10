@@ -10,13 +10,7 @@ function startWorker(queue, cmd) {
     queue: queue
   });
 
-  consumer.poll().then(
-    null,
-    function(err) {
-      console.error('Epic fail');
-      console.error(err.stack);
-    }
-  );
+  consumer.poll();
 }
 
 program.
