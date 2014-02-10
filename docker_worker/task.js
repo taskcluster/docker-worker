@@ -13,7 +13,7 @@ var CREATE_CONFIG = {
 Object which represents the task cluster definition
 */
 function Task(def) {
-  this.task = def;
+  this.data = def;
 }
 
 Task.prototype = {
@@ -25,7 +25,7 @@ Task.prototype = {
   @return {Object}
   */
   feature: function(feature, defaults) {
-    var features = this.task.features || {};
+    var features = this.data.features || {};
 
     if (!(feature in features)) return defaults;
     return features[feature];
@@ -37,11 +37,11 @@ Task.prototype = {
   @return {Object}
   */
   createContainerConfig: function() {
-    var taskDockerConfig = this.task.parameters.docker;
+    var taskDockerConfig = this.data.parameters.docker;
 
     var config = {
       Image: taskDockerConfig.image,
-      Cmd: this.task.command
+      Cmd: this.data.command
     };
 
     for (var key in CREATE_CONFIG) config[key] = CREATE_CONFIG[key];

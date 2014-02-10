@@ -6,7 +6,8 @@ var Middleware = require('middleware-object-hooks');
 var MIDDLEWARES = {
   times: require('./middleware/times'),
   bufferLog: require('./middleware/buffer_log'),
-  azureLiveLog: require('./middleware/azure_livelog')
+  azureLiveLog: require('./middleware/azure_livelog'),
+  containerMetrics: require('./middleware/container_metrics')
 };
 
 var debug = require('debug')('taskcluster-docker-worker:taskrunner');
@@ -40,6 +41,10 @@ function runTask(docker, request) {
   // live logging should always be on
   if (task.feature('azure_livelog', true)) {
     middleware.use(MIDDLEWARES.azureLiveLog());
+  }
+
+  if (task.feature('metrics', false)) {
+    middleware.use(MIDDLEWARES.containerMetrics('tasks'));
   }
 
   var dockerProcess = new DockerProc(docker, {

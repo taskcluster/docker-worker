@@ -18,6 +18,9 @@ program.
   action(function(image, cmd) {
     var task = {
       command: dockerArgs,
+      features: {
+        metrics: true
+      },
       parameters: {
         docker: {
           image: image
@@ -93,7 +96,7 @@ function main(task) {
 
       return queue.post({
         // 30 minutes
-        timeout: 60 * 30,
+        timeout: 30,
         // one day
         expires_in: 60 * 60 * 24,
         body: JSON.stringify(message)

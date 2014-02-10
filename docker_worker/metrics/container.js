@@ -45,10 +45,11 @@ function formatTop(index, processList) {
   });
 }
 
-// every second
-var DEFAULT_INTERVAL = 1000;
+// every 5 seconds
+var DEFAULT_INTERVAL = 5000;
 
 function Host(name, options) {
+  options = options || {};
   this.eventGroup = name;
   this.interval = options.interval || DEFAULT_INTERVAL;
   this.metrics = options.metrics || {};

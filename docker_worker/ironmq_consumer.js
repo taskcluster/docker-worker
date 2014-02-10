@@ -28,6 +28,7 @@ IronMQConsumer.prototype = {
     return this.queue.get({ n: 1 }).then(
       function(message) {
         if (!message) return this._poll();
+        debug('pulled message', message);
         var id = message.id;
         var body = JSON.parse(message.body);
         return this.handleMessage(id, body);

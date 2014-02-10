@@ -1,5 +1,4 @@
 #! /usr/bin/env node
-
 var Docker = require('dockerode-promise');
 var Consumer = require('../ironmq_consumer');
 var program = require('commander');
