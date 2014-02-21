@@ -14,10 +14,10 @@ function BufferLog(flag) {
       return claim;
     },
 
-    stop: function(output) {
+    extractResult: function(result) {
       // stream as text output for our alpha version / debugging
-      output.logText = stream.text;
-      return output;
+      result.logText = stream.text;
+      return result;
     }
   };
 }

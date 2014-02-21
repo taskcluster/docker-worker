@@ -17,9 +17,9 @@ var Metrics = function(flag) {
       return start;
     },
 
-    stop: function(stop) {
+    extractResult: function(result) {
       handler.stop();
-      return stop;
+      return result;
     }
   };
 };

@@ -5,15 +5,15 @@ var Times = function(flag) {
   // This middleware should always be on, regardless of the flag given
   var started;
   return {
-    start: function(claim, value) {
+    start: function(value) {
       started = Date.now();
-      return claim;
+      return value;
     },
 
-    stop: function(value) {
-      value.startTimestamp = started;
-      value.stopTimestamp = Date.now();
-      return value;
+    extractResult: function(result) {
+      result.startTimestamp = started;
+      result.stopTimestamp = Date.now();
+      return result;
     }
   };
 };
