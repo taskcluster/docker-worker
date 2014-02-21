@@ -1,16 +1,28 @@
 #! /usr/bin/env node
-var Docker = require('dockerode-promise');
-var Capacity = require('../capacity');
-var Consumer = require('../ironmq_consumer');
-var program = require('commander');
-var os = require('os');
-var dockerOpts = require('dockerode-options');
-var debug = require('debug')('taskcluster-docker-worker:cli');
+var Docker        = require('dockerode-promise');
+var Capacity      = require('../capacity');
+var Worker        = require('../worker');
+var metadata      = require('../metadata');
+var TaskConsumer  = require('../taskconsumer');
+var program       = require('commander');
+var os            = require('os');
+var dockerOpts    = require('dockerode-options');
+var debug         = require('debug')('taskcluster-docker-worker:cli');
+var spawn         = require('child_process').spawn;
 
 // one GB in bytes
 var DEFAULT_RAM_PER_WORKER = 1073741824;
+
 // default interval to poll for more work when not at capcity (5s)
 var DEFAULT_INTERVAL = 5000;
+
+/**
+ * Default provisionerId for this worker, all workers started on aws by the
+ * aws-provisioner should have the provisionerId 'aws-provisioner'.
+ *
+ * Tasks will be routed to worker based on provisionerId, so this is important.
+ */
+var DEFAULT_PROVISIONER_ID = 'aws-provisioner';
 
 /**
 Determine the overall capacity of the worker based on the RAM of this machine.
@@ -25,32 +37,140 @@ function determineCapacity(perWorker) {
   return Math.max(Math.ceil(os.freemem() / perWorker), 1);
 }
 
-function startWorker(queue, cmd) {
-  var capacity = new Capacity(cmd.capacity || determineCapacity(cmd.memory));
+/**
+ * Shutdown the machine, this is useful when working on spot nodes, as they
+ * should just shutdown when they go idle
+ */
+var shutdown = function() {
+  spawn('sudo', ['shutdown', '-h', 'now']);
+};
 
-  var consumer = new Consumer({
-    capacity: capacity,
-    docker: new Docker(dockerOpts()),
-    queue: queue,
-    interval: parseInt(cmd.interval, 10)
-  });
+/** Idle handler to shutdown if fully idle and less than */
+var onIdleCapacityShutdown = function(capacity) {
+  // Get system uptime in minutes
+  var uptime_in_minutes   = os.uptime() / 60;
 
-  console.log(
-    'starting worker with %s parallel tasks polling at %s ms intervals',
-    capacity.maximumSize,
-    consumer.interval
-  );
+  // Number of minutes left before next billing cycle
+  var billing_cycle_left  = 60 - (uptime_in_minutes % 60)
 
-  consumer.poll();
-}
+  // If we have less than two min to next billing cycle, it most likely have
+  // already started.. It takes a min or two to bring up an instance. If we
+  // have more than 12 min of the billing cycle left, we wait a little before
+  // shutting down
+  if (2 < billing_cycle_left && billing_cycle_left < 12) {
+    shutdown();
+    process.exit(0);
+  }
+};
 
 program.
-  version(require('../package.json').version).
-  command('start <queue>').
-  option('-m, --memory <value>', 'memory per task in bytes', DEFAULT_RAM_PER_WORKER).
-  option('-i, --interval <value>', 'interval to poll for new work when not at capcity in ms', DEFAULT_INTERVAL).
-  option('-c, --capacity <value>', 'override all other capacity options').
-  description('bind worker to a particular amqp queue').
-  action(startWorker);
+  .version(require('../package.json').version)
+  .command('start <queue>')
+  .option(
+    '-m, --memory <value>',
+    'memory per task in bytes',
+    DEFAULT_RAM_PER_WORKER
+  )
+  .option(
+    '-i, --interval <value>',
+    'interval to poll for new work when not at capacity in ms',
+    DEFAULT_INTERVAL
+  )
+  .option(
+    '-c, --capacity <value>',
+    'override all other capacity options'
+  )
+  .option(
+    '--provisioner-id <provisioner-id>',
+    "provisionerId, defaults 'aws-provisioner'",
+    DEFAULT_PROVISIONER_ID
+  )
+  .option(
+    '--worker-type <worker-type>',
+    "workerType, defaults to AMI image-id from metadata service"
+  )
+  .option(
+    '--worker-group <worker-group>',
+    "workerGroup, defaults to availability zone from metadata service"
+  )
+  .option(
+    '--worker-id <worker-id>',
+    "workerId, defaults to instance id from metadata service"
+  )
+  .option(
+    '-s, --shutdown',
+    "Shutdown the machine when this process ends, due to errors or idling"
+  )
+  .description('bind worker to a particular amqp queue')
+  action(function(queue, options) {
+    // Provide default workerType using image-id from ec2 metadata service
+    if (options.workerType === undefined) {
+      options.workerType = metadata.getImageId();
+    }
+
+    // Provide default workerGroup using availability-zone from metadata service
+    if (options.workerGroup === undefined) {
+      options.workerGroup = metadata.getAvailabilityZone();
+    }
+
+    // Provide default workerId using instance-id from metadata service
+    if (options.workerId === undefined) {
+      options.workerId = metadata.getInstanceId();
+    }
+
+    // Create Worker for interfacing the queue
+    var worker_created = Promise.all(
+      options.provisionerId,
+      options.workerType,
+      options.workerGroup,
+      options.workerId
+    ).spread(function(provisionerId, workerType, workerGroup, workerId) {
+      return new Worker({
+        provisionerId:    provisionerId,
+        workerType:       workerType,
+        workerGroup:      workerGroup,
+        workerId:         workerId
+      });
+    });
+
+    // Determine capacity
+    var capacity = new Capacity(options.capacity ||
+                                determineCapacity(options.memory));
+    var interval = parseInt(options.interval, 10);
+
+    // Create a task consumer
+    var consumer_created = worker_created.then(function(worker) {
+      return new TaskConsumer({
+        capacity:   capacity,
+        docker:     new Docker(dockerOpts()),
+        interval:   interval,
+        worker:     worker
+      });
+    });
+
+    // Start polling and running tasks
+    var consumer_running = consumer_created.then(function(consumer) {
+      consumer.poll();
+      if (options.shutdown) {
+        consumer.on('idleCapacity', onIdleCapacityShutdown);
+      }
+    });
+
+    // When consumer is running
+    consumer_running.then(function() {
+      console.log(
+        'starting worker with %s parallel tasks polling at %s ms intervals',
+        capacity.maximumSize,
+        interval
+      );
+    }, function(err) {
+      console.log("Failed to start taskconsumer", err);
+      if (options.shutdown) {
+        shutdown();
+      } else {
+        process.exit(1);
+      }
+    });
+  });
 
 program.parse(process.argv);

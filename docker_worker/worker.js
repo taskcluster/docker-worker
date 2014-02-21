@@ -1,21 +1,8 @@
 var Promise       = require('promise');
 var request       = require('superagent');
 var debug         = require('debug')('worker');
-var TaskRun       = require('./taskrun')
-
-// Get port and port from environment variables
-var host = process.env.QUEUE_HOST;
-var port = process.env.QUEUE_PORT;
-
-// Check if QUEUE_HOST and QUEUE_PORT was defined
-if (host === undefined || port === undefined) {
-  throw new Error("$QUEUE_HOST and $QUEUE_PORT must be defined!")
-}
-
-/** Get a URL for an API end-point on the queue */
-var queueUrl = function(path) {
-  return 'http://' + host + ':' + port + '/v1' + path;
-};
+var TaskRun       = require('./taskrun');
+var queue         = require('./queue');
 
 /**
  * Create a worker with options as:
@@ -48,7 +35,7 @@ Worker.prototype.claimWork = function() {
   var that = this;
   return new Promise(function(accept, reject) {
     // Create claim-work URL
-    var url = queueUrl(
+    var url = queue.queueUrl(
       '/claim-work/' + that.provisionerId + '/' +
       that.workerType
     );

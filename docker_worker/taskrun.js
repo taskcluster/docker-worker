@@ -4,20 +4,7 @@ var fs            = require('fs');
 var mime          = require('mime');
 var debug         = require('debug')('taskrun');
 var _             = require('lodash');
-
-// Get port and port from environment variables
-var host = process.env.QUEUE_HOST;
-var port = process.env.QUEUE_PORT;
-
-// Check if QUEUE_HOST and QUEUE_PORT was defined
-if (host === undefined || port === undefined) {
-  throw new Error("$QUEUE_HOST and $QUEUE_PORT must be defined!")
-}
-
-/** Get a URL for an API end-point on the queue */
-var queueUrl = function(path) {
-  return 'http://' + host + ':' + port + '/v1' + path;
-};
+var queue         = require('./queue');
 
 /**
  * Minimum time remaining until `takenUntil` expires before reclaim is
@@ -49,7 +36,7 @@ TaskRun.prototype.reclaimTask = function() {
   var that = this;
   var taskId = that._status.taskId;
   return new Promise(function(accept, reject) {
-    var url = queueUrl('/task/' + taskId + '/claim');
+    var url = queue.queueUrl('/task/' + taskId + '/claim');
     request
       .post(url)
       .send({
@@ -185,7 +172,7 @@ TaskRun.prototype.putArtifact = function(name, filename, contentType) {
     };
 
     // Construct request URL for fetching signed artifact PUT URLs
-    var url = queueUrl('/task/' + that._status.taskId + '/artifact-urls');
+    var url = queue.queueUrl('/task/' + that._status.taskId + '/artifact-urls');
 
     // Request artifact put urls
     request
@@ -229,7 +216,7 @@ TaskRun.prototype.taskCompleted = function() {
   this.clearKeepTask();
   var that = this;
   return new Promise(function(accept, reject) {
-    var url = queueUrl('/task/' + that._status.taskId + '/completed');
+    var url = queue.queueUrl('/task/' + that._status.taskId + '/completed');
     request
       .post(url)
       .send({
