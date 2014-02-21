@@ -22,9 +22,9 @@ var queueUrl = function(path) {
  * `{provisionerId, workerType, workerGroup, workerId}`
  */
 var Worker = function(options) {
-  if (!options.provisionerId ||
-      !options.workerType ||
-      !options.workerGroup ||
+  if (!options.provisionerId  ||
+      !options.workerType     ||
+      !options.workerGroup    ||
       !options.workerId) {
     debug("Failed to create Worker Instance, keys in options are missing!");
     throw new Error(
