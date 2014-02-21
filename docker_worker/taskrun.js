@@ -4,12 +4,19 @@ var fs            = require('fs');
 var mime          = require('mime');
 var debug         = require('debug')('taskrun');
 var _             = require('lodash');
-var nconf         = require('nconf');
+
+// Get port and port from environment variables
+var host = process.env.QUEUE_HOST;
+var port = process.env.QUEUE_PORT;
+
+// Check if QUEUE_HOST and QUEUE_PORT was defined
+if (host === undefined || port === undefined) {
+  throw new Error("$QUEUE_HOST and $QUEUE_PORT must be defined!")
+}
 
 /** Get a URL for an API end-point on the queue */
 var queueUrl = function(path) {
-  return 'http://' + nconf.get('queue:hostname') + ':' +
-          nconf.get('queue:port') + '/v1' + path;
+  return 'http://' + host + ':' + port + '/v1' + path;
 };
 
 /**

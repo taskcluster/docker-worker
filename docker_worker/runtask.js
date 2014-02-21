@@ -44,7 +44,7 @@ var buildMiddleware = function(task) {
 };
 
 /** Return a promise that a TaskRun instance is completed */
-var runTask = function(taskRun) {
+var runTask = function(taskRun, docker) {
   // Keep reclaiming the task until we report it completed or clearKeepTask()
   taskRun.keepTask();
 

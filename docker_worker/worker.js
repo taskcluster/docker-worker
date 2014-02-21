@@ -1,14 +1,20 @@
 var Promise       = require('promise');
 var request       = require('superagent');
 var debug         = require('debug')('worker');
-var nconf         = require('nconf');
 var TaskRun       = require('./taskrun')
 
+// Get port and port from environment variables
+var host = process.env.QUEUE_HOST;
+var port = process.env.QUEUE_PORT;
+
+// Check if QUEUE_HOST and QUEUE_PORT was defined
+if (host === undefined || port === undefined) {
+  throw new Error("$QUEUE_HOST and $QUEUE_PORT must be defined!")
+}
 
 /** Get a URL for an API end-point on the queue */
 var queueUrl = function(path) {
-  return 'http://' + nconf.get('queue:hostname') + ':' +
-          nconf.get('queue:port') + '/v1' + path;
+  return 'http://' + host + ':' + port + '/v1' + path;
 };
 
 /**
@@ -36,7 +42,7 @@ var Worker = function(options) {
 /**
  * Claim a task from queue and fetch it, returns a promise for a `TaskRun`
  * instance, if no tasks is available the promise gives `null`. The promise only
- * fails, if it failed to context the queue, download task, etc.
+ * fails, if it failed to contact the queue, download task, etc.
  */
 Worker.prototype.claimWork = function() {
   var that = this;
