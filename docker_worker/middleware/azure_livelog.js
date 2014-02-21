@@ -3,8 +3,15 @@ var uuid = require('uuid');
 var BlobStream = require('taskcluster-azure-blobstream');
 var Promise = require('promise');
 
-function AzureLiveLog() {
-  if (!(this instanceof AzureLiveLog)) return new AzureLiveLog();
+/** Build an Azure live log middleware instance */
+var AzureLiveLogBuilder = function(flag) {
+  if (flag) {
+    return new AzureLiveLog();
+  }
+  return null;
+};
+
+function AzureLiveLog(flag) {
   // Rely on azure's werid environment variables for now to auth...
   this.blobService = azure.createBlobService();
   this.createContainer =
@@ -57,4 +64,7 @@ AzureLiveLog.prototype = {
   }
 };
 
-module.exports = AzureLiveLog;
+AzureLiveLogBuilder.featureFlagName    = 'azureLiveLog';
+AzureLiveLogBuilder.featureFlagDefault = true;
+
+module.exports = AzureLiveLogBuilder;

@@ -1,11 +1,11 @@
 var ContainerMetrics = require('../metrics/container');
 
-/**
-Times middleware keeps track of the starting and stoping times of a task.
-*/
-function Metrics(group) {
-  var handler = new ContainerMetrics(group);
-
+/** Middleware tracking container metric on task level */
+var Metrics = function(flag) {
+  if (!flag) {
+    return null;
+  }
+  var handler = new ContainerMetrics('tasks');
   return {
     start: function(start, task, dockerProc) {
       handler.metrics.job = task.data;
@@ -22,6 +22,9 @@ function Metrics(group) {
       return stop;
     }
   };
-}
+};
+
+Metrics.featureFlagName    = 'metrics';
+Metrics.featureFlagDefault = false;
 
 module.exports = Metrics;
