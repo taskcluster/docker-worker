@@ -37,7 +37,7 @@ AzureLiveLog.prototype = {
     url = this.url = this.blobService.getBlobUrl(container, path);
 
     // add the log url to the logs so consumers can read from it immediately.
-    logs.log = url;
+    logs['terminal.log'] = url;
 
     return this.createContainer(
       container,
