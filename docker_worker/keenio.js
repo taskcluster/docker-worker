@@ -12,10 +12,10 @@ if (process.env.KEENIO_PROJECT_ID === undefined) {
 } else {
   // Configure instance. Only projectId and writeKey are required to send data.
   var keen = KeenIO.configure({
-    projectId: process.env.KEENIO_PROJECT_ID,
-    writeKey: process.env.KEENIO_WRITE_KEY,
-    readKey: process.env.KEENIO_READ_KEY,
-    masterKey: process.env.KEENIO_READ_KEY
+    projectId:  process.env.KEENIO_PROJECT_ID,
+    writeKey:   process.env.KEENIO_WRITE_KEY,
+    readKey:    process.env.KEENIO_READ_KEY,
+    masterKey:  process.env.KEENIO_READ_KEY
   });
 
   module.exports = new ProxyPromise(Promise, keen);
