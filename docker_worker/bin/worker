@@ -13,8 +13,8 @@ var spawn         = require('child_process').spawn;
 // one GB in bytes
 var DEFAULT_RAM_PER_WORKER = 1073741824;
 
-// default interval to poll for more work when not at capcity (5s)
-var DEFAULT_INTERVAL = 5000;
+// default interval to poll for more work when not at capcity (30s)
+var DEFAULT_INTERVAL = 30000;
 
 /**
  * Default provisionerId for this worker, all workers started on aws by the
@@ -65,7 +65,7 @@ var onIdleCapacityShutdown = function(capacity) {
 
 program.
   .version(require('../package.json').version)
-  .command('start <queue>')
+  .command('start')
   .option(
     '-m, --memory <value>',
     'memory per task in bytes',
@@ -101,7 +101,7 @@ program.
     '-s, --shutdown',
     "Shutdown the machine when this process ends, due to errors or idling"
   )
-  .description('bind worker to a particular amqp queue')
+  .description("Launch a worker process")
   action(function(queue, options) {
     // Provide default workerType using image-id from ec2 metadata service
     if (options.workerType === undefined) {

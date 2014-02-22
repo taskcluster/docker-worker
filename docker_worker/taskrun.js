@@ -17,9 +17,9 @@ var RECLAIM_TIME = 1000 * 60 * 3;
  * artifacts, supply `logs.json` and report result when the task is completed.
  */
 var TaskRun = function(owner, task, status, runId, logsPutUrl, resultPutUrl) {
-  this._owner                 = owner;
-  this._status                = status;
-  this._task                  = task;
+  this.owner                  = owner;
+  this.status                 = status;
+  this.task                   = task;
   this._runId                 = runId;
   this._logsPutUrl            = logsPutUrl;
   this._resultPutUrl          = resultPutUrl;
@@ -34,7 +34,7 @@ var TaskRun = function(owner, task, status, runId, logsPutUrl, resultPutUrl) {
  */
 TaskRun.prototype.reclaimTask = function() {
   var that = this;
-  var taskId = that._status.taskId;
+  var taskId = that.status.taskId;
   return new Promise(function(accept, reject) {
     var url = queue.queueUrl('/task/' + taskId + '/claim');
     request
@@ -47,7 +47,7 @@ TaskRun.prototype.reclaimTask = function() {
       .end(function(res) {
         if (res.ok) {
           debug("Successfully, reclaimed task: %s", taskId);
-          that._status        = res.body.status;
+          that.status         = res.body.status;
           that._logsPutUrl    = res.body.logsPutUrl;
           that._resultPutUrl  = res.body.resultPutUrl;
           accept();
@@ -79,7 +79,7 @@ TaskRun.prototype.keepTask = function(abortCallback) {
         }
       });
     },
-      (new Date(that._status.takenUntil)).getTime() -
+      (new Date(that.status.takenUntil)).getTime() -
       (new Date()).getTime() - RECLAIM_TIME
     );
   };
@@ -93,17 +93,6 @@ TaskRun.prototype.clearKeepTask = function() {
   }
 };
 
-/**
- * Returns task status from cache
- */
-TaskRun.prototype.status = function() {
-  return _.cloneDeep(this._status);
-};
-
-/** Get task definition from cache */
-TaskRun.prototype.task = function() {
-  return _.cloneDeep(this._task);
-};
 
 /** Put logs.json for current run, returns promise of success */
 TaskRun.prototype.putLogs = function(json) {
@@ -172,7 +161,7 @@ TaskRun.prototype.putArtifact = function(name, filename, contentType) {
     };
 
     // Construct request URL for fetching signed artifact PUT URLs
-    var url = queue.queueUrl('/task/' + that._status.taskId + '/artifact-urls');
+    var url = queue.queueUrl('/task/' + that.status.taskId + '/artifact-urls');
 
     // Request artifact put urls
     request
@@ -195,7 +184,7 @@ TaskRun.prototype.putArtifact = function(name, filename, contentType) {
             if (res.ok) {
               debug("Successfully uploaded artifact %s to PUT URl", name);
               var artifactUrl = 'http://tasks.taskcluster.net/' +
-                                that._status.taskId + '/runs/' + that._runId +
+                                that.status.taskId + '/runs/' + that._runId +
                                 '/artifacts/' + name;
               accept(artifactUrl);
             } else {
@@ -216,7 +205,7 @@ TaskRun.prototype.taskCompleted = function() {
   this.clearKeepTask();
   var that = this;
   return new Promise(function(accept, reject) {
-    var url = queue.queueUrl('/task/' + that._status.taskId + '/completed');
+    var url = queue.queueUrl('/task/' + that.status.taskId + '/completed');
     request
       .post(url)
       .send({

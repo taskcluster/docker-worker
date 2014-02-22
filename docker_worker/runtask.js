@@ -24,7 +24,7 @@ var buildMiddleware = function(task) {
   // if necessary.
   MIDDLEWARE_BUILDERS.forEach(function(builder) {
     // Find feature flag
-    var featureFlag = task.payload.feature[builder.featureFlagName];
+    var featureFlag = task.payload.features[builder.featureFlagName];
 
     // If undefined, use the default feature flag
     if (featureFlag === undefined) {
@@ -48,17 +48,16 @@ var runTask = function(taskRun, docker) {
   // Keep reclaiming the task until we report it completed or clearKeepTask()
   taskRun.keepTask();
 
-  // Get task as JSON and build middleware handler
-  var task        = taskRun.task();
-  var middleware  = buildMiddleware(task);
+  // Build middleware handler
+  var middleware  = buildMiddleware(taskRun.task);
 
   // Create docker process
   var dockerProcess = new DockerProc(docker, {
     // TODO: Consider using middleware hooks for configuring container configs
     start:    {},
     create:   {
-      Image:        task.payload.image,
-      Cmd:          task.payload.command,
+      Image:        taskRun.task.payload.image,
+      Cmd:          taskRun.task.payload.command,
       Hostname:     '',
       User:         '',
       AttachStdin:  false,
@@ -82,14 +81,14 @@ var runTask = function(taskRun, docker) {
       logs:           logs
     });
   }).then(function() {
-    debug('Starting docker for task: %s', taskRun.status().taskId);
+    debug('Starting docker for task: %s', taskRun.status.taskId);
     started = new Date();
     return dockerProcess.run();
-  }).then(function(exitcode) {
-    debug('Docker for task %s finished', taskRun.status().taskId);
+  }).then(function(exitCode) {
+    debug('Docker for task %s finished', taskRun.status.taskId);
     finished = new Date();
     var result = {
-      exitcode:       exitcode
+      exitCode:       exitCode
     };
     return middleware.run('extractResult', result, taskRun, dockerProcess);
   }).then(function(result) {
