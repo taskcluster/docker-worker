@@ -47,7 +47,7 @@ AzureLiveLog.prototype = {
       function pipeToAzure() {
         this.stream = new BlobStream(this.blobService, container, path);
         dockerProcess.stdout.pipe(this.stream);
-        return payload;
+        return logs;
       }.bind(this)
     );
   },

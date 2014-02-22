@@ -74,7 +74,7 @@ var runTask = function(taskRun, docker) {
   return middleware.run(
     'start', {}, taskRun, dockerProcess
   ).then(function() {
-    return middleware.run('declareLogs', logs, taskRun, dockerProcess);
+    return middleware.run('declareLogs', {}, taskRun, dockerProcess);
   }).then(function(logs) {
     return taskRun.putLogs({
       version:        '0.2.0',
@@ -107,8 +107,8 @@ var runTask = function(taskRun, docker) {
         finished:         finished.toJSON()
       },
       metadata: {
-        workerGroup:      taskRun.parent.workerGroup,
-        workerId:         taskRun.parent.workerId
+        workerGroup:      taskRun.owner.workerGroup,
+        workerId:         taskRun.owner.workerId
       },
       // This is worker/task specific results
       result:             result

@@ -20,7 +20,7 @@ LocalWorker.prototype.launch = function() {
   // Provide commandline arguments
   var args = [
     'start',
-    '-i',   1000,
+    '-i',   10000,        // We launch worker after task is submitted
     '-c',   1,
     '--provisioner-id',   'jonasfj-says-dont-provision-this',
     '--worker-type',      this.workerType,

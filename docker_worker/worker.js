@@ -84,8 +84,8 @@ Worker.prototype.claimWork = function() {
       // Create instance of TaskRun and return it
       return new TaskRun(
         that,
-        result.reply.status,
         task,
+        result.reply.status,
         result.reply.runId,
         result.reply.logsPutUrl,
         result.reply.resultPutUrl
