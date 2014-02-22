@@ -8,7 +8,9 @@ var LocalWorker = require('./localworker');
 var queue       = require('../queue');
 var uuid        = require('uuid');
 var Promise     = require('promise');
+var request     = require('superagent');
 var Listener    = require('./listener');
+var debug       = require('debug')('docker-worker:test:testworker');
 
 /** Test provisioner id, don't change this... */
 exports.TEST_PROVISIONER_ID = 'jonasfj-says-dont-provision-this';
@@ -73,10 +75,10 @@ exports.submitTaskAndGetResults = function(payload) {
 
   // Kill worker when we've got the result
   return got_result.then(function(result) {
-    worker.kill();
+    worker.terminate();
     return result;
   }, function(err) {
-    worker.kill();
+    worker.terminate();
     debug("Got error in testworker: %s as JSON: %j", err, err);
     throw err;
   });

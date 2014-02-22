@@ -4,6 +4,7 @@ var fs            = require('fs');
 var mime          = require('mime');
 var debug         = require('debug')('taskrun');
 var _             = require('lodash');
+var assert        = require('assert');
 var queue         = require('./queue');
 
 /**
@@ -17,6 +18,12 @@ var RECLAIM_TIME = 1000 * 60 * 3;
  * artifacts, supply `logs.json` and report result when the task is completed.
  */
 var TaskRun = function(owner, task, status, runId, logsPutUrl, resultPutUrl) {
+  assert(owner,         "has owner Worker object");
+  assert(task,          "has task definition");
+  assert(status,        "has task status");
+  assert(runId,         "has runId");
+  assert(logsPutUrl,    "has logs.json PUT URL");
+  assert(resultPutUrl,  "has result.json PUT URL");
   this.owner                  = owner;
   this.status                 = status;
   this.task                   = task;

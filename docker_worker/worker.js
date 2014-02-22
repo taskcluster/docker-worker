@@ -1,8 +1,8 @@
 var Promise       = require('promise');
 var request       = require('superagent');
 var debug         = require('debug')('worker');
-var TaskRun       = require('./taskrun');
 var queue         = require('./queue');
+var TaskRun       = require('./taskrun');
 
 /**
  * Create a worker with options as:
@@ -25,6 +25,7 @@ var Worker = function(options) {
   this.workerId       = options.workerId;
   debug("Created Worker instance with options: %j", options);
 };
+
 
 /**
  * Claim a task from queue and fetch it, returns a promise for a `TaskRun`

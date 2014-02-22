@@ -9,6 +9,10 @@ var os            = require('os');
 var dockerOpts    = require('dockerode-options');
 var debug         = require('debug')('taskcluster-docker-worker:cli');
 var spawn         = require('child_process').spawn;
+var Promise       = require('promise');
+
+// Patch with spread-promise
+require('../spread-promise').patch();
 
 // one GB in bytes
 var DEFAULT_RAM_PER_WORKER = 1073741824;
@@ -63,7 +67,7 @@ var onIdleCapacityShutdown = function(capacity) {
   }
 };
 
-program.
+program
   .version(require('../package.json').version)
   .command('start')
   .option(
@@ -102,7 +106,7 @@ program.
     "Shutdown the machine when this process ends, due to errors or idling"
   )
   .description("Launch a worker process")
-  action(function(queue, options) {
+  .action(function(options) {
     // Provide default workerType using image-id from ec2 metadata service
     if (options.workerType === undefined) {
       options.workerType = metadata.getImageId();

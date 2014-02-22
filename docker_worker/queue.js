@@ -87,7 +87,7 @@ exports.postTask = function(payload, options) {
       .send(task)
       .end(function(res) {
         if (res.ok) {
-          accept(taskId);
+          accept(res.body.status.taskId);
         } else {
           debug("Failed to post task: %s", res.text);
           reject(res.text);

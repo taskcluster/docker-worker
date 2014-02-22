@@ -5,6 +5,7 @@ var util          = require('util');
 var queue         = require('../queue');
 var debug         = require('debug')('taskcluster-docker-worker:Listener');
 var testworker    = require('./testworker');
+var request     = require('superagent');
 
 /** Listen for messages for completed task from a given workerType */
 var Listener = function(workerType) {
@@ -61,14 +62,14 @@ Listener.prototype.listen = function() {
   // So subscribe and bind to queue, return a promise that this happens
   return created_queue.then(function() {
     return new Promise(function(accept, reject) {
-      queue.subscribe(function(message) {
+      that.queue.subscribe(function(message) {
         that.emit('message', message);
       });
       // Create a routing pattern that will only match our specific workerType
       var routingPattern = '*.*.*.*.' + testworker.TEST_PROVISIONER_ID + '.' +
                            that.workerType + '.#';
       // Bind the task completed exchange
-      queue.bind('v1/queue:task-completed', routingPattern, function() {
+      that.queue.bind('v1/queue:task-completed', routingPattern, function() {
         debug("Listening next task");
         accept();
       });
@@ -79,13 +80,16 @@ Listener.prototype.listen = function() {
 
 /** Stop listening, returns a promise of success */
 Listener.prototype.destroy = function() {
+  var that = this;
   return new Promise(function(accept, reject) {
-    conn.on('close', function() {
+    that.conn.on('close', function() {
       debug("Disconnected from AMQP");
       accept();
     });
     // Disconnect from AMQP
-    conn.destroy();
+    that.conn.destroy();
   });
 };
 
+// Export Listener
+module.exports = Listener;

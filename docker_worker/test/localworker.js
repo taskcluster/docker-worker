@@ -45,8 +45,11 @@ LocalWorker.prototype.onEarlyExit = function() {
 
 /** Terminate local worker instance */
 LocalWorker.prototype.terminate = function() {
-  this.process.removeListener('exit', this.onEarlyExit);
-  this.process.kill();
+  if (this.process) {
+    this.process.removeListener('exit', this.onEarlyExit);
+    this.process.kill();
+    this.process = null;
+  }
 };
 
 // Export LocalWorker
