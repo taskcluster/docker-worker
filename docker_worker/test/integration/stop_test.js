@@ -9,15 +9,13 @@ suite('stop request', function() {
         bufferLog:      false,
         azureLivelog:   false
       }
-    }).then(function(resultStructure) {
-        var start = resultStructure.result.start;
-        var stop = resultStructure.result.stop;
-
-        assert.equal(resultStructure.result.exitCode, 0);
-        assert.ok(resultStructure.result.startTimestamp, 'has start time');
-        assert.ok(resultStructure.result.stopTimestamp, 'has stop time');
-      }
-    );
+    }).then(function(data) {
+      // Get task specific results
+      var result = data.result.result;
+      assert.equal(result.exitCode, 0);
+      assert.ok(result.startTimestamp, 'has start time');
+      assert.ok(result.stopTimestamp, 'has stop time');
+    });
   });
 });
 

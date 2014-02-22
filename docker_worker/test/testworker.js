@@ -12,6 +12,8 @@ var request     = require('superagent');
 var Listener    = require('./listener');
 var debug       = require('debug')('docker-worker:test:testworker');
 
+require('../spread-promise').patch();
+
 /** Test provisioner id, don't change this... */
 exports.TEST_PROVISIONER_ID = 'jonasfj-says-dont-provision-this';
 
@@ -21,7 +23,12 @@ var waitForResult = function(listener) {
     listener.once('message', function(message) {
       // Stop listening
       listener.destroy();
-      // Request the result.json from resultUrl in completion message
+      // Accept message
+      accept(message);
+    });
+  }).then(function(message) {
+    // Request the result.json from resultUrl in completion message
+    var got_result = new Promise(function(accept, reject) {
       request
         .get(message.resultUrl)
         .end(function(res) {
@@ -33,6 +40,28 @@ var waitForResult = function(listener) {
           }
         });
     });
+
+    // Request the logs.json from resultUrl in completion message
+    var got_logs = new Promise(function(accept, reject) {
+      request
+        .get(message.logsUrl)
+        .end(function(res) {
+          if (res.ok) {
+            accept(res.body);
+          } else {
+            debug("Failed to get logs.json from task completion message");
+            reject(res.text);
+          }
+        });
+    });
+
+    // Return a promise for logs and result
+    return Promise.all(got_result, got_logs);
+  }).spread(function(result, logs) {
+    return {
+      logs:   logs,
+      result: result
+    };
   });
 };
 
