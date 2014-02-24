@@ -44,7 +44,7 @@ exports.postTask = function(payload, options) {
 
   // If deadline is a number, then we interpret it as number of hours into the
   // future
-  if (typeof(options.deadline) === 'number') {
+  if (typeof(options.deadline) === 'number' || options.deadline === undefined) {
     var offset = options.deadline || DEFAULT_DEADLINE_OFFSET;
     options.deadline = new Date();
     options.deadline.setHours(options.deadline.getHours() + offset);
