@@ -3,7 +3,7 @@
  */
 var GhettoStream = require('../ghetto_stream');
 function BufferLog(flag) {
-  if(!flag) {
+  if (!flag) {
     return null;
   }
   var stream = new GhettoStream();

@@ -5,7 +5,7 @@ var util          = require('util');
 var queue         = require('../queue');
 var debug         = require('debug')('taskcluster-docker-worker:Listener');
 var testworker    = require('./testworker');
-var request     = require('superagent');
+var request       = require('superagent');
 
 /** Listen for messages for completed task from a given workerType */
 var Listener = function(workerType) {

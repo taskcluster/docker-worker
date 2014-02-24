@@ -7,7 +7,7 @@ var host = process.env.QUEUE_HOST;
 var port = process.env.QUEUE_PORT;
 
 // Check if QUEUE_HOST and QUEUE_PORT was defined
-if (host === undefined || port === undefined) {
+if (!host || !port) {
   throw new Error("$QUEUE_HOST and $QUEUE_PORT must be defined!")
 }
 
@@ -86,12 +86,11 @@ exports.postTask = function(payload, options) {
       .post(queueUrl('/task/new'))
       .send(task)
       .end(function(res) {
-        if (res.ok) {
-          accept(res.body.status.taskId);
-        } else {
+        if (!res.ok) {
           debug("Failed to post task: %s", res.text);
-          reject(res.text);
+          return reject(res.text);
         }
+        accept(res.body.status.taskId);
       });
   });
 };

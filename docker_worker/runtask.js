@@ -115,7 +115,7 @@ var runTask = function(taskRun, docker) {
     });
   }).then(function() {
     return taskRun.taskCompleted();
-  }).then(undefined, function(err) {
+  }).catch(function(err) {
     // Whatever happens we should stop reclaiming the task!!!
     taskRun.clearKeepTask();
     // Also, let's just remove the docker container, just in case :)

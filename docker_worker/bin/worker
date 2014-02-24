@@ -11,14 +11,35 @@ var debug         = require('debug')('taskcluster-docker-worker:cli');
 var spawn         = require('child_process').spawn;
 var Promise       = require('promise');
 
-// Patch with spread-promise
-require('../spread-promise').patch();
-
 // one GB in bytes
 var DEFAULT_RAM_PER_WORKER = 1073741824;
 
 // default interval to poll for more work when not at capcity (30s)
 var DEFAULT_INTERVAL = 30000;
+
+/**
+ * Minimum number of minutes left in billing cycle before shutting down.
+ *
+ * As we estimate our location in the current billing cycle using system uptime
+ * There is a reasonable chance that `uptimeInMinutes % 60 == 0` means that the
+ * next billing cycle have started. It usually takes a few minutes from instance
+ * is launched to it actually starts running.
+ *
+ * We should experiment with this number.
+ */
+var SHUTDOWN_MIN_CYCLE_LEFT = 2;
+
+/**
+ * Maximum number of minutes left in billing cycle when shutting down
+ *
+ * We don't want to shutdown if we have more than this number of minutes left
+ * in the current billing cycle. On the other hand, if we set this number too
+ * low than we won't always manage to shutdown before the next billing cycle
+ * starts.
+ *
+ * We should play chicken with EC2 and find out what the best number is.
+ */
+var SHUTDOWN_MAX_CYCLE_LEFT = 12;
 
 /**
  * Default provisionerId for this worker, all workers started on aws by the
@@ -45,25 +66,23 @@ function determineCapacity(perWorker) {
  * Shutdown the machine, this is useful when working on spot nodes, as they
  * should just shutdown when they go idle
  */
-var shutdown = function() {
+function shutdown() {
   spawn('sudo', ['shutdown', '-h', 'now']);
 };
 
 /** Idle handler to shutdown if fully idle and less than */
-var onIdleCapacityShutdown = function(capacity) {
+function onIdleCapacityShutdown(capacity) {
   // Get system uptime in minutes
-  var uptime_in_minutes   = os.uptime() / 60;
+  var uptimeInMinutes   = os.uptime() / 60;
 
   // Number of minutes left before next billing cycle
-  var billing_cycle_left  = 60 - (uptime_in_minutes % 60)
+  var billingCycleLeft  = 60 - (uptimeInMinutes % 60)
 
-  // If we have less than two min to next billing cycle, it most likely have
-  // already started.. It takes a min or two to bring up an instance. If we
-  // have more than 12 min of the billing cycle left, we wait a little before
-  // shutting down
-  if (2 < billing_cycle_left && billing_cycle_left < 12) {
+  // Shutdown if we have been SHUTDOWN_MIN_CYCLE_LEFT and
+  // SHUTDOWN_MAX_CYCLE_LEFT minutes left in billing cycle
+  if (SHUTDOWN_MIN_CYCLE_LEFT < billingCycleLeft &&
+      billingCycleLeft < SHUTDOWN_MAX_CYCLE_LEFT) {
     shutdown();
-    process.exit(0);
   }
 };
 
@@ -123,12 +142,16 @@ program
     }
 
     // Create Worker for interfacing the queue
-    var worker_created = Promise.all(
+    var workerCreated = Promise.all(
       options.provisionerId,
       options.workerType,
       options.workerGroup,
       options.workerId
-    ).spread(function(provisionerId, workerType, workerGroup, workerId) {
+    ).then(function(results) {
+      var provisionerId = results[0];
+      var workerType    = results[1];
+      var workerGroup   = results[2];
+      var workerId      = results[3];
       return new Worker({
         provisionerId:    provisionerId,
         workerType:       workerType,
@@ -143,7 +166,7 @@ program
     var interval = parseInt(options.interval, 10);
 
     // Create a task consumer
-    var consumer_created = worker_created.then(function(worker) {
+    var consumerCreated = workerCreated.then(function(worker) {
       return new TaskConsumer({
         capacity:   capacity,
         docker:     new Docker(dockerOpts()),
@@ -153,7 +176,7 @@ program
     });
 
     // Start polling and running tasks
-    var consumer_running = consumer_created.then(function(consumer) {
+    var consumerRunning = consumerCreated.then(function(consumer) {
       consumer.poll();
       if (options.shutdown) {
         consumer.on('idleCapacity', onIdleCapacityShutdown);
@@ -161,13 +184,13 @@ program
     });
 
     // When consumer is running
-    consumer_running.then(function() {
+    consumerRunning.then(function() {
       console.log(
         'starting worker with %s parallel tasks polling at %s ms intervals',
         capacity.maximumSize,
         interval
       );
-    }, function(err) {
+    }).catch(function(err) {
       console.log("Failed to start taskconsumer", err);
       if (options.shutdown) {
         shutdown();

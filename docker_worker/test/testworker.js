@@ -12,8 +12,6 @@ var request     = require('superagent');
 var Listener    = require('./listener');
 var debug       = require('debug')('docker-worker:test:testworker');
 
-require('../spread-promise').patch();
-
 /** Test provisioner id, don't change this... */
 exports.TEST_PROVISIONER_ID = 'jonasfj-says-dont-provision-this';
 
@@ -57,10 +55,10 @@ var waitForResult = function(listener) {
 
     // Return a promise for logs and result
     return Promise.all(got_result, got_logs);
-  }).spread(function(result, logs) {
+  }).then(function(results) {
     return {
-      logs:   logs,
-      result: result
+      result: results[0],
+      logs:   results[1]
     };
   });
 };

@@ -98,14 +98,14 @@ TaskConsumer.prototype.poll = function() {
   // Claim worker form the queue
   var that = this;
   this.worker.claimWork().then(function(taskRun) {
-    if(taskRun) {
+    if (taskRun) {
       that.emit('taskClaimed', taskRun);
       process.nextTick(that.poll);
     } else {
       that.emit('idleCapacity', that.capacity);
       that.sleep();
     }
-  }).then(undefined, function(err) {
+  }).catch(function(err) {
     // Report unhandled error
     that.emit('error', err);
     //TODO: Have some sort of error threshold, right now we just schedule

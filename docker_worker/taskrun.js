@@ -3,7 +3,6 @@ var request       = require('superagent');
 var fs            = require('fs');
 var mime          = require('mime');
 var debug         = require('debug')('taskrun');
-var _             = require('lodash');
 var assert        = require('assert');
 var queue         = require('./queue');
 
@@ -52,16 +51,15 @@ TaskRun.prototype.reclaimTask = function() {
         runId:            that._runId
       })
       .end(function(res) {
-        if (res.ok) {
-          debug("Successfully, reclaimed task: %s", taskId);
-          that.status         = res.body.status;
-          that._logsPutUrl    = res.body.logsPutUrl;
-          that._resultPutUrl  = res.body.resultPutUrl;
-          accept();
-        } else {
+        if (!res.ok) {
           debug("Failed to reclaim task: %s", taskId);
-          reject();
+          return reject();
         }
+        debug("Successfully, reclaimed task: %s", taskId);
+        that.status         = res.body.status;
+        that._logsPutUrl    = res.body.logsPutUrl;
+        that._resultPutUrl  = res.body.resultPutUrl;
+        accept();
       });
   });
 };
@@ -74,22 +72,28 @@ TaskRun.prototype.reclaimTask = function() {
  */
 TaskRun.prototype.keepTask = function(abortCallback) {
   var that = this;
+  var reclaim = null;
+  // Function to set reclaim timeout
   var setReclaimTimeout = function() {
-    that._reclaimTimeoutHandle = setTimeout(function() {
-      that.reclaimTask().then(setReclaimTimeout, function() {
-        // TODO: This is a little aggressive, we should allow it to fail a few
-        // times before we abort... And we should check the error code, 404
-        // Task not found, means task completed or canceled, in which case we
-        // really should abort immediately
-        if (abortCallback) {
-          abortCallback();
-        }
-      });
-    },
+    that._reclaimTimeoutHandle = setTimeout(reclaim,
       (new Date(that.status.takenUntil)).getTime() -
       (new Date()).getTime() - RECLAIM_TIME
     );
   };
+  // Function to reclaim and set reclaim timeout again
+  reclaim = function() {
+    that.reclaimTask().then(setReclaimTimeout, function() {
+      // TODO: This is a little aggressive, we should allow it to fail a few
+      // times before we abort... And we should check the error code, 404
+      // Task not found, means task completed or canceled, in which case we
+      // really should abort immediately
+      if (abortCallback) {
+        abortCallback();
+      }
+    });
+  };
+  // Set reclaim time out
+  setReclaimTimeout();
 };
 
 /** Stop reclaiming from the queue before `takenUntil` expires */
@@ -110,13 +114,12 @@ TaskRun.prototype.putLogs = function(json) {
       .put(that._logsPutUrl)
       .send(json)
       .end(function(res) {
-        if(res.ok) {
-          debug("Successfully, uploaded logs.json");
-          accept();
-        } else {
+        if (!res.ok) {
           debug("Failed to upload logs.json, error: %s", res.text)
-          reject();
+          return reject();
         }
+        debug("Successfully, uploaded logs.json");
+        accept();
       });
   });
 };
@@ -130,13 +133,12 @@ TaskRun.prototype.putResult = function(json) {
       .put(that._resultPutUrl)
       .send(json)
       .end(function(res) {
-        if(res.ok) {
+        if (!res.ok) {
+          debug("Failed to upload logs.json, error: %s", res.text)
+          return reject();
+        }
           debug("Successfully, uploaded result.json");
           accept();
-        } else {
-          debug("Failed to upload logs.json, error: %s", res.text)
-          reject();
-        }
       });
   });
 };
@@ -151,36 +153,45 @@ TaskRun.prototype.putArtifact = function(name, filename, contentType) {
   var that = this;
   return new Promise(function(accept, reject) {
     // Test that specified file exists
-    var stat = fs.statSync(filename);
-    if (!stat.isFile()) {
-      throw new Error("No such file: " + filename);
-    }
+    var stat = fs.stat(filename, function(err, stat) {
+      if (err) {
+        return reject(err);
+      }
+      if(!stat.isFile()) {
+        return reject(new Error("No such file: " + filename));
+      }
+      accept(stat);
+    });
+  }).then(function(stat) {
+    return new Promise(function(accept, reject) {
+      // Lookup mimetype if not provided
+      if (!contentType) {
+        contentType = mime.lookup(filename);
+      }
 
-    // Lookup mimetype if not provided
-    if (!contentType) {
-      contentType = mime.lookup(filename);
-    }
+      // Create artifacts map to submit
+      var artifacts = {};
+      artifacts[name] = {
+        contentType:       contentType
+      };
 
-    // Create artifacts map to submit
-    var artifacts = {};
-    artifacts[name] = {
-      contentType:       contentType
-    };
+      // Construct request URL for fetching signed artifact PUT URLs
+      var url = queue.queueUrl('/task/' + that.status.taskId + '/artifact-urls');
 
-    // Construct request URL for fetching signed artifact PUT URLs
-    var url = queue.queueUrl('/task/' + that.status.taskId + '/artifact-urls');
-
-    // Request artifact put urls
-    request
-      .post(url)
-      .send({
-        workerGroup:      that.owner.workerGroup,
-        workerId:         that.owner.workerId,
-        runId:            that._runId,
-        artifacts:        artifacts
-      })
-      .end(function(res) {
-        if (res.ok) {
+      // Request artifact put urls
+      request
+        .post(url)
+        .send({
+          workerGroup:      that.owner.workerGroup,
+          workerId:         that.owner.workerId,
+          runId:            that._runId,
+          artifacts:        artifacts
+        })
+        .end(function(res) {
+          if (!res.ok) {
+            debug("Failed get a signed artifact URL, errors: %s", res.text);
+            return reject(res.text);
+          }
           debug("Got signed artifact PUT URL from queue");
           var req = request
                       .put(res.body.artifactPutUrls[name])
@@ -188,22 +199,18 @@ TaskRun.prototype.putArtifact = function(name, filename, contentType) {
                       .set('Content-Length',  stat.size);
           fs.createReadStream(filename).pipe(req, {end: false});
           req.end(function(res) {
-            if (res.ok) {
-              debug("Successfully uploaded artifact %s to PUT URl", name);
-              var artifactUrl = 'http://tasks.taskcluster.net/' +
-                                that.status.taskId + '/runs/' + that._runId +
-                                '/artifacts/' + name;
-              accept(artifactUrl);
-            } else {
+            if (!res.ok) {
               debug("Failed to upload to signed artifact PUT URL");
-              reject();
+              return reject(res.text);
             }
+            debug("Successfully uploaded artifact %s to PUT URl", name);
+            var artifactUrl = 'http://tasks.taskcluster.net/' +
+                              that.status.taskId + '/runs/' + that._runId +
+                              '/artifacts/' + name;
+            accept(artifactUrl);
           });
-        } else {
-          debug("Failed get a signed artifact URL, errors: %s", res.text);
-          reject();
-        }
-      });
+        });
+    });
   });
 };
 
@@ -221,13 +228,12 @@ TaskRun.prototype.taskCompleted = function() {
         runId:            that._runId
       })
       .end(function(res) {
-        if(res.ok) {
-          debug("Successfully reported task completed");
-          accept();
-        } else {
+        if (!res.ok) {
           debug("Failed to report task as completed, error code: %s", res.status);
-          reject();
+          return reject(res.text);
         }
+        debug("Successfully reported task completed");
+        accept();
       });
   });
 };
