@@ -92,3 +92,9 @@ fill out the missing credentials and save it as `docker-worker-opts.sh`.
 # local config is a relative path
 ./bin/deploy packer -var "docker_worker_opts=docker-worker-opts.sh"
 ```
+
+**Note** you can set command line options for docker-worker with
+`DOCKER_WORKER_OPTS`, if you're deploying outside AWS EC2, or don't want the
+aws-provisioner to launch instances for you, then you should provide
+`--provisioner-id my-provisioner`.
+
