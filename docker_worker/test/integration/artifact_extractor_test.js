@@ -1,7 +1,7 @@
 suite('artifact extration tests', function() {
   var testworker = require('../testworker');
 
-  test('azure logger', function() {
+  test('extract artifacts', function() {
     return testworker.submitTaskAndGetResults({
       image:          'ubuntu',
       command:        ['/bin/bash', '-c', 'echo "the user is:" > /username.txt; whoami >> /username.txt; echo "Okay, this is now done";'],
