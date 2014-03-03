@@ -102,3 +102,11 @@ fill out the missing credentials and save it as `docker-worker-opts.sh`.
 aws-provisioner to launch instances for you, then you should provide
 `--provisioner-id my-provisioner`.
 
+#### Loggly
+
+Loggly requires some extra credentials when building the AMI
+
+```sh
+./bin/deploy packer -var "docker_worker_opts=worker_config" -var
+"loggly-account" -var "loggly_auth=logglyauth"
+```
