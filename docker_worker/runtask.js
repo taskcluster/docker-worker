@@ -3,6 +3,28 @@ var Middleware  = require('middleware-object-hooks');
 var debug       = require('debug')('runTask');
 var times       = require('./middleware/times');
 
+
+/*
+@example
+
+  taskEnvToDockerEnv({ FOO: true });
+  // => ['FOO=true']
+
+@private
+@param {Object} env key=value pair for environment variables.
+@return {Array} the docker array format for variables
+*/
+function taskEnvToDockerEnv(env) {
+  if (!env || typeof env !== 'object') {
+    return env;
+  }
+
+  return Object.keys(env).reduce(function(name, map) {
+    map[name] = env[name];
+    return map;
+  }, {});
+}
+
 // Middlewares in order they should be loaded, based on feature flags
 MIDDLEWARE_BUILDERS = [
   './middleware/buffer_log',
@@ -67,7 +89,7 @@ var runTask = function(taskRun, docker) {
       Tty:          true,
       OpenStdin:    false,
       StdinOnce:    false,
-      Env:          taskRun.task.payload.env || []
+      Env:          taskEnvToDockerEnv(taskRun.task.payload.env || {})
     }
   });
 

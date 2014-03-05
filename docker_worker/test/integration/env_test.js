@@ -5,7 +5,7 @@ suite('setting env variables', function() {
     var expected = 'is woot';
     return testworker.submitTaskAndGetResults({
       image:          'ubuntu',
-      env:            ['WOOTBAR=\'' + expected + '\''],
+      env:            { WOOTBAR: expected },
       command:        ['/bin/bash', '-c', 'echo $WOOTBAR'],
       features: {
         bufferLog:    true,
