@@ -95,14 +95,12 @@ fill out the missing credentials and save it as `docker-worker-opts.sh`.
 
 ##### Variables
 
-`*` = required
-
-  - \*`docker_worker_opts` [path] - a path to the opts file to upload see
+  - _required_ docker_worker_opts` [path] - a path to the opts file to upload see
     [dock_worker_opts_example.sh](./dock_worker_opts_example.sh)
 
-  - \*`loggly_account` [string] - name of the loggly account.
+  - _required_ `loggly_account` [string] - name of the loggly account.
 
-  - \*`loggly_auth` [string] - password for the loggly user.
+  - _required_ `loggly_auth` [string] - password for the loggly user.
 
   - `source_ami` [string] - base ami to use.
 
