@@ -13,7 +13,7 @@ var Listener    = require('./listener');
 var debug       = require('debug')('docker-worker:test:testworker');
 
 /** Test provisioner id, don't change this... */
-exports.TEST_PROVISIONER_ID = 'jonasfj-says-dont-provision-this';
+exports.TEST_PROVISIONER_ID = 'jonasfj-auto-test-prov';
 
 /** Wait for a message, fetch result and stop listening */
 var waitForResult = function(listener) {
@@ -68,7 +68,7 @@ var waitForResult = function(listener) {
  * result from S3 and return it from the promise.
  *
  * This is accomplished by posting task with provisionerId,
- * `jonasfj-says-dont-provision-this` with a UUID for workerType, so that we're
+ * `jonasfj-auto-test-prov` with a UUID for workerType, so that we're
  * sure the task will only be picked up by our local worker.
  */
 exports.submitTaskAndGetResults = function(payload) {
