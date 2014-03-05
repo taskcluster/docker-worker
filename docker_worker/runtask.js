@@ -66,7 +66,8 @@ var runTask = function(taskRun, docker) {
       AttachStderr: true,
       Tty:          true,
       OpenStdin:    false,
-      StdinOnce:    false
+      StdinOnce:    false,
+      Env:          taskRun.task.payload.env || []
     }
   });
 
