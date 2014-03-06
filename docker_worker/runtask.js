@@ -19,10 +19,10 @@ function taskEnvToDockerEnv(env) {
     return env;
   }
 
-  return Object.keys(env).reduce(function(name, map) {
-    map[name] = env[name];
+  return Object.keys(env).reduce(function(map, name) {
+    map.push(name + '=' + env[name]);
     return map;
-  }, {});
+  }, []);
 }
 
 // Middlewares in order they should be loaded, based on feature flags
