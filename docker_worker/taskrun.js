@@ -97,7 +97,7 @@ TaskRun.prototype.keepTask = function(abortCallback) {
     // past.
     var nextTick = Math.max((takenUntil.valueOf() - Date.now()) * 0.7, 0);
     debug('rescheduling reclaim', { nextTick: nextTick });
-    setTimeout(reclaim, nextTick);
+    this._reclaimTimeoutHandle = setTimeout(reclaim, nextTick);
 
   }.bind(this);
 
