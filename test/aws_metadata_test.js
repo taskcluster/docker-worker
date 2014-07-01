@@ -30,4 +30,10 @@ suite('aws mock server', function() {
   verify('/meta-data/instance-type', 'c3.xlarge');
   verify('/meta-data/placement/availability-zone', 'us-west-2');
   verify('/meta-data/instance-id', 'i-123456');
+
+  test('user-data', co(function* () {
+    var response = yield request.get(url + '/user-data').end();
+    var body = JSON.parse(new Buffer(response.text, 'base64'));
+    assert.deepEqual(body, { capacity: 1 });
+  }));
 });
