@@ -3,3 +3,4 @@
 /docker-worker-*
 /.env
 /worker_config
+/node_modules
