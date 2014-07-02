@@ -73,5 +73,6 @@ co(function *() {
   if (!err) return;
 
   // Top level uncaught fatal errors!
+  console.error(err);
   throw err; // nothing to do so show a message and crash
 });

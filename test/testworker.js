@@ -94,7 +94,8 @@ function* submitTaskAndGetResults(payload) {
 
   return yield {
     result: getBody(taskUrl('%s/runs/%s/result.json', taskId, runId)),
-    logs: getBody(taskUrl('%s/runs/%s/logs.json', taskId, runId))
+    logs: getBody(taskUrl('%s/runs/%s/logs.json', taskId, runId)),
+    taskId: taskId
   };
 }
 
