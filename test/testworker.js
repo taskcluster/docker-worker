@@ -11,6 +11,7 @@ var util = require('util');
 var Task = require('taskcluster-task-factory/task');
 var LocalWorker = require('./localworker');
 var Queue  = require('taskcluster-client').Queue;
+var Scheduler = require('taskcluster-client').Scheduler;
 var Listener = require('taskcluster-client').Listener;
 var Promise = require('promise');
 
@@ -43,6 +44,7 @@ function eventPromise(listener, event) {
 function* submitTaskAndGetResults(payload) {
   // Queue http interface.
   var queue = new Queue();
+  var scheduler = new Scheduler();
   // Unique worker id so we can't clash with our own tests.
   var workerType = slugid.v4();
 
@@ -77,11 +79,25 @@ function* submitTaskAndGetResults(payload) {
     }
   });
 
+  var graph = {
+    version: '0.2.0',
+    tags: {},
+    routing: '',
+    params: {},
+    metadata: task.metadata,
+    tasks: [{
+      label: 'test_task',
+      requires: [],
+      reruns: 0,
+      task: task
+    }]
+  };
+
   // Begin listening at the same time we create the task to ensure we get the
   // message at the correct time.
   var creation = yield [
     eventPromise(listener, 'message'),
-    queue.createTask(task)
+    scheduler.createTaskGraph(graph)
   ]
 
   // Kill the worker we don't need it anymore.

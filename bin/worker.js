@@ -35,8 +35,10 @@ co(function *() {
   // Placeholder for final configuration options.
   var config = {
     docker: new Docker(dockerOpts()),
+
     // TODO: Authentication.
-    queue: new taskcluster.Queue()
+    queue: new taskcluster.Queue(),
+    scheduler: new taskcluster.Scheduler()
   };
 
   // Use a target specific configuration helper if available.
