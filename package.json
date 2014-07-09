@@ -1,0 +1,56 @@
+{
+  "name": "docker-worker",
+  "version": "0.0.0",
+  "description": "Docker task host for linux.",
+  "main": "index.js",
+  "bin": {
+    "docker-worker": "worker.js"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "./test/test.sh $(find test -name '*_test.js') --reporter spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/lightsofapollo/docker-worker.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lightsofapollo/docker-worker/issues"
+  },
+  "homepage": "https://github.com/lightsofapollo/docker-worker",
+  "dependencies": {
+    "azure": "^0.9.10",
+    "co": "^3.0.6",
+    "co-promise": "^1.0.0",
+    "commander": "^2.2.0",
+    "debug": "^1.0.2",
+    "dockerode": "^2.0.0",
+    "dockerode-options": "^0.1.0",
+    "dockerode-process": "^0.5.0",
+    "dockerode-promise": "0.0.1",
+    "middleware-object-hooks": "0.0.3",
+    "mime": "^1.2.11",
+    "promise": "^5.0.0",
+    "superagent": "^0.18.0",
+    "superagent-promise": "^0.1.1",
+    "tar-stream": "^0.4.4",
+    "taskcluster-azure-blobstream": "^0.1.0",
+    "taskcluster-client": "^0.7.0",
+    "temporary": "0.0.8",
+    "time-chunked-stream": "^1.0.0",
+    "uuid": "^1.4.1"
+  },
+  "devDependencies": {
+    "commander": "^2.2.0",
+    "debug": "^1.0.2",
+    "koa": "^0.8.1",
+    "koa-router": "^3.1.4",
+    "mocha": "^1.20.1",
+    "slugid": "^1.0.1",
+    "taskcluster-task-factory": "^0.3.0"
+  }
+}
