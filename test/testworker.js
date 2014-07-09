@@ -69,8 +69,8 @@ function* submitTaskAndGetResults(payload) {
 
   var task = Task.create({
     payload: payload,
-    provisionerId: PROVISIONER_ID,
-    workerType: workerType,
+    provisionerId: '{{provisionerId}}',
+    workerType: '{{workerType}}',
     deadline: deadline.toJSON(),
     timeout: 30,
     metadata: {
@@ -83,7 +83,10 @@ function* submitTaskAndGetResults(payload) {
     version: '0.2.0',
     tags: {},
     routing: '',
-    params: {},
+    params: {
+      workerType: workerType,
+      provisionerId: PROVISIONER_ID
+    },
     metadata: task.metadata,
     tasks: [{
       label: 'test_task',

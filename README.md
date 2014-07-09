@@ -26,6 +26,7 @@ format:
     azureLiveLog: true,   // Live log everything to azure, see logs.json
     artifactLog:  false   // Log every to an artifact uploaded at end of run
   },
+  extendTaskGraph: '/graph/extensions.json', // task graph extension file.
   artifacts: {
     // Name:              Source:
     'passwd.txt':         '/etc/passwd'
