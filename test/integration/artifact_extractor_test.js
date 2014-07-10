@@ -65,6 +65,13 @@ suite('artifact extration tests', function() {
 
     // Get task specific results
     var result = data.result.result;
+    var log = result.logText;
+
+    assert.ok(
+      log.indexOf('"this-file-is-missing.txt"') !== -1,
+      'Missing path is noted in the logs'
+    );
+
     assert.equal(result.exitCode, 0);
     assert.ok(result.artifacts['my-missing.txt'])
     assert.ok(
