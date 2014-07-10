@@ -43,7 +43,10 @@ suite('Extend Task Graph', function() {
       command: cmd(
         'echo \'' + json + '\' > /graph.json'
       ),
-      features: {},
+      features: {
+        azureLiveLog: false,
+        bufferLog: true
+      },
       artifacts: {},
       extendTaskGraph: '/graph.json',
       maxRunTime: 5 * 60
@@ -57,6 +60,10 @@ suite('Extend Task Graph', function() {
 
     assert.equal(taskGraphInfo.status.state, 'running');
     assert.ok(taskGraphInfo.tasks[EXTENSION_LABEL], 'task graph was extended');
+    assert.ok(
+      result.logText.indexOf('extended graph') !== -1,
+      'log is shown with graph extension'
+    );
 
     var extensionTask =
       yield queue.getTask(taskGraphInfo.tasks[EXTENSION_LABEL].taskId);
