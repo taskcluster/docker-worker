@@ -40,7 +40,6 @@ suite('azure logging', function() {
 
     // Fetch log from azure
     var res = yield request.get(azure_log).end();
-    // Check that it's equal to logText from buffer log
     assert.equal(res.text, result.logText);
   }));
 });
