@@ -3,9 +3,11 @@ var co = require('co');
 var taskcluster = require('taskcluster-client');
 var dockerOpts = require('dockerode-options');
 
+var SDC = require('statsd-client');
 var Docker = require('dockerode-promise');
 var Config = require('../lib/configuration');
 var TaskListener = require('../lib/task_listener');
+var Stats = require('../lib/stat');
 
 // Available target configurations.
 var allowedConfiguration = ['aws'];
@@ -35,7 +37,6 @@ co(function *() {
   // Placeholder for final configuration options.
   var config = {
     docker: new Docker(dockerOpts()),
-
     // TODO: Authentication.
     queue: new taskcluster.Queue(),
     scheduler: new taskcluster.Scheduler()
@@ -67,9 +68,30 @@ co(function *() {
     config[field] = program[field];
   });
 
+  // Raw statsd interface.
+  config.statsd = new SDC({
+    debug: !!process.env.DEBUG,
+    // TOOD: Add real configuration options for this.
+    host: '192.168.50.10',
+    port: '8125',
+    // docker-worker.<worker-type>.<provisionerId>.
+    prefix: 'docker-worker.' +
+      config.workerType + '.' +
+      config.provisionerId + '.'
+  });
+
+  // Wrapped stats helper to support generators, etc...
+  config.stats = new Stats(config.statsd);
+  config.stats.increment('started');
+
   // Build the listener and connect to the queue.
   var taskListener = new TaskListener(new Config(config));
   yield taskListener.connect();
+
+  // Gracefully(ish) handle shutdowns...
+  process.once('SIGTERM', co(function* () {
+    yield taskListener.close();
+  }));
 
 })(function(err) {
   if (!err) return;

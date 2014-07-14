@@ -5,6 +5,13 @@ var fork = require('child_process').fork;
 /** Binary to launch inorder to get a worker instance running */
 var BINARY = __dirname + '/../bin/worker.js';
 
+function eventPromise(listener, event) {
+  return new Promise(function(accept, reject) {
+    listener.on(event, function(message) {
+      accept(message);
+    });
+  });
+}
 
 /** Wrapper for a process with a local worker with given workerType */
 var LocalWorker = function(provisionerId, workerType) {
@@ -56,10 +63,12 @@ LocalWorker.prototype.launch = function() {
 };
 
 /** Terminate local worker instance */
-LocalWorker.prototype.terminate = function() {
+LocalWorker.prototype.terminate = function* () {
   if (this.process) {
+    var proc = this.process;
     this.process.kill();
     this.process = null;
+    yield eventPromise(proc, 'exit');
   }
 };
 

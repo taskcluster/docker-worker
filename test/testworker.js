@@ -103,19 +103,21 @@ function* submitTaskAndGetResults(payload) {
     scheduler.createTaskGraph(graph)
   ]
 
-  // Kill the worker we don't need it anymore.
-  worker.terminate();
-
   // Fetch the final result json.
   var status = creation.shift().payload.status;
   var taskId = status.taskId;
   var runId = status.runs.pop().runId;
 
-  return yield {
+  var results = yield {
     result: getBody(taskUrl('%s/runs/%s/result.json', taskId, runId)),
     logs: getBody(taskUrl('%s/runs/%s/logs.json', taskId, runId)),
     taskId: taskId
   };
+
+  // Kill the worker we don't need it anymore.
+  yield worker.terminate();
+
+  return results;
 }
 
 module.exports = submitTaskAndGetResults;
