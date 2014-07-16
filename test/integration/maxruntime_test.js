@@ -17,6 +17,7 @@ suite('worker timeouts', function() {
     // Get task specific results
     var result = data.result.result;
 
+    assert.ok(!data.result.metadata.success, 'task was not successful');
     assert.ok(result.exitCode != 0);
     assert.ok(result.logText.indexOf('Hello') !== -1);
     assert.ok(result.logText.indexOf('done') === -1);

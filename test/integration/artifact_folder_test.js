@@ -21,8 +21,9 @@ suite('Extract a folder as an artifact', function() {
     });
 
     var result = data.result.result;
-    var artifacts = result.artifacts;
+    var artifacts = data.result.artifacts;
 
+    assert.ok(data.result.metadata.success, 'task was successful');
     assert.equal(result.exitCode, 0);
     assert.ok(artifacts['xfoo.tar.gz'], 'creates artifact');
 

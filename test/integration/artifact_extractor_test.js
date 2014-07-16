@@ -25,9 +25,11 @@ suite('artifact extration tests', function() {
       },
       maxRunTime:         5 * 60
     });
+
     // Get task specific results
     var result = data.result.result;
-    var artifacts = result.artifacts;
+    var artifacts = data.result.artifacts;
+    assert.ok(data.result.metadata.success, 'task was successful');
     assert.equal(result.exitCode, 0);
 
     assert.deepEqual(
@@ -65,6 +67,7 @@ suite('artifact extration tests', function() {
 
     // Get task specific results
     var result = data.result.result;
+    var artifacts = data.result.artifacts;
     var log = result.logText;
 
     assert.ok(
@@ -72,10 +75,11 @@ suite('artifact extration tests', function() {
       'Missing path is noted in the logs'
     );
 
+    assert.ok(data.result.metadata.success, 'task was successful');
     assert.equal(result.exitCode, 0);
-    assert.ok(result.artifacts['my-missing.txt'])
+    assert.ok(artifacts['my-missing.txt'])
     assert.ok(
-      result.artifacts['my-missing.txt'].error,
+      artifacts['my-missing.txt'].error,
       'An error is noted for the artifact'
     );
   }));
@@ -103,7 +107,8 @@ suite('artifact extration tests', function() {
     });
     // Get task specific results.
     var result = data.result.result;
-    var artifacts = result.artifacts;
+    var artifacts = data.result.artifacts;
+    assert.ok(data.result.metadata.success, 'task was successful');
     assert.equal(result.exitCode, 0);
 
     // Ensure these have no errors...

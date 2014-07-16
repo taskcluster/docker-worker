@@ -9,6 +9,7 @@ var Docker = require('dockerode-promise');
 var Config = require('../lib/configuration');
 var TaskListener = require('../lib/task_listener');
 var Stats = require('../lib/stat');
+var JaySchema = require('jayschema');
 
 // Available target configurations.
 var allowedConfiguration = ['aws'];
@@ -50,6 +51,14 @@ function loadConfig() {
   return finalConfig;
 }
 
+function jsonSchema() {
+  var schema = new JaySchema();
+  schema.register(require('../schemas/payload.json'));
+  schema.register(require('../schemas/result.json'));
+
+  return schema;
+}
+
 /* Main */
 co(function *() {
   var workerConf = loadConfig();
@@ -58,7 +67,8 @@ co(function *() {
     docker: new Docker(dockerOpts()),
     // TODO: Authentication.
     queue: new taskcluster.Queue(),
-    scheduler: new taskcluster.Scheduler()
+    scheduler: new taskcluster.Scheduler(),
+    schema: jsonSchema()
   };
 
   // Use a target specific configuration helper if available.

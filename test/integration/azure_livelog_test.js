@@ -28,18 +28,18 @@ suite('azure logging', function() {
 
     // Get task specific results
     var result = data.result.result;
-    assert.equal(result.exitCode, 0);
+    assert.equal(data.result.metadata.success, 'task was successful');
     assert.ok(result.logText.indexOf('first') !== -1);
 
     // Get the logs.json
     var logs = data.logs;
 
     // Lookup in the logs map inside logs.json
-    var azure_log = logs['terminal.log'];
-    assert.ok(azure_log !== undefined);
+    var azureLog = logs['terminal.log'];
+    assert.ok(azureLog, 'terminal.log is present');
 
     // Fetch log from azure
-    var res = yield request.get(azure_log).end();
+    var res = yield request.get(azureLog).end();
     assert.equal(res.text, result.logText);
   }));
 });

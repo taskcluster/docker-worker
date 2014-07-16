@@ -22,7 +22,7 @@ suite('logging to artifact', function() {
 
     // Get task specific results
     var result = data.result.result;
-    assert.equal(result.exitCode, 0);
+    assert.ok(data.result.metadata.success, 'task was successful');
     assert.ok(result.logText.indexOf('first') !== -1);
 
     // Get the logs.json
