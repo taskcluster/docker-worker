@@ -18,7 +18,7 @@ suite('setting env variables', function() {
     // Get task specific results
     var result = data.result.result;
 
-    assert.equal(data.result.metadata.success, 'task was successful');
+    assert.ok(data.result.metadata.success, 'task was successful');
     assert.ok(result.logText.indexOf(expected) !== -1);
   }));
 });

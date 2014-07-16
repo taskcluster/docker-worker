@@ -5,7 +5,7 @@ suite('stop request', function() {
   test('timing metrics', co(function* () {
     var data = yield testworker({
       image:            'ubuntu',
-      command:          ['/bin/bash', '-c', 'echo "first command!"'],
+      command:          ['/bin/bash', '-c', 'sleep 1'],
       features: {
         bufferLog:      false,
         azureLiveLog:   false
@@ -13,10 +13,14 @@ suite('stop request', function() {
       maxRunTime:         5 * 60
     });
 
-    // Get task specific results
-    var result = data.result.result;
-    assert.equal(result.exitCode, 0);
-    assert.ok(result.startTimestamp, 'has start time');
-    assert.ok(result.stopTimestamp, 'has stop time');
+    var result = data.result;
+
+    var start = new Date(result.statistics.started);
+    var end = new Date(result.statistics.finished);
+
+    assert.ok(
+      (end.valueOf() - start.valueOf()) > 1000,
+      'start/finish stats are at least as long as the container run.'
+    );
   }));
 });

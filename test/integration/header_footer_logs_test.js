@@ -22,6 +22,6 @@ suite('Header/Footer logs', function() {
 
     // ensure task id in in the start...
     assert.ok(start.indexOf(data.taskId) !== -1, 'start log has taskId');
-    assert.equal(data.result.metadata.success, 'task was successful');
+    assert.ok(!data.result.metadata.success, 'task was successful');
   }));
 });

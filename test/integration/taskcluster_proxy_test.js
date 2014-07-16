@@ -28,7 +28,7 @@ suite('taskcluster proxy', function() {
 
     // Get task specific results
     var result = data.result.result;
-    var statusFromTask = yield get(result.artifacts['status.json'].url);
+    var statusFromTask = yield get(data.result.artifacts['status.json'].url);
     var statusFromQueue = yield queue.getTaskStatus(data.taskId);
 
     assert.deepEqual(
