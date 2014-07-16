@@ -95,6 +95,9 @@ Overriding the defaults is easy, just copy the example configuration file
 [docker_worker_opts_example.sh](/docker_worker_opts_example.sh),
 fill out the missing credentials and save it as `docker-worker-opts.sh`.
 
+Schema changes are not deployed automatically so if the
+schema has been changed `./bin/update-schema.js` should be run.
+
 #### Packer is used to build the AMI
 
 ##### Variables
