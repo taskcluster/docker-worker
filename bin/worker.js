@@ -3,6 +3,7 @@ var co = require('co');
 var taskcluster = require('taskcluster-client');
 var dockerOpts = require('dockerode-options');
 var url = require('url');
+var loadConfig = require('../lib/config');
 
 var SDC = require('statsd-client');
 var Docker = require('dockerode-promise');
@@ -33,23 +34,6 @@ o('--worker-group <worker-group>', 'override workerGroup');
 o('--worker-id <worker-id>', 'override the worker id');
 
 program.parse(process.argv);
-
-function loadConfig() {
-  // test is default otherwise use production.
-  var env = process.env.NODE_ENV === 'test' ? 'test' : 'production';
-  var finalConfig = {};
-
-  var defaults = require('../config/defaults');
-  var config = require('../config/' + env);
-
-  for (var key in config) finalConfig[key] = config[key];
-  for (var key in defaults) {
-    if (finalConfig[key]) continue;
-    finalConfig[key] = defaults[key];
-  }
-
-  return finalConfig;
-}
 
 function jsonSchema() {
   var schema = new JaySchema();
