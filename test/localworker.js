@@ -66,7 +66,8 @@ LocalWorker.prototype.launch = function() {
 LocalWorker.prototype.terminate = function* () {
   if (this.process) {
     var proc = this.process;
-    this.process.kill();
+    // Trigger a graceful halt (this waits for tasks to become idle, etc...).
+    this.process.send({ type: 'halt' });
     this.process = null;
     yield eventPromise(proc, 'exit');
   }

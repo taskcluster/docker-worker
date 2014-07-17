@@ -104,14 +104,20 @@ co(function *() {
   var taskListener = new TaskListener(new Config(config));
   yield taskListener.connect();
 
-  // Gracefully(ish) handle shutdowns...
-  process.once('SIGTERM', co(function* () {
-    yield taskListener.close();
+  // Gracefullyish close the connection.
+  process.once('message', co(function* (msg) {
+    if (msg.type !== 'halt') return;
+    // Halt will wait for the worker to be in an idle state then pause all
+    // incoming messages and close the connection...
+    function* halt() {
+      taskListener.pause();
+      yield taskListener.close();
+    }
+    if (taskListener.isIdle()) return yield halt;
+    taskListener.once('idle', co(halt));
   }));
-
 })(function(err) {
   if (!err) return;
-
   // Top level uncaught fatal errors!
   console.error(err);
   throw err; // nothing to do so show a message and crash

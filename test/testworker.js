@@ -100,8 +100,9 @@ function* submitTaskAndGetResults(payload) {
   // message at the correct time.
   var creation = yield [
     eventPromise(listener, 'message'),
-    scheduler.createTaskGraph(graph)
-  ]
+    scheduler.createTaskGraph(graph),
+    listener.resume()
+  ];
 
   // Fetch the final result json.
   var status = creation.shift().payload.status;
