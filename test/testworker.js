@@ -7,6 +7,7 @@ var slugid = require('slugid');
 var request = require('superagent-promise');
 var debug = require('debug')('docker-worker:test:testworker');
 var util = require('util');
+var waitForEvent = require('../lib/wait_for_event');
 
 var Task = require('taskcluster-task-factory/task');
 var LocalWorker = require('./localworker');
@@ -14,6 +15,7 @@ var Queue  = require('taskcluster-client').Queue;
 var Scheduler = require('taskcluster-client').Scheduler;
 var Listener = require('taskcluster-client').Listener;
 var Promise = require('promise');
+var EventEmitter = require('events').EventEmitter;
 
 var queueEvents = new (require('taskcluster-client').QueueEvents);
 
@@ -33,14 +35,6 @@ function taskUrl() {
   return url;
 }
 
-function eventPromise(listener, event) {
-  return new Promise(function(accept, reject) {
-    listener.on(event, function(message) {
-      accept(message);
-    });
-  });
-}
-
 function TestWorker(Worker) {
   this.workerType = slugid.v4();
   this.worker = new Worker(PROVISIONER_ID, this.workerType);
@@ -48,15 +42,21 @@ function TestWorker(Worker) {
   // TODO: Add authentication...
   this.queue = new Queue();
   this.scheduler = new Scheduler();
+
+  EventEmitter.call(this);
 }
 
 TestWorker.prototype = {
+  __proto__: EventEmitter.prototype,
 
   /**
   Ensure the worker is connected.
   */
   launch: function* () {
-    return yield this.worker.launch();
+    yield this.worker.launch();
+
+    // Proxy the exit event so we don't need to query .worker.
+    this.worker.process.once('exit', this.emit.bind(this, 'exit'));
   },
 
   terminate: function* () {
@@ -117,7 +117,7 @@ TestWorker.prototype = {
     // Begin listening at the same time we create the task to ensure we get the
     // message at the correct time.
     var creation = yield [
-      eventPromise(listener, 'message'),
+      waitForEvent(listener, 'message'),
       this.scheduler.createTaskGraph(graph),
       listener.resume()
     ];

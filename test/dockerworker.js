@@ -44,6 +44,7 @@ function LocalWorker(provisionerId, workerType) {
 LocalWorker.prototype = {
   launch: function* () {
     var createConfig = {
+      name: this.workerType,
       Image: 'taskcluster/docker-worker-test',
       Cmd: [
         '/bin/bash', '-c',
@@ -57,6 +58,7 @@ LocalWorker.prototype = {
          ].join(' ')
       ],
       Env: [
+        'DOCKER_CONTAINER_ID=' + this.workerType,
         'NODE_ENV=test',
         'DOCKER_WORKER_START="' + START_STR + '"'
       ],
