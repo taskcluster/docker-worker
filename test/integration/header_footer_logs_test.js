@@ -1,6 +1,6 @@
 suite('Header/Footer logs', function() {
   var co = require('co');
-  var testworker = require('../testworker');
+  var testworker = require('../post_task');
   var cmd = require('./helper/cmd');
   var cmd = require('./helper/get');
 

@@ -1,6 +1,6 @@
 suite('Invalid payload schema', function() {
   var co = require('co');
-  var testworker = require('../testworker');
+  var testworker = require('../post_task');
 
   test('invalid schema', co(function* () {
     var data = yield testworker({

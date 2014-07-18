@@ -1,7 +1,7 @@
 suite('taskcluster proxy', function() {
   var co = require('co');
   var request = require('superagent-promise');
-  var testworker = require('../testworker');
+  var testworker = require('../post_task');
   var queue = new (require('taskcluster-client').Queue);
   var cmd = require('./helper/cmd');
 

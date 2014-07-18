@@ -29,6 +29,10 @@ LocalWorker.prototype.launch = function() {
       envs[key] = process.env[key];
     }
 
+    // We have special test only settings which require this env varialbe to be
+    // set in the worker. (Such as sigterm waiting for clean shutdowns).
+    envs.NODE_ENV = 'test';
+
     // Provide commandline arguments
     var args = [
       '-c',   1,
@@ -67,7 +71,7 @@ LocalWorker.prototype.terminate = function* () {
   if (this.process) {
     var proc = this.process;
     // Trigger a graceful halt (this waits for tasks to become idle, etc...).
-    this.process.send({ type: 'halt' });
+    this.process.kill();
     this.process = null;
     yield eventPromise(proc, 'exit');
   }

@@ -1,6 +1,6 @@
 suite('worker timeouts', function() {
   var co = require('co');
-  var testworker = require('../testworker');
+  var testworker = require('../post_task');
 
   test('worker sleep more than maxRunTime', co(function* () {
     var data = yield testworker({

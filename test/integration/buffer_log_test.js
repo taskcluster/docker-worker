@@ -1,6 +1,6 @@
 suite('buffer log test', function() {
   var co = require('co');
-  var testworker = require('../testworker');
+  var testworker = require('../post_task');
 
   test('simple echo', co(function* () {
     var data = yield testworker({

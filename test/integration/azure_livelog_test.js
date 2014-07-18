@@ -8,7 +8,7 @@ suite('azure logging', function() {
 
   var co = require('co');
   var request = require('superagent-promise');
-  var testworker = require('../testworker');
+  var testworker = require('../post_task');
 
   test('azure logger', co(function* () {
     var data = yield testworker({

@@ -1,6 +1,6 @@
 suite('stop request', function() {
   var co = require('co');
-  var testworker = require('../testworker');
+  var testworker = require('../post_task');
 
   test('timing metrics', co(function* () {
     var data = yield testworker({

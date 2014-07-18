@@ -41,84 +41,103 @@ function eventPromise(listener, event) {
   });
 }
 
-function* submitTaskAndGetResults(payload) {
-  // Queue http interface.
-  var queue = new Queue();
-  var scheduler = new Scheduler();
-  // Unique worker id so we can't clash with our own tests.
-  var workerType = slugid.v4();
+function TestWorker(Worker) {
+  this.workerType = slugid.v4();
+  this.worker = new Worker(PROVISIONER_ID, this.workerType);
 
-  var listener = new Listener({
-    connectionString: (yield queue.getAMQPConnectionString()).url
-  });
-
-  yield listener.bind(queueEvents.taskCompleted({
-    workerType: workerType,
-    provisionerId: PROVISIONER_ID
-  }));
-
-  yield listener.connect();
-
-  // Create local worker and launch it
-  var worker = new LocalWorker(PROVISIONER_ID, workerType);
-  // Wait for the worker to be ready to accept messages.
-  yield worker.launch();
-
-  var deadline = new Date();
-  deadline.setMinutes(deadline.getMinutes() + 10);
-
-  var task = Task.create({
-    payload: payload,
-    provisionerId: '{{provisionerId}}',
-    workerType: '{{workerType}}',
-    deadline: deadline.toJSON(),
-    timeout: 30,
-    metadata: {
-      owner: 'unkown@localhost.local',
-      name: 'Task from docker-worker test suite',
-    }
-  });
-
-  var graph = {
-    version: '0.2.0',
-    tags: {},
-    routing: '',
-    params: {
-      workerType: workerType,
-      provisionerId: PROVISIONER_ID
-    },
-    metadata: task.metadata,
-    tasks: [{
-      label: 'test_task',
-      requires: [],
-      reruns: 0,
-      task: task
-    }]
-  };
-
-  // Begin listening at the same time we create the task to ensure we get the
-  // message at the correct time.
-  var creation = yield [
-    eventPromise(listener, 'message'),
-    scheduler.createTaskGraph(graph),
-    listener.resume()
-  ];
-
-  // Fetch the final result json.
-  var status = creation.shift().payload.status;
-  var taskId = status.taskId;
-  var runId = status.runs.pop().runId;
-
-  var results = yield {
-    result: getBody(taskUrl('%s/runs/%s/result.json', taskId, runId)),
-    logs: getBody(taskUrl('%s/runs/%s/logs.json', taskId, runId)),
-    taskId: taskId
-  };
-
-  // Kill the worker we don't need it anymore.
-  yield worker.terminate();
-
-  return results;
+  // TODO: Add authentication...
+  this.queue = new Queue();
+  this.scheduler = new Scheduler();
 }
 
-module.exports = submitTaskAndGetResults;
+TestWorker.prototype = {
+
+  /**
+  Ensure the worker is connected.
+  */
+  launch: function* () {
+    return yield this.worker.launch();
+  },
+
+  terminate: function* () {
+    return yield this.worker.terminate();
+  },
+
+  /**
+  Post a task and await it's completion. Note that it is _not_ safe to run this
+  method concurrently if you wish the results to match the input.
+  */
+  post: function* (payload) {
+    // Create and bind the listener which will notify us when the worker
+    // completes a task.
+    var listener = new Listener({
+      connectionString: (yield this.queue.getAMQPConnectionString()).url
+    });
+
+    // TODO: Use our own task id's when possible.
+    yield listener.bind(queueEvents.taskCompleted({
+      workerType: this.workerType,
+      provisionerId: PROVISIONER_ID
+    }));
+
+    yield listener.connect();
+
+    var deadline = new Date();
+    deadline.setMinutes(deadline.getMinutes() + 10);
+
+    var task = Task.create({
+      payload: payload,
+      provisionerId: '{{provisionerId}}',
+      workerType: '{{workerType}}',
+      deadline: deadline.toJSON(),
+      timeout: 30,
+      metadata: {
+        owner: 'unkown@localhost.local',
+        name: 'Task from docker-worker test suite',
+      }
+    });
+
+    var graph = {
+      version: '0.2.0',
+      tags: {},
+      routing: '',
+      params: {
+        workerType: this.workerType,
+        provisionerId: PROVISIONER_ID
+      },
+      metadata: task.metadata,
+      tasks: [{
+        label: 'test_task',
+        requires: [],
+        reruns: 0,
+        task: task
+      }]
+    };
+
+    // Begin listening at the same time we create the task to ensure we get the
+    // message at the correct time.
+    var creation = yield [
+      eventPromise(listener, 'message'),
+      this.scheduler.createTaskGraph(graph),
+      listener.resume()
+    ];
+
+    // Fetch the final result json.
+    var status = creation.shift().payload.status;
+    var taskId = status.taskId;
+    var runId = status.runs.pop().runId;
+
+    var results = yield {
+      result: getBody(taskUrl('%s/runs/%s/result.json', taskId, runId)),
+      logs: getBody(taskUrl('%s/runs/%s/logs.json', taskId, runId)),
+      taskId: taskId
+    };
+
+    // Close listener we only care about one message at a time.
+    yield listener.close();
+
+    return results;
+  }
+};
+
+module.exports = TestWorker;

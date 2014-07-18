@@ -104,18 +104,23 @@ co(function *() {
   var taskListener = new TaskListener(new Config(config));
   yield taskListener.connect();
 
-  // Gracefullyish close the connection.
-  process.once('message', co(function* (msg) {
-    if (msg.type !== 'halt') return;
-    // Halt will wait for the worker to be in an idle state then pause all
-    // incoming messages and close the connection...
-    function* halt() {
-      taskListener.pause();
-      yield taskListener.close();
-    }
-    if (taskListener.isIdle()) return yield halt;
-    taskListener.once('idle', co(halt));
-  }));
+
+  // Test only logic for clean shutdowns (this ensures our tests actually go
+  // throuhg the entire steps of running a task).
+  if (process.env.NODE_ENV === 'test') {
+    // Gracefullyish close the connection.
+    process.once('message', co(function* (msg) {
+      if (msg.type !== 'halt') return;
+      // Halt will wait for the worker to be in an idle state then pause all
+      // incoming messages and close the connection...
+      function* halt() {
+        taskListener.pause();
+        yield taskListener.close();
+      }
+      if (taskListener.isIdle()) return yield halt;
+      taskListener.once('idle', co(halt));
+    }));
+  }
 })(function(err) {
   if (!err) return;
   // Top level uncaught fatal errors!

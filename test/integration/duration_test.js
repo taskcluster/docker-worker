@@ -1,6 +1,6 @@
 suite('Task duration stats', function() {
   var co = require('co');
-  var testworker = require('../testworker');
+  var testworker = require('../post_task');
   var cmd = require('./helper/cmd');
 
   test('1s long task minimum', co(function* () {

@@ -2,7 +2,7 @@ suite('artifact extration tests', function() {
   var co = require('co');
   var get = require('./helper/get');
   var cmd = require('./helper/cmd');
-  var testworker = require('../testworker');
+  var testworker = require('../post_task');
 
   test('extract artifact', co(function* () {
     var data = yield testworker({

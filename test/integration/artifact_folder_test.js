@@ -1,6 +1,6 @@
 suite('Extract a folder as an artifact', function() {
   var co = require('co');
-  var testworker = require('../testworker');
+  var testworker = require('../post_task');
   var get = require('./helper/get');
   var cmd = require('./helper/cmd');
 

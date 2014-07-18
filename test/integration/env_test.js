@@ -1,6 +1,6 @@
 suite('setting env variables', function() {
   var co = require('co');
-  var testworker = require('../testworker');
+  var testworker = require('../post_task');
 
   test('echo env variable', co(function* () {
     var expected = 'is woot';
