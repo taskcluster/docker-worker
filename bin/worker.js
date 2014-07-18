@@ -108,6 +108,16 @@ co(function *() {
   // Test only logic for clean shutdowns (this ensures our tests actually go
   // throuhg the entire steps of running a task).
   if (process.env.NODE_ENV === 'test') {
+    // Send a message to the parent process that we have started up if `.send`
+    // is around. This is to allow our integration tests to correctly time when
+    // to send messages to the queue for our worker.
+    if (process.send) process.send({ type: 'startup' });
+
+    // Terrible hack so we know when the worker starts from inside a test.
+    if (process.env.DOCKER_WORKER_START) {
+      console.log(process.env.DOCKER_WORKER_START);
+    }
+
     // Gracefullyish close the connection.
     process.once('message', co(function* (msg) {
       if (msg.type !== 'halt') return;
