@@ -68,6 +68,7 @@ TestWorker.prototype = {
     proc.stdout.pipe(split(function(line) {
       try {
         var parsed = JSON.parse(line);
+        debug('emit', parsed.type, parsed);
         this.emit(parsed.type, parsed);
       } catch (e) {
         console.log(line);

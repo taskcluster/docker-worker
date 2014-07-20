@@ -20,11 +20,23 @@ suite('Shutdown on idle', function() {
     });
 
     worker = new TestWorker(DockerWorker);
-    yield worker.launch();
+  }));
+
+  test('shutdown without ever working a task', co(function* () {
+    settings.billingCycleUptime(69);
+    var res = yield {
+      start: worker.launch(),
+      pendingShutdown: waitForEvent(worker, 'pending shutdown'),
+      exit: waitForEvent(worker, 'exit')
+    };
+    assert.equal(res.pendingShutdown.time, 1);
   }));
 
   test('idle with timer shutdown', co(function *() {
+    yield worker.launch();
+    yield waitForEvent(worker, 'pending shutdown');
     settings.billingCycleUptime(469);
+
     var res = yield {
       post: worker.post({
         image: 'ubuntu',
@@ -40,7 +52,14 @@ suite('Shutdown on idle', function() {
   }));
 
   test('idle immediate shutdown', co(function *() {
+    // So we don't immediately shutdown.
+    settings.billingCycleUptime(55);
+    yield worker.launch();
+
+    // Wait for the next shutdown tick so we can run the task...
+    yield waitForEvent(worker, 'pending shutdown');
     settings.billingCycleUptime(75);
+
     var res = yield {
       post: worker.post({
         image: 'ubuntu',
@@ -57,6 +76,7 @@ suite('Shutdown on idle', function() {
 
   test('idle then working', co(function *() {
     settings.billingCycleUptime(39);
+    yield worker.launch();
     var idling = yield {
       post: worker.post({
         image: 'ubuntu',
