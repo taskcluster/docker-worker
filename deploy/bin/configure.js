@@ -11,6 +11,8 @@ var CONFIG_ROOT = fsPath.resolve(TARGET_ROOT, '..', 'config/');
 
 var DESCRIPTIONS = {
   app: {
+    environment: 'Shell script file which can setup the environement ' +
+                 '(such as exporting environment variables)',
     source_ami: 'Base AMI which this image depends on.',
     loggly_account: 'Loggly account name',
     loggly_auth: 'Loggly authentication token',
@@ -61,19 +63,16 @@ function* configure(target) {
     color.greenBright(target.config.description)
   );
 
+  var defaults = {};
   if (yield fs.exists(configPath)) {
-    if ((yield prompt.confirm(configPath + ' exists override? '))) {
-      yield fs.unlink(configPath);
-    } else {
-      return
-    }
+    defaults = require(configPath);
   }
 
   // Prompt for all the configurations.
   var results = {};
   for (var key in DESCRIPTIONS[target.name]) {
     var desc = DESCRIPTIONS[target.name][key];
-    var defaultValue = target.config.variables[key];
+    var defaultValue = defaults[key] || target.config.variables[key];
 
     var humanDesc =
       color.white(key + ': ') +
@@ -93,7 +92,7 @@ function* configure(target) {
     return yield configure(target);
   }
 
-  yield fs.writeFile(configPath, JSON.stringify(results));
+  yield fs.writeFile(configPath, JSON.stringify(results, null, 4));
 }
 
 co(function*() {

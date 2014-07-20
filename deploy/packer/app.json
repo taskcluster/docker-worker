@@ -3,8 +3,8 @@
 
   "variables": {
     "docker_worker":        "",
-    "source_ami":           "ami-1ba8db2b",
-    "docker_worker_opts":   "",
+    "source_ami":           "ami-49324a79",
+    "environment":   "",
     "loggly_account":       "",
     "loggly_auth":          "",
     "update_type":          "static",
@@ -30,7 +30,7 @@
     },
     {
       "type":           "file",
-      "source":         "app/scripts/deploy.sh",
+      "source":         "deploy/packer/app/scripts/deploy.sh",
       "destination":    "/tmp/deploy.sh"
     },
     {
@@ -41,17 +41,17 @@
     },
     {
       "type":           "file",
-      "source":         "app/docker-worker-{{user `update_type`}}.conf",
+      "source":         "deploy/packer/app/docker-worker-{{user `update_type`}}.conf",
       "destination":    "/tmp/docker-worker.conf"
     },
     {
       "type":           "file",
-      "source":         "{{user `docker_worker_opts`}}",
+      "source":         "{{user `environment`}}",
       "destination":    "/tmp/docker-worker"
     },
     {
       "type":           "file",
-      "source":         "app/etc/default/docker-{{user `fs_type`}}",
+      "source":         "deploy/packer/app/etc/default/docker-{{user `fs_type`}}",
       "destination":    "/tmp/docker"
     },
     {
