@@ -22,8 +22,12 @@ function unlink(path) {
   if (fs.existsSync(fullPath)) fs.unlinkSync(fullPath);
 }
 
-function billingCycleRemaining(seconds) {
-  write('billingCycleRemaining', seconds);
+function billingCycleInterval(seconds) {
+  write('billingCycleInterval', seconds);
+}
+
+function billingCycleUptime(seconds) {
+  write('billingCycleUptime', seconds);
 }
 
 function configure(config) {
@@ -32,11 +36,13 @@ function configure(config) {
 
 // cleanup any settings files.
 function cleanup() {
-  unlink('billingCycleRemaining');
+  unlink('billingCycleInterval');
+  unlink('billingCycleUptime');
   unlink('configure');
 }
 
 module.exports.settingsPath = settingsPath;
-module.exports.configure = configure;
 module.exports.cleanup = cleanup;
-module.exports.billingCycleRemaining = billingCycleRemaining;
+module.exports.configure = configure;
+module.exports.billingCycleUptime = billingCycleUptime;
+module.exports.billingCycleInterval = billingCycleInterval;

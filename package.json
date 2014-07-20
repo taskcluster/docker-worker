@@ -25,6 +25,7 @@
   "dependencies": {
     "azure-storage": "^0.3.0",
     "co": "^3.0.6",
+    "co-event": "^0.1.0",
     "co-promise": "^1.0.0",
     "commander": "^2.2.0",
     "debug": "^1.0.2",
@@ -36,6 +37,7 @@
     "middleware-object-hooks": "0.0.3",
     "mime": "^1.2.11",
     "promise": "^5.0.0",
+    "split2": "^0.1.2",
     "statsd-client": "0.0.15",
     "superagent": "^0.18.0",
     "superagent-promise": "^0.1.1",
@@ -54,6 +56,7 @@
     "koa-router": "^3.1.4",
     "mocha": "^1.20.1",
     "slugid": "^1.0.1",
+    "split2": "^0.1.2",
     "taskcluster-task-factory": "^0.3.0"
   }
 }

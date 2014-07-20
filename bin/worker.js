@@ -4,16 +4,18 @@ var taskcluster = require('taskcluster-client');
 var dockerOpts = require('dockerode-options');
 var url = require('url');
 var loadConfig = require('../lib/config');
+var debug = require('debug')('docker-worker:bin:worker');
 
 var SDC = require('statsd-client');
 var Docker = require('dockerode-promise');
 var Config = require('../lib/configuration');
 var TaskListener = require('../lib/task_listener');
+var ShutdownManager = require('../lib/shutdown_manager');
 var Stats = require('../lib/stat');
 var JaySchema = require('jayschema');
 
 // Available target configurations.
-var allowedConfiguration = ['aws'];
+var allowedHosts = ['aws', 'test'];
 
 // All overridable configuration options from the CLI.
 var overridableFields =
@@ -25,8 +27,8 @@ function o() {
 }
 
 /* Options for CLI */
-o('--target <type>',
-  'configure worker for target [' + allowedConfiguration.join(', ') + ']');
+o('--host <type>',
+  'configure worker for host type [' + allowedHosts.join(', ') + ']');
 o('-c, --capacity <value>', 'capacity override value');
 o('--provisioner-id <provisioner-id>','override provisioner id configuration');
 o('--worker-type <worker-type>', 'override workerType configuration');
@@ -56,20 +58,21 @@ co(function *() {
   };
 
   // Use a target specific configuration helper if available.
-  if (program.target) {
-    if (allowedConfiguration.indexOf(program.target) === -1) {
+  var host;
+  if (program.host) {
+    if (allowedHosts.indexOf(program.host) === -1) {
       console.log(
-        '%s is not a configuration target allowed: %s',
-        program.target,
-        allowedConfiguration.join(', ')
+        '%s is not an allowed host use one of: %s',
+        program.host,
+        allowedHosts.join(', ')
       );
       return process.exit(1);
     }
 
-    // execute the configuration helper and merge the results
-    var targetConfig =
-      yield require('../lib/configuration/' + program.target)();
+    host = require('../lib/host/' + program.host);
 
+    // execute the configuration helper and merge the results
+    var targetConfig = yield host.configure();
     for (var key in targetConfig) {
       config[key] = targetConfig[key];
     }
@@ -80,6 +83,8 @@ co(function *() {
     if (!(field in program)) return;
     config[field] = program[field];
   });
+
+  debug('configuration loaded', config);
 
   var statsdConf = url.parse(workerConf.statsd.url);
 
@@ -100,24 +105,24 @@ co(function *() {
   config.stats = new Stats(config.statsd);
   config.stats.increment('started');
 
-  // Build the listener and connect to the queue.
-  var taskListener = new TaskListener(new Config(config));
-  yield taskListener.connect();
+  configManifest = new Config(config);
 
+  // Build the listener and connect to the queue.
+  var taskListener = new TaskListener(configManifest);
+  yield taskListener.connect();
+  configManifest.log('start');
+
+  // Billing cycle logic is host specific so we cannot handle shutdowns without
+  // both the host and the configuration to shutdown.
+  if (host && config.shutdown) {
+    configManifest.log('handle shutdowns');
+    var shutdownManager = new ShutdownManager(host, configManifest);
+    shutdownManager.observe(taskListener);
+  }
 
   // Test only logic for clean shutdowns (this ensures our tests actually go
   // throuhg the entire steps of running a task).
   if (process.env.NODE_ENV === 'test') {
-    // Send a message to the parent process that we have started up if `.send`
-    // is around. This is to allow our integration tests to correctly time when
-    // to send messages to the queue for our worker.
-    if (process.send) process.send({ type: 'startup' });
-
-    // Terrible hack so we know when the worker starts from inside a test.
-    if (process.env.DOCKER_WORKER_START) {
-      console.log(process.env.DOCKER_WORKER_START);
-    }
-
     // Gracefullyish close the connection.
     process.once('message', co(function* (msg) {
       if (msg.type !== 'halt') return;

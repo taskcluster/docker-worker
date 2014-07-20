@@ -35,7 +35,8 @@ LocalWorker.prototype.launch = function() {
 
     // Provide commandline arguments
     var args = [
-      '-c',   1,
+      '-c', 1,
+      '--host', 'test',
       '--provisioner-id', this.provisionerId,
       '--worker-type', this.workerType,
       '--worker-group', 'jonasfj-local-worker',
@@ -49,20 +50,7 @@ LocalWorker.prototype.launch = function() {
       stdio: 'inherit'
     });
 
-    // Listen for early exits, these are bad.
-    this.process.once('exit', reject);
-
-    // Listen for the startup event (amqp queue is bound)
-    function waitForStartup(msg) {
-      if (typeof msg === 'object' && msg.type === 'startup') {
-        proc.removeListener('message', waitForStartup);
-        proc.removeListener('exit', reject);
-
-        accept();
-      }
-    }
-
-    proc.on('message', waitForStartup);
+    return accept(proc);
   }.bind(this));
 };
 

@@ -8,6 +8,7 @@ var request = require('superagent-promise');
 var debug = require('debug')('docker-worker:test:testworker');
 var util = require('util');
 var waitForEvent = require('../lib/wait_for_event');
+var split = require('split2');
 
 var Task = require('taskcluster-task-factory/task');
 var LocalWorker = require('./localworker');
@@ -53,14 +54,66 @@ TestWorker.prototype = {
   Ensure the worker is connected.
   */
   launch: function* () {
-    yield this.worker.launch();
+    var proc = yield this.worker.launch();
 
     // Proxy the exit event so we don't need to query .worker.
     this.worker.process.once('exit', this.emit.bind(this, 'exit'));
+
+    // Process the output(s) to emit events based on the json streams.
+
+    // stderr should not contain any useful logs so just pipe it...
+    proc.stderr.pipe(process.stderr);
+
+    // Parse stdout and emit non-json bits to stdout.
+    proc.stdout.pipe(split(function(line) {
+      try {
+        var parsed = JSON.parse(line);
+        this.emit(parsed.type, parsed);
+      } catch (e) {
+        console.log(line);
+      }
+    }.bind(this)));
+
+    // Wait for start event.
+    yield waitForEvent(this, 'start');
   },
 
   terminate: function* () {
     return yield this.worker.terminate();
+  },
+
+  createGraph: function* (payload) {
+    var deadline = new Date();
+    deadline.setMinutes(deadline.getMinutes() + 10);
+
+    var task = Task.create({
+      payload: payload,
+      provisionerId: '{{provisionerId}}',
+      workerType: '{{workerType}}',
+      deadline: deadline.toJSON(),
+      timeout: 30,
+      metadata: {
+        owner: 'unkown@localhost.local',
+        name: 'Task from docker-worker test suite',
+      }
+    });
+
+    return yield this.scheduler.createTaskGraph({
+      version: '0.2.0',
+      tags: {},
+      routing: '',
+      params: {
+        workerType: this.workerType,
+        provisionerId: PROVISIONER_ID
+      },
+      metadata: task.metadata,
+      tasks: [{
+        label: 'test_task',
+        requires: [],
+        reruns: 0,
+        task: task
+      }]
+    });
   },
 
   /**
@@ -82,43 +135,11 @@ TestWorker.prototype = {
 
     yield listener.connect();
 
-    var deadline = new Date();
-    deadline.setMinutes(deadline.getMinutes() + 10);
-
-    var task = Task.create({
-      payload: payload,
-      provisionerId: '{{provisionerId}}',
-      workerType: '{{workerType}}',
-      deadline: deadline.toJSON(),
-      timeout: 30,
-      metadata: {
-        owner: 'unkown@localhost.local',
-        name: 'Task from docker-worker test suite',
-      }
-    });
-
-    var graph = {
-      version: '0.2.0',
-      tags: {},
-      routing: '',
-      params: {
-        workerType: this.workerType,
-        provisionerId: PROVISIONER_ID
-      },
-      metadata: task.metadata,
-      tasks: [{
-        label: 'test_task',
-        requires: [],
-        reruns: 0,
-        task: task
-      }]
-    };
-
     // Begin listening at the same time we create the task to ensure we get the
     // message at the correct time.
     var creation = yield [
       waitForEvent(listener, 'message'),
-      this.scheduler.createTaskGraph(graph),
+      this.createGraph(payload),
       listener.resume()
     ];
 

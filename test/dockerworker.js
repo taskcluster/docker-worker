@@ -2,19 +2,19 @@ var dockerOpts = require('dockerode-options');
 var path = require('path');
 var util = require('util');
 
+var JsonStream = require('json-stream');
 var Promise = require('promise');
 var Docker = require('dockerode-promise');
 var DockerProc = require('dockerode-process');
-
-var START_STR = '[docker-worker-test] started';
 
 function waitForMessage(listener, event, data) {
   return new Promise(function(accept) {
     listener.on(event, function filter(value) {
       if (value.toString().indexOf(data) !== -1) {
         listener.removeListener(event, filter);
-        accept();
+        return accept();
       }
+      process.stdout.write(value);
     });
   });
 }
@@ -35,13 +35,13 @@ function eventPromise(listener, event) {
   });
 }
 
-function LocalWorker(provisionerId, workerType) {
+function DockerWorker(provisionerId, workerType) {
   this.provisionerId = provisionerId;
   this.workerType = workerType;
   this.docker = new Docker(dockerOpts());
 }
 
-LocalWorker.prototype = {
+DockerWorker.prototype = {
   launch: function* () {
     var createConfig = {
       name: this.workerType,
@@ -51,6 +51,7 @@ LocalWorker.prototype = {
          [
           'node --harmony /worker/bin/worker.js',
           '-c 1',
+          '--host test',
           '--worker-group', 'random-local-worker',
           '--worker-id', this.workerType,
           '--provisioner-id', this.provisionerId,
@@ -59,8 +60,7 @@ LocalWorker.prototype = {
       ],
       Env: [
         'DOCKER_CONTAINER_ID=' + this.workerType,
-        'NODE_ENV=test',
-        'DOCKER_WORKER_START="' + START_STR + '"'
+        'NODE_ENV=test'
       ],
       AttachStdin: false,
       AttachStdout: true,
@@ -95,17 +95,8 @@ LocalWorker.prototype = {
       start: startConfig
     });
 
-    function earlyExit() {
-      throw new Error('Docker worker exited while starting up');
-    }
-
-    proc.on('exit', earlyExit);
     proc.run();
-    // Wait for the start message.
-    yield waitForMessage(proc.stdout, 'data', START_STR);
-    // Allow stdout to be handled with usual methods.
-    proc.stdout.pipe(process.stdout);
-    proc.removeListener('exit', earlyExit);
+    return proc;
   },
 
   terminate: function* () {
@@ -119,6 +110,6 @@ LocalWorker.prototype = {
   }
 };
 
-// Export LocalWorker
-module.exports = LocalWorker;
+// Export DockerWorker
+module.exports = DockerWorker;
 
