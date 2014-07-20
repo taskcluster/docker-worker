@@ -37,7 +37,6 @@ LocalWorker.prototype.launch = function() {
     var args = [
       '--harmony',
       BINARY,
-      '-c', 1,
       '--host', 'test',
       '--provisioner-id', this.provisionerId,
       '--worker-type', this.workerType,

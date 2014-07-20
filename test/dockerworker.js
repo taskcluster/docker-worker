@@ -49,7 +49,6 @@ DockerWorker.prototype = {
         '/bin/bash', '-c',
          [
           'node --harmony /worker/bin/worker.js',
-          '-c 1',
           '--host test',
           '--worker-group', 'random-local-worker',
           '--worker-id', this.workerType,

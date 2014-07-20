@@ -89,6 +89,9 @@ co(function *() {
 
   var statsdConf = url.parse(workerConf.statsd.url);
 
+  // Default to always having at least a capacity of one.
+  config.capacity = config.capacity || 1;
+
   // Raw statsd interface.
   config.statsd = new SDC({
     debug: !!process.env.DEBUG,
