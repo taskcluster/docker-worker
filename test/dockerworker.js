@@ -2,7 +2,6 @@ var dockerOpts = require('dockerode-options');
 var path = require('path');
 var util = require('util');
 
-var JsonStream = require('json-stream');
 var Promise = require('promise');
 var Docker = require('dockerode-promise');
 var DockerProc = require('dockerode-process');
