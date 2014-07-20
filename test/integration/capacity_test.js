@@ -4,7 +4,7 @@ suite('Capacity', function() {
   var settings = require('../settings');
   var cmd = require('./helper/cmd');
 
-  var LocalWorker = require('../dockerworker');
+  var LocalWorker = require('../localworker');
   var TestWorker = require('../testworker');
 
   // Ensure we don't leave behind our test configurations.
