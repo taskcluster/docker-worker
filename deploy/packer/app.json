@@ -1,5 +1,6 @@
 {
   "description": "taskcluster docker worker vm",
+
   "variables": {
     "docker_worker":        "",
     "source_ami":           "ami-1ba8db2b",
@@ -12,7 +13,7 @@
   "provisioners": [
     {
       "type":           "file",
-      "source":         "packer/app/scripts/configure-syslog.py",
+      "source":         "deploy/packer/app/scripts/configure-syslog.py",
       "destination":    "/tmp/loggly.py"
     },
     {
@@ -29,7 +30,7 @@
     },
     {
       "type":           "file",
-      "source":         "packer/app/scripts/deploy.sh",
+      "source":         "app/scripts/deploy.sh",
       "destination":    "/tmp/deploy.sh"
     },
     {
@@ -40,7 +41,7 @@
     },
     {
       "type":           "file",
-      "source":         "packer/app/docker-worker-{{user `update_type`}}.conf",
+      "source":         "app/docker-worker-{{user `update_type`}}.conf",
       "destination":    "/tmp/docker-worker.conf"
     },
     {
@@ -50,7 +51,7 @@
     },
     {
       "type":           "file",
-      "source":         "packer/app/etc/default/docker-{{user `fs_type`}}",
+      "source":         "app/etc/default/docker-{{user `fs_type`}}",
       "destination":    "/tmp/docker"
     },
     {
@@ -82,7 +83,7 @@
   "post-processors": [
     {
       "type": "vagrant",
-      "output": "packer/app.box",
+      "output": "app.box",
       "keep_input_artifact": true
     }
   ]
