@@ -37,7 +37,6 @@
     "middleware-object-hooks": "0.0.3",
     "mime": "^1.2.11",
     "promise": "^5.0.0",
-    "split2": "^0.1.2",
     "statsd-client": "0.0.15",
     "superagent": "^0.18.0",
     "superagent-promise": "^0.1.1",
