@@ -36,9 +36,10 @@ function taskUrl() {
   return url;
 }
 
-function TestWorker(Worker) {
-  this.workerType = slugid.v4();
-  this.worker = new Worker(PROVISIONER_ID, this.workerType);
+function TestWorker(Worker, workerType, workerId) {
+  this.workerType = workerType || slugid.v4();
+  this.workerId = workerId || this.workerType;
+  this.worker = new Worker(PROVISIONER_ID, this.workerType, this.workerId);
 
   // TODO: Add authentication...
   this.queue = new Queue();
@@ -130,6 +131,7 @@ TestWorker.prototype = {
 
     // TODO: Use our own task id's when possible.
     yield listener.bind(queueEvents.taskCompleted({
+      workerId: this.workerId,
       workerType: this.workerType,
       provisionerId: PROVISIONER_ID
     }));

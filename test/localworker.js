@@ -14,10 +14,11 @@ function eventPromise(listener, event) {
 }
 
 /** Wrapper for a process with a local worker with given workerType */
-var LocalWorker = function(provisionerId, workerType) {
+var LocalWorker = function(provisionerId, workerType, workerId) {
   this.provisionerId = provisionerId;
   this.workerType = workerType;
-  this.process    = null;
+  this.workerId = workerId;
+  this.process = null;
 };
 
 /** Launch the local worker instance as a subprocess */
@@ -41,7 +42,7 @@ LocalWorker.prototype.launch = function() {
       '--provisioner-id', this.provisionerId,
       '--worker-type', this.workerType,
       '--worker-group', 'jonasfj-local-worker',
-      '--worker-id', 'who-ever-cares'
+      '--worker-id', this.workerId
     ];
 
     // Launch worker process.

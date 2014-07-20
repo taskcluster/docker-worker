@@ -34,16 +34,17 @@ function eventPromise(listener, event) {
   });
 }
 
-function DockerWorker(provisionerId, workerType) {
+function DockerWorker(provisionerId, workerType, workerId) {
   this.provisionerId = provisionerId;
   this.workerType = workerType;
+  this.workerId = workerId;
   this.docker = new Docker(dockerOpts());
 }
 
 DockerWorker.prototype = {
   launch: function* () {
     var createConfig = {
-      name: this.workerType,
+      name: this.workerId,
       Image: 'taskcluster/docker-worker-test',
       Cmd: [
         '/bin/bash', '-c',
@@ -51,13 +52,13 @@ DockerWorker.prototype = {
           'node --harmony /worker/bin/worker.js',
           '--host test',
           '--worker-group', 'random-local-worker',
-          '--worker-id', this.workerType,
+          '--worker-id', this.workerId,
           '--provisioner-id', this.provisionerId,
           '--worker-type', this.workerType
          ].join(' ')
       ],
       Env: [
-        'DOCKER_CONTAINER_ID=' + this.workerType,
+        'DOCKER_CONTAINER_ID=' + this.workerId,
         'NODE_ENV=test'
       ],
       AttachStdin: false,
