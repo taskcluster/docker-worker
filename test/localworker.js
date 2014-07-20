@@ -1,6 +1,6 @@
 var Promise = require('promise');
 
-var fork = require('child_process').fork;
+var spawn = require('child_process').spawn;
 
 /** Binary to launch inorder to get a worker instance running */
 var BINARY = __dirname + '/../bin/worker.js';
@@ -35,6 +35,8 @@ LocalWorker.prototype.launch = function() {
 
     // Provide commandline arguments
     var args = [
+      '--harmony',
+      BINARY,
       '-c', 1,
       '--host', 'test',
       '--provisioner-id', this.provisionerId,
@@ -44,10 +46,10 @@ LocalWorker.prototype.launch = function() {
     ];
 
     // Launch worker process.
-    var proc = this.process = fork(BINARY, args, {
+    var proc = this.process = spawn('node', args, {
       execArgv: ['--harmony'],
       env: envs,
-      stdio: 'inherit'
+      stdio: 'pipe'
     });
 
     return accept(proc);
