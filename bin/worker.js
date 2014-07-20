@@ -4,6 +4,7 @@ var taskcluster = require('taskcluster-client');
 var dockerOpts = require('dockerode-options');
 var url = require('url');
 var loadConfig = require('../lib/config');
+var createLogger = require('../lib/log');
 var debug = require('debug')('docker-worker:bin:worker');
 
 var SDC = require('statsd-client');
@@ -104,6 +105,14 @@ co(function *() {
   // Wrapped stats helper to support generators, etc...
   config.stats = new Stats(config.statsd);
   config.stats.increment('started');
+
+  config.log = createLogger({
+    source: 'top', // top level logger details...
+    provisionerId: config.provisionerId,
+    workerId: config.workerId,
+    workerGroup: config.workerGroup,
+    workerType: config.workerType
+  });
 
   configManifest = new Config(config);
 

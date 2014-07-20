@@ -32,8 +32,8 @@ suite('aws mock server', function() {
   verify('/meta-data/instance-id', 'i-123456');
 
   test('user-data', co(function* () {
-    var response = yield request.get(url + '/user-data').end();
-    var body = JSON.parse(new Buffer(response.text, 'base64'));
+    var response = yield request.get(url + '/user-data').buffer(true).end();
+    var body = JSON.parse(response.text);
     assert.deepEqual(body, { capacity: 1 });
   }));
 });

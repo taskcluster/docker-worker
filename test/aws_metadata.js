@@ -7,7 +7,7 @@ var app = require('koa')();
 function route(path) {
   switch (path) {
     case '/user-data':
-      return new Buffer(JSON.stringify({ capacity: 1 })).toString('base64');
+      return new Buffer(JSON.stringify({ capacity: 1 }));
     case '/meta-data/ami-id':
       return 'ami-333333';
     case '/meta-data/instance-type':
