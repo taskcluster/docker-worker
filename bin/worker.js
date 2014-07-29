@@ -57,6 +57,7 @@ co(function *() {
 
   // Placeholder for final configuration options.
   var config = {
+    conf: workerConf,
     docker: new Docker(dockerOpts()),
     // TODO: Authentication.
     queue: new taskcluster.Queue(),
