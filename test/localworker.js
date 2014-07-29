@@ -42,7 +42,8 @@ LocalWorker.prototype.launch = function() {
       '--provisioner-id', this.provisionerId,
       '--worker-type', this.workerType,
       '--worker-group', 'jonasfj-local-worker',
-      '--worker-id', this.workerId
+      '--worker-id', this.workerId,
+      'test'
     ];
 
     // Launch worker process.

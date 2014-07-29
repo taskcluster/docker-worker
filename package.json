@@ -42,6 +42,7 @@
     "superagent-promise": "^0.1.1",
     "tar-stream": "^0.4.4",
     "taskcluster-azure-blobstream": "^0.3.0",
+    "taskcluster-base": "^0.2.6",
     "taskcluster-client": "git://github.com/taskcluster/taskcluster-client.git#resume-raw-channels",
     "temporary": "0.0.8",
     "uuid": "^1.4.1"

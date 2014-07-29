@@ -3,17 +3,16 @@ var co = require('co');
 var taskcluster = require('taskcluster-client');
 var dockerOpts = require('dockerode-options');
 var url = require('url');
-var loadConfig = require('../lib/config');
+var loadConfig = require('taskcluster-base/config');
 var createLogger = require('../lib/log');
 var debug = require('debug')('docker-worker:bin:worker');
 
-var SDC = require('statsd-client');
+var SDC = require('statsd-client')
 var Docker = require('dockerode-promise');
 var Config = require('../lib/configuration');
 var TaskListener = require('../lib/task_listener');
 var ShutdownManager = require('../lib/shutdown_manager');
 var Stats = require('../lib/stat');
-var JaySchema = require('jayschema');
 
 // Available target configurations.
 var allowedHosts = ['aws', 'test'];
@@ -27,7 +26,10 @@ function o() {
   program.option.apply(program, arguments);
 }
 
-/* Options for CLI */
+// Usage.
+program.usage("[options] <profile>");
+
+// CLI Options.
 o('--host <type>',
   'configure worker for host type [' + allowedHosts.join(', ') + ']');
 o('-c, --capacity <value>', 'capacity override value');
@@ -38,24 +40,28 @@ o('--worker-id <worker-id>', 'override the worker id');
 
 program.parse(process.argv);
 
-function jsonSchema() {
-  var schema = new JaySchema();
-  schema.register(require('../schemas/payload.json'));
-  schema.register(require('../schemas/result.json'));
-
-  return schema;
-}
-
-/* Main */
+// Main.
 co(function *() {
-  var workerConf = loadConfig();
+  var profile = program.args[0];
+
+  if (!profile) {
+    console.error('Config profile must be specified: test, production');
+    return process.exit(1);
+  }
+
+  var workerConf = loadConfig({
+    defaults: require('../config/defaults'),
+    profile: require('../config/' + profile),
+    filename: 'docker-worker'
+  });
+
   // Placeholder for final configuration options.
   var config = {
     docker: new Docker(dockerOpts()),
     // TODO: Authentication.
     queue: new taskcluster.Queue(),
     scheduler: new taskcluster.Scheduler(),
-    schema: jsonSchema()
+    schema: require('../lib/schema')()
   };
 
   // Use a target specific configuration helper if available.
@@ -87,7 +93,7 @@ co(function *() {
 
   debug('configuration loaded', config);
 
-  var statsdConf = url.parse(workerConf.statsd.url);
+  var statsdConf = url.parse(workerConf.get('statsd:url'));
 
   // Default to always having at least a capacity of one.
   config.capacity = config.capacity || 1;
@@ -99,7 +105,7 @@ co(function *() {
     host: statsdConf.hostname,
     port: statsdConf.port,
     // docker-worker.<worker-type>.<provisionerId>.
-    prefix: workerConf.statsd.prefix +
+    prefix: workerConf.get('statsd:prefix') +
       'docker-worker.' +
       config.workerType + '.' +
       config.provisionerId + '.'
@@ -133,8 +139,8 @@ co(function *() {
   }
 
   // Test only logic for clean shutdowns (this ensures our tests actually go
-  // throuhg the entire steps of running a task).
-  if (process.env.NODE_ENV === 'test') {
+  // through the entire steps of running a task).
+  if (workerConf.get('testMode')) {
     // Gracefullyish close the connection.
     process.once('message', co(function* (msg) {
       if (msg.type !== 'halt') return;

@@ -1,4 +1,14 @@
 module.exports = {
+  // Run test only teardown and logging events.
+  testMode: false,
+
+  // Taskcluster client `credentials`.
+  taskcluster: {
+    clientId:    process.env.TASKCLUSTER_CLIENT_ID,
+    accessToken: process.env.TASKCLUSTER_ACCESS_TOKEN
+  },
+
+  // Statsd configuration options (these are totally optional).
   statsd: {
     prefix: process.env.STATSD_PREFIX || '',
     url: process.env.STATSD_URL || 'tcp://localhost:8125'

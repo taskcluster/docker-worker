@@ -54,7 +54,8 @@ DockerWorker.prototype = {
           '--worker-group', 'random-local-worker',
           '--worker-id', this.workerId,
           '--provisioner-id', this.provisionerId,
-          '--worker-type', this.workerType
+          '--worker-type', this.workerType,
+          'test'
          ].join(' ')
       ],
       Env: [
