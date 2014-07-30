@@ -9,6 +9,7 @@ var debug = require('debug')('docker-worker:test:testworker');
 var util = require('util');
 var waitForEvent = require('../lib/wait_for_event');
 var split = require('split2');
+var loadConfig = require('taskcluster-base/config');
 
 var Task = require('taskcluster-task-factory/task');
 var LocalWorker = require('./localworker');
@@ -37,13 +38,24 @@ function taskUrl() {
 }
 
 function TestWorker(Worker, workerType, workerId) {
+  // Load the test time configuration for all the components...
+  var config = loadConfig({
+    defaults: require('../config/defaults'),
+    profile: require('../config/test'),
+    filename: 'docker-worker-test'
+  });
+
   this.workerType = workerType || slugid.v4();
   this.workerId = workerId || this.workerType;
   this.worker = new Worker(PROVISIONER_ID, this.workerType, this.workerId);
 
-  // TODO: Add authentication...
-  this.queue = new Queue();
-  this.scheduler = new Scheduler();
+  this.queue = new Queue({
+    credentials: config.get('taskcluster')
+  });
+
+  this.scheduler = new Scheduler({
+    credentials: config.get('taskcluster')
+  });
 
   EventEmitter.call(this);
 }
@@ -84,6 +96,37 @@ TestWorker.prototype = {
     return yield this.worker.terminate();
   },
 
+  /**
+  Post a single task to the queue.
+
+  @param {String} taskId in slugid.v4 format.
+  @param {Object} payload for the task.
+  */
+  createTask: function* (taskId, payload) {
+    var deadline = new Date();
+    deadline.setMinutes(deadline.getMinutes() + 10);
+
+    var task = Task.create({
+      payload: payload,
+      provisionerId: PROVISIONER_ID,
+      workerType: this.workerId,
+      deadline: deadline.toJSON(),
+      scopes: [],
+      metadata: {
+        owner: 'unkown@localhost.local',
+        name: 'Task from docker-worker test suite',
+      }
+    });
+
+    return yield this.queue.createTask(taskId, task);
+  },
+
+
+  /**
+  Post a task to the graph with the testing configuration.
+
+  @param {Object} payload for the task.
+  */
   createGraph: function* (payload) {
     var deadline = new Date();
     deadline.setMinutes(deadline.getMinutes() + 10);
@@ -116,6 +159,51 @@ TestWorker.prototype = {
         task: task
       }]
     });
+  },
+
+  /**
+  Post a message to the queue and wait for the results.
+
+  @param {Object} payload for the worker.
+  */
+  postToQueue: function* (payload) {
+    var taskId = slugid.v4();
+
+    // Create and bind the listener which will notify us when the worker
+    // completes a task.
+    var listener = new Listener({
+      connectionString: (yield this.queue.getAMQPConnectionString()).url
+    });
+
+    // listen for this one task and only this task...
+    yield listener.bind(queueEvents.taskCompleted({
+      taskId: taskId
+    }));
+
+    yield listener.connect();
+
+    // Begin listening at the same time we create the task to ensure we get the
+    // message at the correct time.
+    var creation = yield [
+      waitForEvent(listener, 'message'),
+      this.createTask(taskId, payload),
+      listener.resume()
+    ];
+
+    // Fetch the final result json.
+    var status = creation.shift().payload.status;
+    var runId = status.runs.pop().runId;
+
+    var results = yield {
+      status: this.queue.status(taskId),
+      taskId: taskId
+    };
+
+    // Close listener we only care about one message at a time.
+    yield listener.close();
+    console.log(JSON.stringify(results, null, 2));
+
+    return results;
   },
 
   /**

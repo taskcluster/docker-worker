@@ -59,9 +59,12 @@ co(function *() {
   var config = {
     conf: workerConf,
     docker: new Docker(dockerOpts()),
-    // TODO: Authentication.
-    queue: new taskcluster.Queue(),
-    scheduler: new taskcluster.Scheduler(),
+    queue: new taskcluster.Queue({
+      credentials: workerConf.get('taskcluster')
+    }),
+    scheduler: new taskcluster.Scheduler({
+      credentials: workerConf.get('taskcluster')
+    }),
     schema: require('../lib/schema')()
   };
 
