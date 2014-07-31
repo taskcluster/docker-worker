@@ -27,7 +27,6 @@ suite('Parallel workers', function() {
   }));
 
   test('tasks for two workers running in parallel', co(function* () {
-
     var taskTpl = {
       image: 'ubuntu',
       command: cmd(
@@ -39,22 +38,18 @@ suite('Parallel workers', function() {
       maxRunTime: 60 * 60
     };
 
-    // Remember that even though we use workerA to post a task the tasks go to
-    // the same workerType so each worker should get a task not just workerA.
     var tasks = yield {
-      a: workerA.post(taskTpl),
-      b: workerB.post(taskTpl)
+      a: workerA.postToQueue(taskTpl),
+      b: workerB.postToQueue(taskTpl)
     };
 
     for (var key in tasks) {
-      assert.ok(
-        tasks[key].result.metadata.success, 'each task ran successfully'
-      );
+      assert.ok(tasks[key].run.success, 'each task ran successfully');
     }
 
     assert.notEqual(
-      tasks.a.result.metadata.workerId,
-      tasks.b.result.metadata.workerId,
+      tasks.a.run.workerId,
+      tasks.b.run.workerId,
       'Tasks ran on different workers'
     );
   }));

@@ -86,6 +86,8 @@ TestWorker.prototype = {
         debug('emit', parsed.type, parsed);
         this.emit(parsed.type, parsed);
       } catch (e) {
+        // This is an intentional console log for any line which is not a
+        // newline delimited json string.
         console.log(line);
       }
     }.bind(this)));
@@ -111,7 +113,7 @@ TestWorker.prototype = {
     var task = Task.create({
       payload: payload,
       provisionerId: PROVISIONER_ID,
-      workerType: this.workerId,
+      workerType: this.workerType,
       deadline: deadline.toJSON(),
       scopes: [],
       metadata: {
@@ -220,13 +222,13 @@ TestWorker.prototype = {
     }));
 
     yield listener.connect();
+    yield listener.resume();
 
     // Begin listening at the same time we create the task to ensure we get the
     // message at the correct time.
     var creation = yield [
       waitForEvent(listener, 'message'),
       this.createTask(taskId, payload),
-      listener.resume()
     ];
 
     // Fetch the final result json.
@@ -234,7 +236,11 @@ TestWorker.prototype = {
     var runId = status.runs.pop().runId;
 
     // Close listener we only care about one message at a time.
-    yield listener.close();
+    try {
+      yield listener.close();
+    } catch(e) {
+      console.log('error during close:', e);
+    }
 
     // Return uniform stats on the worker run (fetching common useful things).
     return yield this.fetchTaskStats(taskId, runId);
@@ -281,7 +287,6 @@ TestWorker.prototype = {
 
     // Close listener we only care about one message at a time.
     yield listener.close();
-    console.log(status);
 
     return status;
   }
