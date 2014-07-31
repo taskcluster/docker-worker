@@ -3,7 +3,7 @@ suite('Invalid payload schema', function() {
   var testworker = require('../post_task');
 
   test('invalid schema', co(function* () {
-    var data = yield testworker({
+    var result = yield testworker({
       image: 'ubuntu',
       // No command is an invalid schema.
       command: [],
@@ -11,9 +11,7 @@ suite('Invalid payload schema', function() {
       maxRunTime: 5 * 60
     });
 
-    var result = data.result.result;
-    var log = result.logText;
-    assert.ok(result.exitCode < 0, 'exit code is an infrastructure error');
-    assert.ok(log.indexOf('schema errors' !== -1));
+    assert.ok(!result.run.success, 'invalid schema should fail');
+    assert.ok(result.log.indexOf('schema errors' !== -1));
   }));
 });

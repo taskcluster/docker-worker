@@ -23,7 +23,10 @@ var COPIED_ENV = [
   'DEBUG',
   'DOCKER_HOST',
   'AZURE_STORAGE_ACCOUNT',
-  'AZURE_STORAGE_ACCESS_KEY'
+  'AZURE_STORAGE_ACCESS_KEY',
+  'TASKCLUSTER_AMQP_URL',
+  'TASKCLUSTER_CLIENT_ID',
+  'TASKCLUSTER_ACCESS_TOKEN'
 ];
 
 function eventPromise(listener, event) {
@@ -59,8 +62,7 @@ DockerWorker.prototype = {
          ].join(' ')
       ],
       Env: [
-        'DOCKER_CONTAINER_ID=' + this.workerId,
-        'NODE_ENV=test'
+        'DOCKER_CONTAINER_ID=' + this.workerId
       ],
       AttachStdin: false,
       AttachStdout: true,

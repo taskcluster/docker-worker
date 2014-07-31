@@ -4,7 +4,7 @@ suite('setting env variables', function() {
 
   test('echo env variable', co(function* () {
     var expected = 'is woot';
-    var data = yield testworker({
+    var result = yield testworker({
       image:          'ubuntu',
       env:            { WOOTBAR: expected },
       command:        ['/bin/bash', '-c', 'echo $WOOTBAR'],
@@ -15,11 +15,8 @@ suite('setting env variables', function() {
       maxRunTime:         5 * 60
     });
 
-    // Get task specific results
-    var result = data.result.result;
-
-    assert.ok(data.result.metadata.success, 'task was successful');
-    assert.ok(result.logText.indexOf(expected) !== -1);
+    assert.ok(result.run.success, 'task should be successful');
+    assert.ok(result.log.indexOf(expected) !== -1, 'env is dumped');
   }));
 });
 
