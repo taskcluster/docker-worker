@@ -2,6 +2,9 @@ module.exports = {
   // Run test only teardown and logging events.
   testMode: false,
 
+  // Image used to  create the taskcluster proxy container.
+  taskclusterProxyImage: 'taskcluster/proxy',
+
   logging: {
     // Added to the current date to make up the expiry time for logs. This is
     // hack to generate a year in ms...
