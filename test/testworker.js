@@ -24,17 +24,19 @@ var queueEvents = new (require('taskcluster-client').QueueEvents);
 /** Test provisioner id, don't change this... */
 var PROVISIONER_ID = 'no-provisioning-nope';
 
-function* getBody(url) {
+function* getText(url) {
   var req = yield request.get(url).end();
   if (req.error) {
     throw new Error('<test> HTTP error while fetching: ' + url);
   }
-  return req.body;
+  return req.text;
 }
 
-function taskUrl() {
-  var url = 'http://tasks.taskcluster.net/' + util.format.apply(util, arguments);
-  return url;
+function* getArtifact (taskId, runId, name) {
+  var url = 'https://queue.taskcluster.net/v1/task/' +
+             taskId + '/runs/' + runId + '/artifacts/' + name;
+
+  return yield getText(url);
 }
 
 function TestWorker(Worker, workerType, workerId) {
@@ -162,6 +164,43 @@ TestWorker.prototype = {
   },
 
   /**
+  Fetch all the common stats used by the tests.
+  */
+  fetchTaskStats: function* (taskId, runId) {
+    var fetch = yield {
+      // Just about every single test needs status of the task...
+      status: this.queue.status(taskId),
+
+      // Live logging of the task...
+      log: getArtifact(taskId, runId, 'public/logs/terminal_live.log'),
+
+      // Generally useful for most of the tests...
+      artifacts: this.queue.getArtifactsFromRun(taskId, runId),
+    };
+
+    // XXX: Ugh status.status...
+    var status = fetch.status.status;
+    var indexedArtifacts =
+      fetch.artifacts.artifacts.reduce(function(result, artifact) {
+        result[artifact.name] = artifact;
+        return result;
+      }, {});
+
+    return {
+      status: status,
+      log: fetch.log,
+      artifacts: indexedArtifacts,
+
+      // Current run useful for .success, etc...
+      run: status.runs[runId],
+
+      // Useful if you need to run a secondary queue run, etc...
+      taskId: taskId,
+      runId: runId
+    };
+  },
+
+  /**
   Post a message to the queue and wait for the results.
 
   @param {Object} payload for the worker.
@@ -194,16 +233,11 @@ TestWorker.prototype = {
     var status = creation.shift().payload.status;
     var runId = status.runs.pop().runId;
 
-    var results = yield {
-      status: this.queue.status(taskId),
-      taskId: taskId
-    };
-
     // Close listener we only care about one message at a time.
     yield listener.close();
-    console.log(JSON.stringify(results, null, 2));
 
-    return results;
+    // Return uniform stats on the worker run (fetching common useful things).
+    return yield this.fetchTaskStats(taskId, runId);
   },
 
   /**
@@ -239,16 +273,17 @@ TestWorker.prototype = {
     var taskId = status.taskId;
     var runId = status.runs.pop().runId;
 
-    var results = yield {
-      result: getBody(taskUrl('%s/runs/%s/result.json', taskId, runId)),
-      logs: getBody(taskUrl('%s/runs/%s/logs.json', taskId, runId)),
-      taskId: taskId
-    };
+    //var results = yield {
+      //result: getBody(taskUrl('%s/runs/%s/result.json', taskId, runId)),
+      //logs: getBody(taskUrl('%s/runs/%s/logs.json', taskId, runId)),
+      //taskId: taskId
+    //};
 
     // Close listener we only care about one message at a time.
     yield listener.close();
+    console.log(status);
 
-    return results;
+    return status;
   }
 };
 
