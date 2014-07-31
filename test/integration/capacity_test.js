@@ -31,7 +31,7 @@ suite('Capacity', function() {
     var tasks = [];
 
     for (var i = 0; i < CAPACITY; i++) {
-      tasks.push(worker.post({
+      tasks.push(worker.postToQueue({
         image: 'ubuntu',
         command: cmd(
           'sleep ' + sleep
@@ -49,7 +49,7 @@ suite('Capacity', function() {
     assert.ok(end < (sleep * CAPACITY), 'tasks ran in parallel');
     assert.equal(results.length, CAPACITY, 'all 5 tasks must have completed');
     results.forEach(function(taskRes) {
-      assert.ok(taskRes.result.metadata.success, 'all tasks are successful');
+      assert.ok(taskRes.run.success, 'all tasks are successful');
     });
   }));
 });
