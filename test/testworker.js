@@ -122,6 +122,7 @@ TestWorker.prototype = {
       }
     });
 
+    debug('post to queue %j', task);
     return yield this.queue.createTask(taskId, task);
   },
 

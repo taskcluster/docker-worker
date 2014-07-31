@@ -4,7 +4,7 @@ suite('Task duration stats', function() {
   var cmd = require('./helper/cmd');
 
   test('1s long task minimum', co(function* () {
-    var data = yield testworker({
+    var result = yield testworker({
       image: 'ubuntu',
       command: cmd(
         'sleep 1'
@@ -16,9 +16,7 @@ suite('Task duration stats', function() {
       maxRunTime:         5 * 60
     });
 
-    var stats = data.result.statistics;
-    var duration = new Date(stats.finished) - new Date(stats.started);
-
+    var duration = new Date(result.run.resolved) - new Date(result.run.started);
     assert.ok(duration > 1000, 'Duration should exist and be greater then 1s');
   }));
 });
