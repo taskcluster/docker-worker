@@ -2,13 +2,8 @@ suite('artifact extration tests', function() {
   var co = require('co');
   var getArtifact = require('./helper/get_artifact');
   var cmd = require('./helper/cmd');
+  var expires = requrie('./helper/expires');
   var testworker = require('../post_task');
-
-  function futureMin(n) {
-    var date = new Date();
-    date.setMinutes(date.getMinutes() + n);
-    return date;
-  }
 
   test('extract artifact', co(function* () {
     var result = yield testworker({
@@ -26,13 +21,13 @@ suite('artifact extration tests', function() {
       artifacts: {
         'public/xfoo': {
           type: 'file',
-          expires: futureMin(10),
+          expires: expires(),
           path: '/artifacts/xfoo.txt',
         },
 
         'public/bar': {
           type: 'file',
-          expires: futureMin(10),
+          expires: expires(),
           path: '/artifacts/bar.txt',
         }
       },
@@ -66,7 +61,7 @@ suite('artifact extration tests', function() {
       artifacts: {
         'public/etc': {
           type: 'file',
-          expires: futureMin(10),
+          expires: expires(),
           path: '/etc/',
         }
       },
@@ -92,7 +87,7 @@ suite('artifact extration tests', function() {
         'my-missing.txt': {
           type: 'file',
           path: 'this-file-is-missing.txt',
-          expires: futureMin(10)
+          expires: expires()
         }
       },
       maxRunTime:         5 * 60
