@@ -55,6 +55,30 @@ suite('artifact extration tests', function() {
     assert.equal(bodies.bar.trim(), 'bar');
   }));
 
+  test('attempt to upload directory as file', co(function* () {
+    var result = yield testworker({
+      image: 'ubuntu',
+      command: cmd('ls'),
+      features: {
+        // No need to actually issue live logging...
+        liveLog: false
+      },
+      artifacts: {
+        'public/etc': {
+          type: 'file',
+          expires: futureMin(10),
+          path: '/etc/',
+        }
+      },
+      maxRunTime:         5 * 60
+    });
+
+    // Get task specific results
+    assert.ok(result.run.success, 'task was successful');
+    assert.ok(result.artifacts['public/etc'], 'artifact is present');
+    assert.equal(result.artifacts['public/etc'].kind, 'error');
+  }));
+
   test('extract missing artifact', co(function*() {
     var result = yield testworker({
       image: 'ubuntu',
