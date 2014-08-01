@@ -1,11 +1,17 @@
 suite('artifact extration tests', function() {
   var co = require('co');
-  var get = require('./helper/get');
+  var getArtifact = require('./helper/get_artifact');
   var cmd = require('./helper/cmd');
   var testworker = require('../post_task');
 
+  function futureMin(n) {
+    var date = new Date();
+    date.setMinutes(date.getMinutes() + n);
+    return date;
+  }
+
   test('extract artifact', co(function* () {
-    var data = yield testworker({
+    var result = yield testworker({
       image: 'ubuntu',
       command: cmd(
         'mkdir /artifacts/',
@@ -14,31 +20,35 @@ suite('artifact extration tests', function() {
         'ls /artifacts'
       ),
       features: {
-        bufferLog: true,
-        azureLiveLog: false,
-        extractArtifacts: true
+        // No need to actually issue live logging...
+        liveLog: false
       },
       artifacts: {
-        // name: source
-        'xfoo': '/artifacts/xfoo.txt',
-        'bar': '/artifacts/bar.txt'
+        'public/xfoo': {
+          type: 'file',
+          expires: futureMin(10),
+          path: '/artifacts/xfoo.txt',
+        },
+
+        'public/bar': {
+          type: 'file',
+          expires: futureMin(10),
+          path: '/artifacts/bar.txt',
+        }
       },
       maxRunTime:         5 * 60
     });
 
     // Get task specific results
-    var result = data.result.result;
-    var artifacts = data.result.artifacts;
-    assert.ok(data.result.metadata.success, 'task was successful');
-    assert.equal(result.exitCode, 0);
+    assert.ok(result.run.success, 'task was successful');
 
     assert.deepEqual(
-      Object.keys(artifacts).sort(), ['xfoo', 'bar'].sort()
+      Object.keys(result.artifacts).sort(), ['public/xfoo', 'public/bar'].sort()
     );
 
     var bodies = yield {
-      xfoo: get(artifacts.xfoo.url),
-      bar: get(artifacts.bar.url),
+      xfoo: getArtifact(result, 'public/xfoo'),
+      bar: getArtifact(result, 'public/bar')
     };
 
     assert.equal(bodies.xfoo.trim(), 'xfoo');
@@ -46,46 +56,36 @@ suite('artifact extration tests', function() {
   }));
 
   test('extract missing artifact', co(function*() {
-    var data = yield testworker({
+    var result = yield testworker({
       image: 'ubuntu',
       command: cmd(
         'echo "the user is:" > /username.txt',
         'whoami >> /username.txt',
         'echo "Okay, this is now done"'
       ),
-      features: {
-        bufferLog: true,
-        azureLivelog: false,
-        extractArtifacts: true
-      },
       artifacts: {
         // Name -> Source
-        'my-missing.txt': 'this-file-is-missing.txt'
+        'my-missing.txt': {
+          type: 'file',
+          path: 'this-file-is-missing.txt',
+          expires: futureMin(10)
+        }
       },
       maxRunTime:         5 * 60
     });
 
-    // Get task specific results
-    var result = data.result.result;
-    var artifacts = data.result.artifacts;
-    var log = result.logText;
-
     assert.ok(
-      log.indexOf('"this-file-is-missing.txt"') !== -1,
+      result.log.indexOf('"this-file-is-missing.txt"') !== -1,
       'Missing path is noted in the logs'
     );
 
-    assert.ok(data.result.metadata.success, 'task was successful');
-    assert.equal(result.exitCode, 0);
-    assert.ok(artifacts['my-missing.txt'])
-    assert.ok(
-      artifacts['my-missing.txt'].error,
-      'An error is noted for the artifact'
-    );
+    assert.ok(result.run.success, 'task was successful');
+    assert.ok(result.artifacts['my-missing.txt'])
+    assert.equal(result.artifacts['my-missing.txt'].kind, 'error');
   }));
 
-  test('extract artifacts and missing artifact', co(function* () {
-    var data = yield testworker({
+  test('both missing and found artifacts', co(function* () {
+    var result = yield testworker({
       image: 'ubuntu',
       command: cmd(
         'echo "the user is:" > /username.txt',
@@ -99,30 +99,32 @@ suite('artifact extration tests', function() {
       },
       artifacts: {
         // name -> source
-        'username.txt': 'username.txt',
-        'passwd.txt': '/etc/passwd',
-        'my-missing.txt': '/this-file-is-missing.txt'
+        'username.txt': {
+          type: 'file',
+          path: 'username.txt',
+          expires: futureMin(10)
+        },
+        'passwd.txt': {
+          type: 'file',
+          path: '/etc/passwd',
+          expires: futureMin(10)
+        },
+        'my-missing.txt': {
+          type: 'file',
+          path: '/this-file-is-missing.txt',
+          expires: futureMin(10)
+        }
       },
       maxRunTime:         5 * 60
     });
     // Get task specific results.
-    var result = data.result.result;
-    var artifacts = data.result.artifacts;
-    assert.ok(data.result.metadata.success, 'task was successful');
-    assert.equal(result.exitCode, 0);
+    assert.ok(result.run.success, 'task was successful');
 
     // Ensure these have no errors...
-    assert.ok(!artifacts['username.txt'].error, 'username.txt should exist');
-    assert.ok(!artifacts['passwd.txt'].error, 'passwd.txt should exist');
+    assert.equal(result.artifacts['username.txt'].kind, 's3');
+    assert.equal(result.artifacts['passwd.txt'].kind, 's3');
 
     // Missing artifact should have an error...
-    assert.ok(
-      artifacts['my-missing.txt'].error,
-      'missing artifact should have an error'
-    );
-
-    assert.ok(
-      !artifacts['my-missing.txt'].url, 'missing endpoints should not have a url'
-    );
+    assert.equal(result.artifacts['my-missing.txt'].kind, 'error');
   }));
 });

@@ -10,6 +10,7 @@ var util = require('util');
 var waitForEvent = require('../lib/wait_for_event');
 var split = require('split2');
 var loadConfig = require('taskcluster-base/config');
+var getArtifact = require('./integration/helper/get_artifact');
 
 var Task = require('taskcluster-task-factory/task');
 var LocalWorker = require('./localworker');
@@ -23,21 +24,6 @@ var queueEvents = new (require('taskcluster-client').QueueEvents);
 
 /** Test provisioner id, don't change this... */
 var PROVISIONER_ID = 'no-provisioning-nope';
-
-function* getText(url) {
-  var req = yield request.get(url).end();
-  if (req.error) {
-    throw new Error('<test> HTTP error while fetching: ' + url);
-  }
-  return req.text;
-}
-
-function* getArtifact (taskId, runId, name) {
-  var url = 'https://queue.taskcluster.net/v1/task/' +
-             taskId + '/runs/' + runId + '/artifacts/' + name;
-
-  return yield getText(url);
-}
 
 function TestWorker(Worker, workerType, workerId) {
   // Load the test time configuration for all the components...
@@ -175,7 +161,9 @@ TestWorker.prototype = {
       status: this.queue.status(taskId),
 
       // Live logging of the task...
-      log: getArtifact(taskId, runId, 'public/logs/terminal_live.log'),
+      log: getArtifact(
+        { taskId: taskId, runId: runId }, 'public/logs/terminal_live.log'
+      ),
 
       // Generally useful for most of the tests...
       artifacts: this.queue.getArtifactsFromRun(taskId, runId),

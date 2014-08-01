@@ -11,15 +11,11 @@ suite('taskcluster proxy', function() {
 
   test('issue a request to taskcluster via the proxy', co(function* () {
     var expected = 'is woot';
-    var data = yield testworker({
+    var result = yield testworker({
       image: 'centos:latest',
       command: cmd(
         'curl taskcluster/queue/v1/task/$TASK_ID/status > /status.json'
       ),
-      features: {
-        bufferLog: true,
-        azureLiveLog: false
-      },
       artifacts: {
         'status.json': '/status.json',
       },

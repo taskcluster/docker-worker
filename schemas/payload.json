@@ -1,6 +1,28 @@
 {
   "id": "http://schemas.taskcluster.net/docker-worker/v1/payload.json#",
   "$schema": "http://json-schema.org/draft-04/schema#",
+  "definitions": {
+    "artifact": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "title": "Artifact upload type.",
+          "type": "string",
+          "enum": ["file", "directory"]
+        },
+        "path": {
+          "title": "Location of artifact in container.",
+          "type": "string"
+        },
+        "expires": {
+          "title": "Date when artifact should expire must be in the future.",
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["type", "path", "expires"]
+    }
+  },
   "title": "Docker worker payload",
   "description": "`.payload` field of the queue.",
   "type": "object",
@@ -42,9 +64,7 @@
       "title": "Artifact map (name -> source)",
       "description": "Artifact upload map example: ```{ \"hosts\": \"/etc/hosts\" }```",
       "additionalProperties": {
-        "title": "Artifact path in the container.",
-        "description": "Artifact source location.",
-        "type": "string"
+        "$ref": "#/definitions/artifact"
       }
     },
     "features": {
