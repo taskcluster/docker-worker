@@ -5,14 +5,16 @@ suite('Header/Footer logs', function() {
 
   test('Successful task', co(function* () {
     var result = yield testworker({
-      image: 'ubuntu',
-      command: cmd(
-        'exit 5'
-      ),
-      features: {
-        bufferLog:    true
-      },
-      maxRunTime:         5 * 60
+      payload: {
+        image: 'ubuntu',
+        command: cmd(
+          'exit 5'
+        ),
+        features: {
+          bufferLog:    true
+        },
+        maxRunTime:         5 * 60
+      }
     });
 
     var tcLogs = result.log.match(/\[taskcluster\](.*)/g);

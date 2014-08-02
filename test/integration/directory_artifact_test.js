@@ -7,20 +7,22 @@ suite('Directory artifact', function() {
 
   test('attempt to upload file as directory', co(function* () {
     var result = yield testworker({
-      image: 'ubuntu',
-      command: cmd('echo "xfoo" > /xfoo.txt'),
-      features: {
-        // No need to actually issue live logging...
-        liveLog: false
-      },
-      artifacts: {
-        'public/xfoo': {
-          type: 'directory',
-          expires: expires(),
-          path: '/xfoo.txt'
-        }
-      },
-      maxRunTime:         5 * 60
+      payload: {
+        image: 'ubuntu',
+        command: cmd('echo "xfoo" > /xfoo.txt'),
+        features: {
+          // No need to actually issue live logging...
+          liveLog: false
+        },
+        artifacts: {
+          'public/xfoo': {
+            type: 'directory',
+            expires: expires(),
+            path: '/xfoo.txt'
+          }
+        },
+        maxRunTime: 5 * 60
+      }
     });
 
     // Get task specific results
@@ -31,21 +33,23 @@ suite('Directory artifact', function() {
 
   test('upload an entire directory', co(function* () {
     var result = yield testworker({
-      image: 'ubuntu',
-      command: cmd(
-        'mkdir -p "/xfoo/wow"',
-        'echo "xfoo" > /xfoo/wow/bar.txt',
-        'echo "text" > /xfoo/wow/another.txt'
-      ),
-      features: {},
-      artifacts: {
-        'public/dir': {
-          type: 'directory',
-          path: '/xfoo/',
-          expires: expires()
+      payload: {
+        image: 'ubuntu',
+        command: cmd(
+          'mkdir -p "/xfoo/wow"',
+          'echo "xfoo" > /xfoo/wow/bar.txt',
+          'echo "text" > /xfoo/wow/another.txt'
+        ),
+        features: {},
+        artifacts: {
+          'public/dir': {
+            type: 'directory',
+            path: '/xfoo/',
+            expires: expires()
+          },
         },
-      },
-      maxRunTime: 5 * 60
+        maxRunTime: 5 * 60
+      }
     });
 
     assert.ok(result.run.success, 'task was successful');

@@ -5,15 +5,17 @@ suite('Task duration stats', function() {
 
   test('1s long task minimum', co(function* () {
     var result = yield testworker({
-      image: 'ubuntu',
-      command: cmd(
-        'sleep 1'
-      ),
-      features: {
-        bufferLog:    true,
-        azureLiveLog: false
-      },
-      maxRunTime:         5 * 60
+      payload: {
+        image: 'ubuntu',
+        command: cmd(
+          'sleep 1'
+        ),
+        features: {
+          bufferLog:    true,
+          azureLiveLog: false
+        },
+        maxRunTime: 5 * 60
+      }
     });
 
     var duration = new Date(result.run.resolved) - new Date(result.run.started);

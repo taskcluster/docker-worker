@@ -4,11 +4,13 @@ suite('Invalid payload schema', function() {
 
   test('invalid schema', co(function* () {
     var result = yield testworker({
-      image: 'ubuntu',
-      // No command is an invalid schema.
-      command: [],
-      features: { bufferLog: true },
-      maxRunTime: 5 * 60
+      payload: {
+        image: 'ubuntu',
+        // No command is an invalid schema.
+        command: [],
+        features: { bufferLog: true },
+        maxRunTime: 5 * 60
+      }
     });
 
     assert.ok(!result.run.success, 'invalid schema should fail');

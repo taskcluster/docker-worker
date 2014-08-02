@@ -5,14 +5,16 @@ suite('live logging', function() {
 
   test('live logging of content', co(function* () {
     var result = yield testworker({
-      image:          'ubuntu',
-      command:        [
-        '/bin/bash',
-        '-c',
-        'echo "first command!"; ' +
-        'for i in {1..1000}; do echo "Hello Number $i"; done;'
-      ],
-      maxRunTime:         5 * 60
+      payload: {
+        image: 'ubuntu',
+        command: [
+          '/bin/bash',
+          '-c',
+          'echo "first command!"; ' +
+          'for i in {1..1000}; do echo "Hello Number $i"; done;'
+        ],
+        maxRunTime: 5 * 60
+      }
     });
 
     // Expected junk in the log.

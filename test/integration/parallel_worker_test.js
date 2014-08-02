@@ -28,14 +28,16 @@ suite('Parallel workers', function() {
 
   test('tasks for two workers running in parallel', co(function* () {
     var taskTpl = {
-      image: 'ubuntu',
-      command: cmd(
-        // Sleep is used to ensure that each worker will get one task
-        // (assumption being that both workers are in a running state and can
-        // fetch a task in under 5s + overhead)
-        'sleep 5'
-      ),
-      maxRunTime: 60 * 60
+      payload: {
+        image: 'ubuntu',
+        command: cmd(
+          // Sleep is used to ensure that each worker will get one task
+          // (assumption being that both workers are in a running state and can
+          // fetch a task in under 5s + overhead)
+          'sleep 5'
+        ),
+        maxRunTime: 60 * 60
+      }
     };
 
     var tasks = yield {

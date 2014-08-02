@@ -4,14 +4,16 @@ suite('worker timeouts', function() {
 
   test('worker sleep more than maxRunTime', co(function* () {
     var result = yield testworker({
-      image:          'ubuntu',
-      command:        [
-        '/bin/bash', '-c', 'echo "Hello"; sleep 20; echo "done";'
-      ],
-      features: {
-        liveLog: false
-      },
-      maxRunTime:         10
+      payload: {
+        image:          'ubuntu',
+        command:        [
+          '/bin/bash', '-c', 'echo "Hello"; sleep 20; echo "done";'
+        ],
+        features: {
+          liveLog: false
+        },
+        maxRunTime:         10
+      }
     });
     // Get task specific results
     assert.ok(!result.run.success, 'task was not successful');

@@ -45,6 +45,22 @@ function TestWorker(Worker, workerType, workerId) {
     credentials: config.get('taskcluster')
   });
 
+  var deadline = new Date();
+  deadline.setMinutes(deadline.getMinutes() + 60);
+
+  this.TaskFactory = Task.extend({
+    properties: {
+      deadline: deadline,
+      workerType: this.workerType,
+      provisionerId: PROVISIONER_ID,
+      metadata: {
+        owner: 'unkown@localhost.local',
+        name: 'Task from docker-worker test suite',
+        source: 'tests'
+      }
+    }
+  });
+
   EventEmitter.call(this);
 }
 
@@ -90,28 +106,13 @@ TestWorker.prototype = {
   Post a single task to the queue.
 
   @param {String} taskId in slugid.v4 format.
-  @param {Object} payload for the task.
+  @param {Object} taskConfig task config overrides (like .payload, etc..)
   */
-  createTask: function* (taskId, payload) {
-    var deadline = new Date();
-    deadline.setMinutes(deadline.getMinutes() + 10);
-
-    var task = Task.create({
-      payload: payload,
-      provisionerId: PROVISIONER_ID,
-      workerType: this.workerType,
-      deadline: deadline.toJSON(),
-      scopes: [],
-      metadata: {
-        owner: 'unkown@localhost.local',
-        name: 'Task from docker-worker test suite',
-      }
-    });
-
+  createTask: function* (taskId, taskConfig) {
+    var task = this.TaskFactory.create(taskConfig);
     debug('post to queue %j', task);
     return yield this.queue.createTask(taskId, task);
   },
-
 
   /**
   Post a task to the graph with the testing configuration.
@@ -194,9 +195,9 @@ TestWorker.prototype = {
   /**
   Post a message to the queue and wait for the results.
 
-  @param {Object} payload for the worker.
+  @param {Object} task partial definition to upload.
   */
-  postToQueue: function* (payload) {
+  postToQueue: function* (task) {
     var taskId = slugid.v4();
 
     // Create and bind the listener which will notify us when the worker
@@ -217,7 +218,7 @@ TestWorker.prototype = {
     // message at the correct time.
     var creation = yield [
       waitForEvent(listener, 'message'),
-      this.createTask(taskId, payload),
+      this.createTask(taskId, task),
     ];
 
     // Fetch the final result json.
@@ -233,51 +234,6 @@ TestWorker.prototype = {
 
     // Return uniform stats on the worker run (fetching common useful things).
     return yield this.fetchTaskStats(taskId, runId);
-  },
-
-  /**
-  Post a task and await it's completion. Note that it is _not_ safe to run this
-  method concurrently if you wish the results to match the input.
-  */
-  post: function* (payload) {
-    // Create and bind the listener which will notify us when the worker
-    // completes a task.
-    var listener = new Listener({
-      connectionString: (yield this.queue.getAMQPConnectionString()).url
-    });
-
-    // TODO: Use our own task id's when possible.
-    yield listener.bind(queueEvents.taskCompleted({
-      workerId: this.workerId,
-      workerType: this.workerType,
-      provisionerId: PROVISIONER_ID
-    }));
-
-    yield listener.connect();
-
-    // Begin listening at the same time we create the task to ensure we get the
-    // message at the correct time.
-    var creation = yield [
-      waitForEvent(listener, 'message'),
-      this.createGraph(payload),
-      listener.resume()
-    ];
-
-    // Fetch the final result json.
-    var status = creation.shift().payload.status;
-    var taskId = status.taskId;
-    var runId = status.runs.pop().runId;
-
-    //var results = yield {
-      //result: getBody(taskUrl('%s/runs/%s/result.json', taskId, runId)),
-      //logs: getBody(taskUrl('%s/runs/%s/logs.json', taskId, runId)),
-      //taskId: taskId
-    //};
-
-    // Close listener we only care about one message at a time.
-    yield listener.close();
-
-    return status;
   }
 };
 

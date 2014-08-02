@@ -60,6 +60,6 @@
     "mocha": "^1.20.1",
     "slugid": "^1.0.1",
     "split2": "^0.1.2",
-    "taskcluster-task-factory": "^0.4.0"
+    "taskcluster-task-factory": "^0.4.2"
   }
 }

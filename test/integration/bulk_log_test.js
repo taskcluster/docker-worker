@@ -6,18 +6,20 @@ suite('logging to artifact', function() {
 
   test('artifact logger', co(function* () {
     var result = yield testworker({
-      image:          'ubuntu',
-      command:        [
-        '/bin/bash',
-        '-c',
-        'echo "first command!";' +
-        'for i in {1..1000}; do echo "Hello Number $i"; done;'
-      ],
-      features: {
-        liveLog: true,
-        bulkLog: true
-      },
-      maxRunTime:         5 * 60
+      payload: {
+        image: 'ubuntu',
+        command: [
+          '/bin/bash',
+          '-c',
+          'echo "first command!";' +
+          'for i in {1..1000}; do echo "Hello Number $i"; done;'
+        ],
+        features: {
+          liveLog: true,
+          bulkLog: true
+        },
+        maxRunTime: 5 * 60
+      }
     });
 
     assert.ok(result.run.success, 'task success');

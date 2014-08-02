@@ -32,11 +32,13 @@ suite('Capacity', function() {
 
     for (var i = 0; i < CAPACITY; i++) {
       tasks.push(worker.postToQueue({
-        image: 'ubuntu',
-        command: cmd(
-          'sleep ' + sleep
-        ),
-        maxRunTime: 60 * 60
+        payload: {
+          image: 'ubuntu',
+          command: cmd(
+            'sleep ' + sleep
+          ),
+          maxRunTime: 60 * 60
+        }
       }));
     }
 

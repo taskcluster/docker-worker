@@ -7,31 +7,33 @@ suite('artifact extration tests', function() {
 
   test('extract artifact', co(function* () {
     var result = yield testworker({
-      image: 'ubuntu',
-      command: cmd(
-        'mkdir /artifacts/',
-        'echo "xfoo" > /artifacts/xfoo.txt',
-        'echo "bar" > /artifacts/bar.txt',
-        'ls /artifacts'
-      ),
-      features: {
-        // No need to actually issue live logging...
-        liveLog: false
-      },
-      artifacts: {
-        'public/xfoo': {
-          type: 'file',
-          expires: expires(),
-          path: '/artifacts/xfoo.txt',
+      payload: {
+        image: 'ubuntu',
+        command: cmd(
+          'mkdir /artifacts/',
+          'echo "xfoo" > /artifacts/xfoo.txt',
+          'echo "bar" > /artifacts/bar.txt',
+          'ls /artifacts'
+        ),
+        features: {
+          // No need to actually issue live logging...
+          liveLog: false
         },
+        artifacts: {
+          'public/xfoo': {
+            type: 'file',
+            expires: expires(),
+            path: '/artifacts/xfoo.txt',
+          },
 
-        'public/bar': {
-          type: 'file',
-          expires: expires(),
-          path: '/artifacts/bar.txt',
-        }
-      },
-      maxRunTime:         5 * 60
+          'public/bar': {
+            type: 'file',
+            expires: expires(),
+            path: '/artifacts/bar.txt',
+          }
+        },
+        maxRunTime:         5 * 60
+      }
     });
 
     // Get task specific results
@@ -52,20 +54,22 @@ suite('artifact extration tests', function() {
 
   test('attempt to upload directory as file', co(function* () {
     var result = yield testworker({
-      image: 'ubuntu',
-      command: cmd('ls'),
-      features: {
-        // No need to actually issue live logging...
-        liveLog: false
-      },
-      artifacts: {
-        'public/etc': {
-          type: 'file',
-          expires: expires(),
-          path: '/etc/',
-        }
-      },
-      maxRunTime:         5 * 60
+      payload: {
+        image: 'ubuntu',
+        command: cmd('ls'),
+        features: {
+          // No need to actually issue live logging...
+          liveLog: false
+        },
+        artifacts: {
+          'public/etc': {
+            type: 'file',
+            expires: expires(),
+            path: '/etc/',
+          }
+        },
+        maxRunTime:         5 * 60
+      }
     });
 
     // Get task specific results
@@ -76,21 +80,23 @@ suite('artifact extration tests', function() {
 
   test('extract missing artifact', co(function*() {
     var result = yield testworker({
-      image: 'ubuntu',
-      command: cmd(
-        'echo "the user is:" > /username.txt',
-        'whoami >> /username.txt',
-        'echo "Okay, this is now done"'
-      ),
-      artifacts: {
-        // Name -> Source
-        'my-missing.txt': {
-          type: 'file',
-          path: 'this-file-is-missing.txt',
-          expires: expires()
-        }
-      },
-      maxRunTime:         5 * 60
+      payload: {
+        image: 'ubuntu',
+        command: cmd(
+          'echo "the user is:" > /username.txt',
+          'whoami >> /username.txt',
+          'echo "Okay, this is now done"'
+        ),
+        artifacts: {
+          // Name -> Source
+          'my-missing.txt': {
+            type: 'file',
+            path: 'this-file-is-missing.txt',
+            expires: expires()
+          }
+        },
+        maxRunTime:         5 * 60
+      }
     });
 
     assert.ok(
@@ -105,36 +111,38 @@ suite('artifact extration tests', function() {
 
   test('both missing and found artifacts', co(function* () {
     var result = yield testworker({
-      image: 'ubuntu',
-      command: cmd(
-        'echo "the user is:" > /username.txt',
-        'whoami >> /username.txt',
-        'echo "Okay, this is now done"'
-      ),
-      features: {
-        bufferLog: true,
-        azureLivelog: false,
-        extractArtifacts: true
-      },
-      artifacts: {
-        // name -> source
-        'username.txt': {
-          type: 'file',
-          path: 'username.txt',
-          expires: futureMin(10)
+      payload: {
+        image: 'ubuntu',
+        command: cmd(
+          'echo "the user is:" > /username.txt',
+          'whoami >> /username.txt',
+          'echo "Okay, this is now done"'
+        ),
+        features: {
+          bufferLog: true,
+          azureLivelog: false,
+          extractArtifacts: true
         },
-        'passwd.txt': {
-          type: 'file',
-          path: '/etc/passwd',
-          expires: futureMin(10)
+        artifacts: {
+          // name -> source
+          'username.txt': {
+            type: 'file',
+            path: 'username.txt',
+            expires: futureMin(10)
+          },
+          'passwd.txt': {
+            type: 'file',
+            path: '/etc/passwd',
+            expires: futureMin(10)
+          },
+          'my-missing.txt': {
+            type: 'file',
+            path: '/this-file-is-missing.txt',
+            expires: futureMin(10)
+          }
         },
-        'my-missing.txt': {
-          type: 'file',
-          path: '/this-file-is-missing.txt',
-          expires: futureMin(10)
-        }
-      },
-      maxRunTime:         5 * 60
+        maxRunTime:         5 * 60
+      }
     });
     // Get task specific results.
     assert.ok(result.run.success, 'task was successful');
