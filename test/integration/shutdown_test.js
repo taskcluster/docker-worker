@@ -38,12 +38,14 @@ suite('Shutdown on idle', function() {
     settings.billingCycleUptime(469);
 
     var res = yield {
-      post: worker.post({
-        image: 'ubuntu',
-        command: cmd(
-          'echo "Okay, this is now done"'
-        ),
-        maxRunTime: 60 * 60
+      post: worker.postToQueue({
+        payload: {
+          image: 'ubuntu',
+          command: cmd(
+            'echo "Okay, this is now done"'
+          ),
+          maxRunTime: 60 * 60
+        }
       }),
       pendingShutdown: waitForEvent(worker, 'pending shutdown'),
       exit: waitForEvent(worker, 'exit')
@@ -61,12 +63,14 @@ suite('Shutdown on idle', function() {
     settings.billingCycleUptime(75);
 
     var res = yield {
-      post: worker.post({
-        image: 'ubuntu',
-        command: cmd(
-          'echo "Okay, this is now done"'
-        ),
-        maxRunTime: 60 * 60
+      post: worker.postToQueue({
+        payload: {
+          image: 'ubuntu',
+          command: cmd(
+            'echo "Okay, this is now done"'
+          ),
+          maxRunTime: 60 * 60
+        }
       }),
       pendingShutdown: waitForEvent(worker, 'pending shutdown'),
       exit: waitForEvent(worker, 'exit')
@@ -78,24 +82,28 @@ suite('Shutdown on idle', function() {
     settings.billingCycleUptime(39);
     yield worker.launch();
     var idling = yield {
-      post: worker.post({
-        image: 'ubuntu',
-        command: cmd(
-          'echo "Okay, this is now done"'
-        ),
-        maxRunTime: 60 * 60
+      post: worker.postToQueue({
+        payload: {
+          image: 'ubuntu',
+          command: cmd(
+            'echo "Okay, this is now done"'
+          ),
+          maxRunTime: 60 * 60
+        }
       }),
       pendingShutdown: waitForEvent(worker, 'pending shutdown')
     };
     assert.equal(idling.pendingShutdown.time, 31);
 
     var working = yield {
-      create: worker.createGraph({
-        image: 'ubuntu',
-        command: cmd(
-          'echo "Okay, this is now done"'
-        ),
-        maxRunTime: 60 * 60
+      create: worker.postToQueue({
+        payload: {
+          image: 'ubuntu',
+          command: cmd(
+            'echo "Okay, this is now done"'
+          ),
+          maxRunTime: 60 * 60
+        }
       }),
       canceled: waitForEvent(worker, 'cancel pending shutdown')
     };

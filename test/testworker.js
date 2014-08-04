@@ -109,6 +109,11 @@ TestWorker.prototype = {
   @param {Object} taskConfig task config overrides (like .payload, etc..)
   */
   createTask: function* (taskId, taskConfig) {
+
+    taskConfig.schedulerId = 'docker-worker-tests';
+    // XXX: This is just a hack really so the validator does not complain.
+    taskConfig.taskGroupId = taskId;
+
     var task = this.TaskFactory.create(taskConfig);
     debug('post to queue %j', task);
     return yield this.queue.createTask(taskId, task);
