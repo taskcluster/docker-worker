@@ -54,10 +54,14 @@
       "minimum": "1",
       "maximum": "86400"
     },
-    "extendTaskGraph": {
-      "type": "string",
-      "title": "Path (in the container) to a json file which is used to extend task graph",
-      "description": "Contents of file are used to extend the graph (if this task was part of a graph). See http://docs.taskcluster.net/scheduler/api-docs/#extendTaskGraph"
+    "graphs": {
+      "type": "array",
+      "title": "Paths (in the container) to a json files which are used to extend the task graph",
+      "description": "Contents of file are used to extend the graph (if this task was part of a graph). See http://docs.taskcluster.net/scheduler/api-docs/#extendTaskGraph",
+      "items": {
+        "title": "Individual path to graph extension point.",
+        "type": "string"
+      }
     },
     "artifacts": {
       "type": "object",
