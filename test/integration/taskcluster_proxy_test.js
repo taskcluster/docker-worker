@@ -9,16 +9,17 @@ suite('taskcluster proxy', function() {
   test('issue a request to taskcluster via the proxy', co(function* () {
     var expected = 'is woot';
     var payload = {
-      kind: 'redirect',
+      storageType: 'reference',
       expires: expires().toJSON(),
       contentType: 'text/html',
       url: 'https://mozilla.com'
     };
 
     var result = yield testworker({
-      scopes: ['queue:put:artifact:*'],
+      scopes: ['queue:create-artifact:custom'],
       payload: {
         image: 'centos:latest',
+        features: { taskclusterProxy: true },
         artifacts: {},
         command: cmd(
           'curl -X POST ' +
@@ -32,6 +33,6 @@ suite('taskcluster proxy', function() {
 
     assert.ok(result.run.success, 'run was successful');
     assert.ok(result.artifacts['custom'], 'custom artifact is available');
-    assert.equal(result.artifacts['custom'].kind, 'redirect');
+    assert.equal(result.artifacts['custom'].storageType, 'reference');
   }));
 });
