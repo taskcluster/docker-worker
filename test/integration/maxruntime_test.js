@@ -9,9 +9,7 @@ suite('worker timeouts', function() {
         command:        [
           '/bin/bash', '-c', 'echo "Hello"; sleep 20; echo "done";'
         ],
-        features: {
-          liveLog: false
-        },
+        features: {},
         maxRunTime:         10
       }
     });
