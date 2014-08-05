@@ -33,9 +33,10 @@ co(function* () {
     }).promise();
   }
 
-  yield [
-    put('payload.json', require('../schemas/payload.json'))
-  ];
+  console.log(require('../schemas/payload'));
+  //yield [
+    //put('payload.json', require('../schemas/payload'))
+  //];
 
 })(function(err) {
   if (err) {

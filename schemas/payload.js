@@ -1,4 +1,24 @@
-{
+var features = require('../lib/features');
+
+// Create a schema out of the features list...
+var featureSchema = {
+  "title": "Feature flags",
+  "description": "Used to enable additional functionality.",
+  "type": "object",
+  "properties": {}
+
+};
+for (var key in features) {
+  var feature = features[key];
+  featureSchema.properties[key] = {
+    "type": "boolean",
+    "title": feature.title,
+    "description": feature.description,
+    "default": feature.default
+  };
+}
+
+module.exports = {
   "id": "http://schemas.taskcluster.net/docker-worker/v1/payload.json#",
   "$schema": "http://json-schema.org/draft-04/schema#",
   "definitions": {
