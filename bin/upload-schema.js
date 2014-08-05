@@ -8,18 +8,23 @@ auto pushing schema's tricky. For now this script does the uploads manually.
 var co = require('co');
 var aws = require('aws-sdk-promise');
 
-var config = require('../lib/config')();
+var loadConfig = require('taskcluster-base/config');
+var config = loadConfig({
+  defaults: require('../config/defaults'),
+  profile: require('../config/production'),
+  filename: 'docker-worker'
+});
 
 co(function* () {
   var s3 = new aws.S3({
-    region: config.schema.region,
+    region: config.get('schema:region'),
     params: {
-      Bucket: config.schema.bucket
+      Bucket: config.get('schema:bucket')
     }
   });
 
   function* put(path, object) {
-    var key = config.schema.path + path;
+    var key = config.get('schema:path') + path;
     console.log('uploading: %s', key);
     return yield s3.putObject({
       Key: key,
@@ -29,8 +34,7 @@ co(function* () {
   }
 
   yield [
-    put('payload.json', require('../schemas/payload.json')),
-    put('result.json', require('../schemas/result.json')),
+    put('payload.json', require('../schemas/payload.json'))
   ];
 
 })(function(err) {
@@ -40,6 +44,6 @@ co(function* () {
   }
   console.log(
     'Done uploading schemas to s3://%s%s',
-    config.schema.bucket, config.schema.path
+    config.get('schema:bucket'), config.get('schema:path')
   );
 });
