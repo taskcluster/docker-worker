@@ -1,73 +1,107 @@
 suite('Extend Task Graph', function() {
   var co = require('co');
-  var testworker = require('../post_task');
   var get = require('./helper/get');
   var cmd = require('./helper/cmd');
+  var slugid = require('slugid');
 
   var scheduler = new (require('taskcluster-client').Scheduler);
   var queue = new (require('taskcluster-client').Queue);
 
+  var LocalWorker = require('../dockerworker');
+  var TestWorker = require('../testworker');
   var Task = require('taskcluster-task-factory/task');
+
   var EXTENSION_LABEL = 'test_task_extension';
 
-  var graphTask = Task.create({
-    workerType: '{{workerType}}',
-    provisionerId: '{{provisionerId}}',
-    metadata: {
-      owner: 'test@localhost.local'
-    },
-    payload: {
-      image: 'ubuntu',
-      command: cmd('ls', '/bin/bash'),
-      features: {},
-      artifacts: {},
-      maxRunTime: 5 * 60
-    }
-  });
+  var worker;
+  setup(co(function * () {
+    worker = new TestWorker(LocalWorker);
+    yield worker.launch();
+  }));
 
-  var graph = {
-    version: '0.2.0',
-    params: {},
-    tasks: [{
-      label: EXTENSION_LABEL,
-      requires: [],
-      reruns: 0,
-      task: graphTask
-    }]
-  };
+  teardown(co(function* () {
+    yield worker.terminate();
+  }));
 
   test('successfully extend graph', co(function* () {
-    var json = JSON.stringify(graph);
-    var data = yield testworker({
-      image: 'ubuntu',
-      command: cmd(
-        'echo \'' + json + '\' > /graph.json'
-      ),
-      features: {
-        azureLiveLog: false,
-        bufferLog: true
+    var graphId = slugid.v4();
+    var primaryTaskId = slugid.v4();
+    var customTaskId = slugid.v4();
+
+    var graphTask = Task.create({
+      taskGroupId: graphId,
+      schedulerId: 'task-graph-scheduler',
+      workerType: worker.workerType,
+      provisionerId: worker.provisionerId,
+      metadata: {
+        owner: 'test@localhost.local'
       },
-      artifacts: {},
-      extendTaskGraph: '/graph.json',
-      maxRunTime: 5 * 60
+      payload: {
+        image: 'ubuntu',
+        command: cmd('echo "wooot custom!"'),
+        features: {},
+        artifacts: {},
+        maxRunTime: 5 * 60
+      }
     });
 
-    var result = data.result.result;
-    var task = yield queue.getTask(data.taskId);
+    var graph = {
+      tasks: [{
+        taskId: customTaskId,
+        label: EXTENSION_LABEL,
+        requires: [],
+        reruns: 0,
+        task: graphTask
+      }]
+    };
 
-    var taskGraphInfo =
-      yield scheduler.inspectTaskGraph(task.metadata.taskGraphId);
+    var json = JSON.stringify(graph);
+    var result = yield worker.postToScheduler(graphId, {
+      routing: '',
+      scopes: [
+        'queue:define-task:' + worker.provisionerId + '/' + worker.workerType
+      ],
+      tasks: [{
+        taskId: primaryTaskId,
+        label: 'primary',
+        task: {
+          metadata: {
+            owner: 'tests@local.localhost'
+          },
+          payload: {
+            image: 'ubuntu',
+            command: cmd(
+              'echo \'' + json + '\' > /graph.json'
+            ),
+            features: {},
+            artifacts: {},
+            graphs: ['/graph.json'],
+            maxRunTime: 5 * 60
+          }
+        }
+      }]
+    });
 
-    assert.equal(taskGraphInfo.status.state, 'running');
-    assert.ok(taskGraphInfo.tasks[EXTENSION_LABEL], 'task graph was extended');
+
+    assert.equal(result.length, 2, 'two tasks ran in graph');
+
+    var extendingTask = result.filter(function(task) {
+      return task.taskId === primaryTaskId
+    })[0];
+
+    var customTask = result.filter(function(task) {
+      return task.taskId === customTaskId;
+    })[0];
+
+    assert.ok(extendingTask.run.success, 'extending task was successful');
     assert.ok(
-      result.logText.indexOf('extended graph') !== -1,
+      extendingTask.log.indexOf('extended graph') !== -1,
       'log is shown with graph extension'
     );
 
-    var extensionTask =
-      yield queue.getTask(taskGraphInfo.tasks[EXTENSION_LABEL].taskId);
-
-    assert.deepEqual(extensionTask.payload, graphTask.payload);
+    assert.ok(customTask.run.success, 'custom task was successful');
+    assert.ok(
+      customTask.log.indexOf('wooot custom') !== 1, 'correctly executed commands'
+    );
   }));
 });

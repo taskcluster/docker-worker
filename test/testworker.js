@@ -13,6 +13,8 @@ var loadConfig = require('taskcluster-base/config');
 var getArtifact = require('./integration/helper/get_artifact');
 
 var Task = require('taskcluster-task-factory/task');
+var Graph = require('taskcluster-task-factory/graph');
+
 var LocalWorker = require('./localworker');
 var Queue  = require('taskcluster-client').Queue;
 var Scheduler = require('taskcluster-client').Scheduler;
@@ -21,6 +23,7 @@ var Promise = require('promise');
 var EventEmitter = require('events').EventEmitter;
 
 var queueEvents = new (require('taskcluster-client').QueueEvents);
+var schedulerEvents = new (require('taskcluster-client').SchedulerEvents);
 
 /** Test provisioner id, don't change this... */
 var PROVISIONER_ID = 'no-provisioning-nope';
@@ -33,6 +36,7 @@ function TestWorker(Worker, workerType, workerId) {
     filename: 'docker-worker-test'
   });
 
+  this.provisionerId = PROVISIONER_ID;
   this.workerType = workerType || slugid.v4();
   this.workerId = workerId || this.workerType;
   this.worker = new Worker(PROVISIONER_ID, this.workerType, this.workerId);
@@ -122,40 +126,21 @@ TestWorker.prototype = {
   /**
   Post a task to the graph with the testing configuration.
 
-  @param {Object} payload for the task.
+  @param {String} graphId task graph id.
+  @param {Object} graphConfig for the graph..
   */
-  createGraph: function* (payload) {
-    var deadline = new Date();
-    deadline.setMinutes(deadline.getMinutes() + 10);
+  createGraph: function* (graphId, graphConfig) {
+    var graph = Graph.create(graphConfig);
+    graph.tasks.map(function(graphTask) {
+      graphTask.task.schedulerId = 'task-graph-scheduler';
+      graphTask.task.workerType = this.workerType;
+      graphTask.task.provisionerId = this.provisionerId;
+      graphTask.task.taskGroupId = graphId;
+      return graphTask;
+    }, this);
 
-    var task = Task.create({
-      payload: payload,
-      provisionerId: '{{provisionerId}}',
-      workerType: '{{workerType}}',
-      deadline: deadline.toJSON(),
-      timeout: 30,
-      metadata: {
-        owner: 'unkown@localhost.local',
-        name: 'Task from docker-worker test suite',
-      }
-    });
-
-    return yield this.scheduler.createTaskGraph({
-      version: '0.2.0',
-      tags: {},
-      routing: '',
-      params: {
-        workerType: this.workerType,
-        provisionerId: PROVISIONER_ID
-      },
-      metadata: task.metadata,
-      tasks: [{
-        label: 'test_task',
-        requires: [],
-        reruns: 0,
-        task: task
-      }]
-    });
+    debug('post to graph %j', graph);
+    return yield this.scheduler.createTaskGraph(graphId, graph);
   },
 
   /**
@@ -195,6 +180,50 @@ TestWorker.prototype = {
       taskId: taskId,
       runId: runId
     };
+  },
+
+  postToScheduler: function* (graphId, graph) {
+    // Create and bind the listener which will notify us when the worker
+    // completes a task.
+    var listener = new Listener({
+      connectionString: (yield this.queue.getAMQPConnectionString()).url
+    });
+
+    // Listen for either blocked or finished...
+    yield listener.bind(schedulerEvents.taskGraphBlocked({
+      taskGraphId: graphId
+    }));
+    yield listener.bind(schedulerEvents.taskGraphFinished({
+      taskGraphId: graphId
+    }));
+
+    // Connect to queue and being consuming it...
+    yield listener.connect();
+    yield listener.resume();
+
+    // Begin listening at the same time we create the task to ensure we get the
+    // message at the correct time.
+    var creation = yield [
+      waitForEvent(listener, 'message'),
+      this.createGraph(graphId, graph),
+    ];
+
+    // Fetch the final result json.
+    var status = creation.shift().payload.status;
+
+    // Close listener we only care about one message at a time.
+    try {
+      yield listener.close();
+    } catch(e) {
+      console.log('error during close:', e);
+    }
+
+    var graph = yield this.scheduler.inspectTaskGraph(graphId);
+    return yield graph.tasks.map(function(task) {
+      // Note: that we assume runId 0 here which is fine locally since we know
+      // the number of runs but not safe is we wanted to test reruns.
+      return this.fetchTaskStats(task.taskId, 0);
+    }, this);
   },
 
   /**
