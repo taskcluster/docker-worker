@@ -28,7 +28,7 @@ suite('Directory artifact', function() {
     // Get task specific results
     assert.ok(result.run.success, 'task was successful');
     assert.ok(result.artifacts['public/xfoo'], 'artifact is present');
-    assert.equal(result.artifacts['public/xfoo'].kind, 'error');
+    assert.equal(result.artifacts['public/xfoo'].storageType, 'error');
   }));
 
   test('upload an entire directory', co(function* () {

@@ -2,7 +2,7 @@ suite('artifact extration tests', function() {
   var co = require('co');
   var getArtifact = require('./helper/get_artifact');
   var cmd = require('./helper/cmd');
-  var expires = requrie('./helper/expires');
+  var expires = require('./helper/expires');
   var testworker = require('../post_task');
 
   test('extract artifact', co(function* () {
@@ -75,7 +75,7 @@ suite('artifact extration tests', function() {
     // Get task specific results
     assert.ok(result.run.success, 'task was successful');
     assert.ok(result.artifacts['public/etc'], 'artifact is present');
-    assert.equal(result.artifacts['public/etc'].kind, 'error');
+    assert.equal(result.artifacts['public/etc'].storageType, 'error');
   }));
 
   test('extract missing artifact', co(function*() {
@@ -106,7 +106,7 @@ suite('artifact extration tests', function() {
 
     assert.ok(result.run.success, 'task was successful');
     assert.ok(result.artifacts['my-missing.txt'])
-    assert.equal(result.artifacts['my-missing.txt'].kind, 'error');
+    assert.equal(result.artifacts['my-missing.txt'].storageType, 'error');
   }));
 
   test('both missing and found artifacts', co(function* () {
@@ -128,17 +128,17 @@ suite('artifact extration tests', function() {
           'username.txt': {
             type: 'file',
             path: 'username.txt',
-            expires: futureMin(10)
+            expires: expires()
           },
           'passwd.txt': {
             type: 'file',
             path: '/etc/passwd',
-            expires: futureMin(10)
+            expires: expires()
           },
           'my-missing.txt': {
             type: 'file',
             path: '/this-file-is-missing.txt',
-            expires: futureMin(10)
+            expires: expires()
           }
         },
         maxRunTime:         5 * 60
@@ -148,10 +148,10 @@ suite('artifact extration tests', function() {
     assert.ok(result.run.success, 'task was successful');
 
     // Ensure these have no errors...
-    assert.equal(result.artifacts['username.txt'].kind, 's3');
-    assert.equal(result.artifacts['passwd.txt'].kind, 's3');
+    assert.equal(result.artifacts['username.txt'].storageType, 's3');
+    assert.equal(result.artifacts['passwd.txt'].storageType, 's3');
 
     // Missing artifact should have an error...
-    assert.equal(result.artifacts['my-missing.txt'].kind, 'error');
+    assert.equal(result.artifacts['my-missing.txt'].storageType, 'error');
   }));
 });
