@@ -91,42 +91,6 @@ module.exports = {
         "$ref": "#/definitions/artifact"
       }
     },
-    "features": {
-      "title": "Feature flags",
-      "description": "Used to enable additional functionality.",
-      "type": "object",
-      "properties": {
-        "bufferLog": {
-          "type": "boolean",
-          "title": "Buffers log into single field.",
-          "description": "Buffer entire log into a single field.",
-          "default": false
-        },
-        "azureLiveLog": {
-          "type": "boolean",
-          "title": "Container log is sent realtime to azure (live logging).",
-          "description": "Container log is sent realtime to azure.",
-          "default": true
-        },
-        "extractArtifacts": {
-          "type": "boolean",
-          "title": "Artifacts will be uploaded.",
-          "description": "When enable artifacts will be uploaded.",
-          "default": true
-        },
-        "artifactLog": {
-          "type": "boolean",
-          "title": "Container log will be sent as an artifact.",
-          "description": "When enabled container log is sent as an artifact.",
-          "default": true
-        },
-        "extendTaskGraph": {
-          "type": "boolean",
-          "title": "Enable extension of taskgraph from task.",
-          "description": "When enabled extend task graph with `.extendTaskGraph` if given.",
-          "default": true
-        }
-      }
-    }
+    "features": featureSchema
   }
 }
