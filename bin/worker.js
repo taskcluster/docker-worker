@@ -9,7 +9,7 @@ var debug = require('debug')('docker-worker:bin:worker');
 
 var SDC = require('statsd-client')
 var Docker = require('dockerode-promise');
-var Config = require('../lib/configuration');
+var Runtime = require('../lib/runtime');
 var TaskListener = require('../lib/task_listener');
 var ShutdownManager = require('../lib/shutdown_manager');
 var Stats = require('../lib/stat');
@@ -127,18 +127,18 @@ co(function *() {
     workerType: config.workerType
   });
 
-  configManifest = new Config(config);
+  var runtime = new Runtime(config);
 
   // Build the listener and connect to the queue.
-  var taskListener = new TaskListener(configManifest);
+  var taskListener = new TaskListener(runtime);
   yield taskListener.connect();
-  configManifest.log('start');
+  runtime.log('start');
 
   // Billing cycle logic is host specific so we cannot handle shutdowns without
   // both the host and the configuration to shutdown.
   if (host && config.shutdown) {
-    configManifest.log('handle shutdowns');
-    var shutdownManager = new ShutdownManager(host, configManifest);
+    runtime.log('handle shutdowns');
+    var shutdownManager = new ShutdownManager(host, runtime);
     shutdownManager.observe(taskListener);
   }
 
