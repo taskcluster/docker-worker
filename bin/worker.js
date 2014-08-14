@@ -27,7 +27,18 @@ function o() {
 }
 
 // Usage.
-program.usage("[options] <profile>");
+program.usage(
+'[options] <profile> \n\n' +
+'  Configuration is loaded in the following order (lower down overrides): ' +
+'\n\n' +
+'      1. docker-worker/config/defaults \n' +
+'      2. docker-worker/config/<profile> \n' +
+'      3. $PWD/docker-worker.conf.json \n' +
+'      4. ~/docker-worker.conf.json \n' +
+'      5. /etc/docker-worker.conf.json \n' +
+'      6. Host specific configuration (userdata, test data, etc..) ' +
+'      7. Command line flags (capacity, workerId, etc...)'
+);
 
 // CLI Options.
 o('--host <type>',
@@ -55,18 +66,9 @@ co(function *() {
     filename: 'docker-worker'
   });
 
-  // Placeholder for final configuration options.
-  var config = {
-    conf: workerConf,
-    docker: new Docker(dockerOpts()),
-    queue: new taskcluster.Queue({
-      credentials: workerConf.get('taskcluster')
-    }),
-    scheduler: new taskcluster.Scheduler({
-      credentials: workerConf.get('taskcluster')
-    }),
-    schema: require('../lib/schema')()
-  };
+  // Load all base configuration that is on disk / environment variables /
+  // flags.
+  var config = yield workerConf.load.bind(workerConf)
 
   // Use a target specific configuration helper if available.
   var host;
@@ -97,11 +99,16 @@ co(function *() {
 
   debug('configuration loaded', config);
 
-  var statsdConf = url.parse(workerConf.get('statsd:url'));
-
+  // Initialize the classes and objects with core functionality used by higher
+  // level docker-worker components.
+  config.docker = new Docker(dockerOpts());
+  config.queue = new taskcluster.Queue({ credentials: config.taskcluster });
+  config.scheduler = new taskcluster.Queue({ credentials: config.taskcluster });
+  config.schema = require('../lib/schema')();
   // Default to always having at least a capacity of one.
   config.capacity = config.capacity || 1;
 
+  var statsdConf = url.parse(workerConf.get('statsd:url'));
   // Raw statsd interface.
   config.statsd = new SDC({
     debug: !!process.env.DEBUG,
@@ -109,7 +116,7 @@ co(function *() {
     host: statsdConf.hostname,
     port: statsdConf.port,
     // docker-worker.<worker-type>.<provisionerId>.
-    prefix: workerConf.get('statsd:prefix') +
+    prefix: config.statsd.prefix +
       'docker-worker.' +
       config.workerType + '.' +
       config.provisionerId + '.'
