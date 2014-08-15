@@ -157,7 +157,7 @@ TestWorker.prototype = {
       ),
 
       // Generally useful for most of the tests...
-      artifacts: this.queue.getArtifactsFromRun(taskId, runId),
+      artifacts: this.queue.listArtifacts(taskId, runId),
     };
 
     // XXX: Ugh status.status...
