@@ -44,6 +44,7 @@ suite('Docker custom private registry', function() {
     yield worker.launch();
 
     var result = yield worker.postToQueue({
+      scopes: [imageName],
       payload: {
         image: imageName,
         command: cmd('ls'),
@@ -55,19 +56,42 @@ suite('Docker custom private registry', function() {
     assert.ok(result.log.indexOf(imageName) !== '-1', 'correct image name');
   }));
 
-  test('failed', co(function* () {
+  test('failed scopes', co(function* () {
+    var imageName = registryProxy.imageName('lightsofapollo/busybox');
+
+    // Ensure this credential request fails...
+    var registry = {};
+    registry[registryProxy.imageName('')] = credentials;
+    settings.configure({ registry: registry });
+
+    yield worker.launch();
+
+    var result = yield worker.postToQueue({
+      scopes: [],
+      payload: {
+        image: imageName,
+        command: cmd('ls'),
+        maxRunTime: 60 * 60
+      }
+    });
+    assert.ok(!result.run.success, 'auth download works');
+    assert.ok(result.log.indexOf(imageName) !== '-1', 'correct image name');
+  }));
+
+  test('failed auth', co(function* () {
     var imageName = registryProxy.imageName('lightsofapollo/busybox');
 
     // Ensure this credential request fails...
     var registry = {};
     registry[registryProxy.imageName('')] = {
-      username: 'fail', password: 'fail' 
+      username: 'fail', password: 'fail'
     };
     settings.configure({ registry: registry });
 
     yield worker.launch();
 
     var result = yield worker.postToQueue({
+      scopes: [imageName],
       payload: {
         image: imageName,
         command: cmd('ls'),
