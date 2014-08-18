@@ -35,7 +35,7 @@ suite('Docker custom private registry', function() {
     yield worker.terminate();
   }));
 
-  test('pull from private registry', co(function* () {
+  test('success', co(function* () {
     var imageName = registryProxy.imageName('lightsofapollo/busybox');
     var registry = {};
     registry[registryProxy.imageName('')] = credentials;
@@ -55,6 +55,27 @@ suite('Docker custom private registry', function() {
     assert.ok(result.log.indexOf(imageName) !== '-1', 'correct image name');
   }));
 
+  test('failed', co(function* () {
+    var imageName = registryProxy.imageName('lightsofapollo/busybox');
+
+    // Ensure this credential request fails...
+    var registry = {};
+    registry[registryProxy.imageName('')] = {
+      username: 'fail', password: 'fail' 
+    };
+    settings.configure({ registry: registry });
+
+    yield worker.launch();
+
+    var result = yield worker.postToQueue({
+      payload: {
+        image: imageName,
+        command: cmd('ls'),
+        maxRunTime: 60 * 60
+      }
+    });
+    assert.ok(!result.run.success, 'auth download works');
+    assert.ok(result.log.indexOf(imageName) !== '-1', 'correct image name');
+  }));
+
 });
-
-
