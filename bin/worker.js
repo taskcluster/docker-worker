@@ -101,7 +101,8 @@ co(function *() {
   // level docker-worker components.
   config.docker = require('../lib/docker')();
   config.queue = new taskcluster.Queue({ credentials: config.taskcluster });
-  config.scheduler = new taskcluster.Queue({ credentials: config.taskcluster });
+  config.scheduler =
+    new taskcluster.Scheduler({ credentials: config.taskcluster });
   config.schema = require('../lib/schema')();
   // Default to always having at least a capacity of one.
   config.capacity = config.capacity || 1;

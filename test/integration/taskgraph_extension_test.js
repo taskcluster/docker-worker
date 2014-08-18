@@ -57,7 +57,6 @@ suite('Extend Task Graph', function() {
 
     var json = JSON.stringify(graph);
     var result = yield worker.postToScheduler(graphId, {
-      routing: '',
       scopes: [
         'queue:define-task:' + worker.provisionerId + '/' + worker.workerType
       ],

@@ -45,7 +45,7 @@
     "tar-stream": "^0.4.4",
     "taskcluster-azure-blobstream": "^0.3.0",
     "taskcluster-base": "^0.4.2",
-    "taskcluster-client": "^0.14.3",
+    "taskcluster-client": "^0.14.4",
     "temporary": "0.0.8",
     "uuid": "^1.4.1"
   },
@@ -62,6 +62,6 @@
     "mocha": "^1.20.1",
     "slugid": "^1.0.1",
     "split2": "^0.1.2",
-    "taskcluster-task-factory": "^0.6.0"
+    "taskcluster-task-factory": "^0.6.1"
   }
 }
