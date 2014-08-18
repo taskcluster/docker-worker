@@ -16,7 +16,7 @@ module.exports = {
   /**
   Registries which we can authenticate against for pulls:
 
-    registries: {
+    registry: {
       // Note that these match based on the nearest path so the below
       // will authenticate for quay.io/mozilla/xfoo, etc...
       'quay.io/mozilla': {
@@ -25,7 +25,7 @@ module.exports = {
       }
     }
   */
-  registries: {},
+  registry: {},
 
   // Taskcluster client `credentials`.
   taskcluster: {

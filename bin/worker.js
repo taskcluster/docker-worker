@@ -1,14 +1,12 @@
 var program = require('commander');
 var co = require('co');
 var taskcluster = require('taskcluster-client');
-var dockerOpts = require('dockerode-options');
 var url = require('url');
 var loadConfig = require('taskcluster-base/config');
 var createLogger = require('../lib/log');
 var debug = require('debug')('docker-worker:bin:worker');
 
 var SDC = require('statsd-client')
-var Docker = require('dockerode-promise');
 var Runtime = require('../lib/runtime');
 var TaskListener = require('../lib/task_listener');
 var ShutdownManager = require('../lib/shutdown_manager');
@@ -101,7 +99,7 @@ co(function *() {
 
   // Initialize the classes and objects with core functionality used by higher
   // level docker-worker components.
-  config.docker = new Docker(dockerOpts());
+  config.docker = require('../lib/docker')();
   config.queue = new taskcluster.Queue({ credentials: config.taskcluster });
   config.scheduler = new taskcluster.Queue({ credentials: config.taskcluster });
   config.schema = require('../lib/schema')();
