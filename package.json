@@ -48,7 +48,8 @@
     "taskcluster-base": "^0.4.2",
     "taskcluster-client": "^0.14.4",
     "temporary": "0.0.8",
-    "uuid": "^1.4.1"
+    "uuid": "^1.4.1",
+    "wordwrap": "0.0.2"
   },
   "devDependencies": {
     "aws-sdk": "^2.0.7",

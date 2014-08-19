@@ -58,9 +58,10 @@ function TestWorker(Worker, workerType, workerId) {
       workerType: this.workerType,
       provisionerId: PROVISIONER_ID,
       metadata: {
+        description: 'jonas damn you',
         owner: 'unkown@localhost.local',
         name: 'Task from docker-worker test suite',
-        source: 'tests'
+        source: 'http://foobar.com'
       }
     }
   });
