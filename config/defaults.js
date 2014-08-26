@@ -6,6 +6,7 @@ module.exports = {
   taskclusterProxyImage: 'taskcluster/proxy',
 
   logging: {
+    liveLogChunkInterval: 5000, // 5 seconds
     // Added to the current date to make up the expiry time for logs. This is
     // hack to generate a year in ms... Note that two args (year, month) are
     // required here instead of one due to some quirk of v8...
