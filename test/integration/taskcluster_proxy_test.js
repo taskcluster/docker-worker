@@ -1,10 +1,25 @@
 suite('taskcluster proxy', function() {
   var co = require('co');
   var request = require('superagent-promise');
-  var testworker = require('../post_task');
   var queue = new (require('taskcluster-client').Queue);
   var cmd = require('./helper/cmd');
   var expires = require('./helper/expires')
+
+
+  // We need to use the docker worker host here so the network connection code
+  // actually runs...
+  var DockerWorker = require('../dockerworker');
+  var TestWorker = require('../testworker');
+
+  var worker;
+  setup(co(function * () {
+    worker = new TestWorker(DockerWorker);
+    yield worker.launch();
+  }));
+
+  teardown(co(function* () {
+    yield worker.terminate();
+  }));
 
   test('issue a request to taskcluster via the proxy', co(function* () {
     var expected = 'is woot';
@@ -15,7 +30,7 @@ suite('taskcluster proxy', function() {
       url: 'https://mozilla.com'
     };
 
-    var result = yield testworker({
+    var result = yield worker.postToQueue({
       scopes: ['queue:create-artifact:custom'],
       payload: {
         image: 'centos:latest',
