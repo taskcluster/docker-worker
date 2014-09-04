@@ -219,7 +219,7 @@ TestWorker.prototype = {
       console.log('error during close:', e);
     }
 
-    var graph = yield this.scheduler.inspectTaskGraph(graphId);
+    var graph = yield this.scheduler.inspect(graphId);
     return yield graph.tasks.map(function(task) {
       // Note: that we assume runId 0 here which is fine locally since we know
       // the number of runs but not safe is we wanted to test reruns.
