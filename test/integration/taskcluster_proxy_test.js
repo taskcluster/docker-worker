@@ -22,7 +22,7 @@ suite('taskcluster proxy', function() {
         features: { taskclusterProxy: true },
         artifacts: {},
         command: cmd(
-          'curl -X POST ' +
+          'curl --retry 5 -X POST ' +
           '-H "Content-Type: application/json" ' +
           '--data \'' + JSON.stringify(payload) + '\' ' +
           'taskcluster/queue/v1/task/$TASK_ID/runs/$RUN_ID/artifacts/custom'

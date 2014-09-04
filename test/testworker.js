@@ -154,7 +154,7 @@ TestWorker.prototype = {
 
       // Live logging of the task...
       log: getArtifact(
-        { taskId: taskId, runId: runId }, 'public/logs/terminal_live.log'
+        { taskId: taskId, runId: runId }, 'public/logs/live.log'
       ),
 
       // Generally useful for most of the tests...
