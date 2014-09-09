@@ -14,21 +14,21 @@ co(function* () {
 
   for (var i = 0; i < pending.length; i++) {
     var taskId = pending[i].taskId;
-    var runId = pending[i].runs.length;
+    var runId = Math.max(pending[i].runs.length - 1, 0);
     var workerType = pending[i].workerType;
 
     if (workerType !== workerType) continue;
 
     console.log('begin claiming', taskId, runId);
-    try { 
+    try {
       var claim = yield queue.claimTask(taskId, runId, {
         workerGroup: 'skip',
         workerId: 'skip'
       });
 
-      yield queue.reportCompleted(taskId, runId, false);
+      yield queue.reportCompleted(taskId, runId, { success: false });
     } catch (e) {
-      console.error("Could not complete %s %d", taskId, runId, e);
+      console.error("Could not complete %s %d", taskId, runId, e, JSON.stringify(e.body, null, 2));
     }
   }
 
