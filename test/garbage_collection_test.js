@@ -41,11 +41,11 @@ suite('garbage collection tests', function () {
       var gc = new GarbageCollector({
         log: log,
         docker: docker,
-        interval: 5
+        interval: 2
       });
       var markedContainers = []
 
-      for (var i = 0; i < 5; i++) {
+      for (var i = 0; i < 2; i++) {
         var container = yield docker.createContainer({Image: IMAGE});
         markedContainers.push(container.id);
         gc.removeContainer(container.id);
@@ -63,7 +63,7 @@ suite('garbage collection tests', function () {
                   'Container was found in the list of garbage ' +
                   'collected containers.')
         done();
-      }, 10 * 1000);
+      }, 4 * 1000);
     })();
   });
   // TODO - Test remove running container
