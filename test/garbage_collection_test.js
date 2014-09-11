@@ -43,7 +43,7 @@ suite('garbage collection tests', function () {
         docker: docker,
         interval: 2
       });
-      var markedContainers = []
+      var markedContainers = [];
 
       for (var i = 0; i < 2; i++) {
         var container = yield docker.createContainer({Image: IMAGE});
@@ -54,17 +54,42 @@ suite('garbage collection tests', function () {
       markedContainers.forEach(function (container) {
         assert.ok(container in gc.markedContainers,
                   'Container was not found in the list of garbage ' +
-                  'collected containers.')
-      })
+                  'collected containers.');
+      });
 
 
       setTimeout(function () {
         assert.ok(!(container in gc.markedContainers),
                   'Container was found in the list of garbage ' +
-                  'collected containers.')
+                  'collected containers.');
+        clearTimeout(gc.sweepTimeoutId);
         done();
-      }, 4 * 1000);
+      }, 5 * 1000);
     })();
   });
-  // TODO - Test remove running container
+
+  test('remove running container', function(done) {
+    co(function* () {
+      var gc = new GarbageCollector({
+        log: log,
+        docker: docker,
+        interval: 2
+      });
+
+      var container = yield docker.createContainer({Image: IMAGE, Cmd: '/bin/bash && sleep 60'});
+      gc.removeContainer(container.id);
+
+      assert.ok(container.id in gc.markedContainers,
+                'Container was not found in the list of garbage ' +
+                'collected containers.');
+
+      setTimeout(function () {
+        assert.ok(!(container in gc.markedContainers),
+                  'Container was found in the list of garbage ' +
+                  'collected containers.');
+        clearTimeout(gc.sweepTimeoutId);
+        done();
+      }, 5 * 1000);
+    })();
+  });
 });
