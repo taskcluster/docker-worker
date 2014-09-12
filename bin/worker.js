@@ -137,7 +137,7 @@ co(function *() {
   config.gc = new GarbageCollector({
     docker: config.docker,
     log: config.log,
-    interval: 60
+    interval: 60 * 1000
   });
 
   var runtime = new Runtime(config);

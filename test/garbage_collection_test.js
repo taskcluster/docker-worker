@@ -41,7 +41,7 @@ suite('garbage collection tests', function () {
       var gc = new GarbageCollector({
         log: log,
         docker: docker,
-        interval: 2
+        interval: 2 * 1000
       });
       var markedContainers = [];
 
@@ -73,7 +73,7 @@ suite('garbage collection tests', function () {
       var gc = new GarbageCollector({
         log: log,
         docker: docker,
-        interval: 2
+        interval: 2 * 1000
       });
 
       var container = yield docker.createContainer({Image: IMAGE, Cmd: '/bin/bash && sleep 60'});
