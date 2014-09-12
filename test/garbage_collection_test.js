@@ -92,4 +92,30 @@ suite('garbage collection tests', function () {
       }, 5 * 1000);
     })();
   });
+
+  test('container removal retry limit exceeded', function(done) {
+    co(function* () {
+      var gc = new GarbageCollector({
+        log: log,
+        docker: docker,
+        interval: 2 * 1000
+      });
+
+      var container = yield docker.createContainer({Image: IMAGE});
+      gc.removeContainer(container.id);
+      gc.markedContainers[container.id] = 0;
+
+      assert.ok(container.id in gc.markedContainers,
+                'Container was not found in the list of garbage ' +
+                'collected containers.');
+
+      setTimeout(function () {
+        assert.ok(!(container in gc.markedContainers),
+                  'Container was found in the list of garbage ' +
+                  'collected containers.');
+        clearTimeout(gc.sweepTimeoutId);
+        done();
+      }, 5 * 1000);
+    })();
+  });
 });
