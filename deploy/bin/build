@@ -20,7 +20,7 @@ packer_run() {
 }
 
 template_vars() {
-  echo "deploy/config/$1.json"
+  echo "deploy/target/packer/$1.json"
 }
 
 packer_config() {

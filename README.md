@@ -75,10 +75,6 @@ This repo contains a deployment script `./deploy/bin/build` (run `./deploy/bin/b
 for the awesome [packer](www.packer.io) the worker is then packed up
 (currently only for AWS AMI) and managed via upstart...
 
-Overriding the defaults is easy, just copy the example configuration file
-[docker_worker_opts_example.sh](/docker_worker_opts_example.sh),
-fill out the missing credentials and save it as `docker-worker-opts.sh`.
-
 Schema changes are not deployed automatically so if the
 schema has been changed, the run the upload-schema.js script to update.
 

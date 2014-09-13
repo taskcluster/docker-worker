@@ -1,49 +1,57 @@
 var co = require('co');
-var fs = require('co-fs');
+var fs = require('fs');
 var fsPath = require('path');
 var color = require('cli-color');
 var prompt = require('co-prompt');
 var util = require('util');
 var program = require('commander');
+var template = require('json-templater/string');
 
-var TARGET_ROOT = fsPath.resolve(__dirname, '..', 'packer/');
-var CONFIG_ROOT = fsPath.resolve(TARGET_ROOT, '..', 'config/');
+var CONFIG = __dirname + '/../../deploy.json';
+var TPL_SOURCE = __dirname + '/../template/';
+var TPL_TARGET = __dirname + '/../target/';
+
+var TEMPLATES = [
+  'packer/app.json',
+  'packer/base.json',
+  'etc/defaults/docker-worker'
+]
 
 var DESCRIPTIONS = {
-  app: {
-    environment: 'Shell script file which can setup the environment ' +
-                 '(such as exporting environment variables)',
-    source_ami: 'Base AMI which this image depends on.',
-    loggly_account: 'Loggly account name',
-    loggly_auth: 'Loggly authentication token',
-    fs_type: 'Docker filesystem type (aufs, btrfs)',
-    papertrail: 'Papertrail host + port'
+  debugLevel: {
+    description: 'Debug level for worker (see debug npm module)',
+    value: '*'
   },
-  base: {}
+  taskclusterClientId: {
+    description: 'Taskcluster client id',
+    value: process.env.TASKCLUSTER_CLIENT_ID
+  },
+  taskclusterAccessToken: {
+    description: 'Taskcluster access token',
+    value: process.env.TASKCLUSTER_ACCESS_TOKEN
+  },
+  statsdPrefix: {
+    description: 'statsd prefix token',
+    value: process.env.STATSD_PREFIX
+  },
+  statsdUrl: {
+    description: 'statsd url endpoint',
+    value: process.env.STATSD_URL
+  },
+  logglyAccount: {
+    description: 'Loggly account name',
+  },
+  logglyAuth: {
+    description: 'Loggly authentication token',
+  },
+  fsType: {
+    description: 'Docker filesystem type (aufs, btrfs)',
+    value: 'aufs'
+  },
+  papertrail: {
+    description: 'Papertrail host + port'
+  }
 };
-
-function* getTarget(name) {
-  var fullPath = fsPath.join(TARGET_ROOT, name);
-  var json = require(fullPath);
-
-  return {
-    name: name.replace('.json', ''),
-    path: fullPath,
-    config: json
-  };
-}
-
-function* getTargets() {
-  var targetList = {};
-  var dirs = (yield fs.readdir(TARGET_ROOT)).filter(function(name) {
-    return name.split('.').pop() === 'json';
-  });
-
-  return yield dirs.map(getTarget);
-}
-
-var descriptions = {
-}
 
 function* question(field, desc) {
   return yield prompt(
@@ -51,29 +59,19 @@ function* question(field, desc) {
   );
 }
 
-function* configure(target) {
-  if (!Object.keys(DESCRIPTIONS[target.name]).length) {
-    return;
-  }
+function* configure() {
+  // Current configuration for the deploy...
+  var currentConfig = {};
 
-  // figure out current config path
-  var configPath = CONFIG_ROOT + '/' + target.name + '.json';
-
-  console.log(
-    color.greenBright('packer target: ' + target.name) + ' - ' +
-    color.greenBright(target.config.description)
-  );
-
-  var defaults = {};
-  if (yield fs.exists(configPath)) {
-    defaults = require(configPath);
+  // Load the config file if it exists to override the defaults...
+  if (fs.existsSync(CONFIG)) {
+    currentConfig = require(CONFIG);
   }
 
   // Prompt for all the configurations.
-  var results = {};
-  for (var key in DESCRIPTIONS[target.name]) {
-    var desc = DESCRIPTIONS[target.name][key];
-    var defaultValue = defaults[key] || target.config.variables[key];
+  for (var key in DESCRIPTIONS) {
+    var desc = DESCRIPTIONS[key].description;
+    var defaultValue = currentConfig[key] || DESCRIPTIONS[key].value
 
     var humanDesc =
       color.white(key + ': ') +
@@ -81,29 +79,35 @@ function* configure(target) {
         desc + (defaultValue ? ' (' + defaultValue + ')' : '') + ': '
       );
 
-    results[key] = (yield prompt(humanDesc)) || defaultValue;
+    currentConfig[key] = (yield prompt(humanDesc)) || defaultValue;
   }
 
   console.log();
-  console.log(util.inspect(results, { colors: true }));
+  console.log(util.inspect(currentConfig, { colors: true }));
   console.log();
 
   // Yeah bad things will happen if rejected too often...
   if (!(yield prompt.confirm("Does this look right? "))) {
-    return yield configure(target);
+    return yield configure();
   }
 
-  yield fs.writeFile(configPath, JSON.stringify(results, null, 4));
+  fs.writeFileSync(CONFIG, JSON.stringify(currentConfig, null, 2));
+  return currentConfig;
 }
 
 co(function*() {
-  console.log(color.yellowBright('Packer configuration helper') + '\n');
+  console.log(color.yellowBright('Deploy configuration') + '\n');
 
-  var targets = yield getTargets();
+  var config = yield configure();
+  TEMPLATES.forEach(function(file) {
+    // Figure out where to write stuff...
+    var source = fsPath.resolve(fsPath.join(TPL_SOURCE, file));
+    var target = fsPath.resolve(fsPath.join(TPL_TARGET, file));
+    var content = fs.readFileSync(source, 'utf8');
 
-  for (var i = 0; i < targets.length; i++) {
-    yield configure(targets[i]);
-  }
+    console.log(color.blue('Writing: ' + target) + '\n');
+    fs.writeFileSync(target, template(content, config));
+  });
 })(function(err) {
   if (err) throw err;
   process.exit();

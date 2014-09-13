@@ -3,7 +3,7 @@
 
   "variables": {
     "docker_worker":        "",
-    "source_ami":           "ami-49324a79",
+    "source_ami":           "ami-2da9e81d",
     "environment":          "",
     "loggly_account":       "",
     "loggly_auth":          "",
