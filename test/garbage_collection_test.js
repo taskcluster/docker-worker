@@ -6,7 +6,6 @@ suite('garbage collection tests', function () {
   var streams = require('stream');
   var createLogger = require('../lib/log');
   var GarbageCollector = require('../lib/gc');
-
   var IMAGE = 'taskcluster/test-ubuntu';
 
   var stdout = new streams.PassThrough();
@@ -18,6 +17,31 @@ suite('garbage collection tests', function () {
     workerGroup: 'test_worker_group',
     workerType: 'test_worker_type'
   });
+
+  function assertMarkedContainers(containerId) {
+    assert.ok(containerId in this.markedContainers,
+              'Container was not found in the list of garbage ' +
+              'collected containers.');
+  };
+
+  function assertRemovedContainer(testMarkedContainers, containerId) {
+    assert.ok(!(containerId in this.markedContainers),
+              'Container was found in the list of garbage ' +
+              'collected containers.');
+    var idx = testMarkedContainers.indexOf(containerId);
+    testMarkedContainers.splice(idx, 1);
+  };
+
+  function removalError(error) {
+    throw error;
+  };
+
+  function sweepStopped(testMarkedContainers, done) {
+    if (testMarkedContainers.length === 0) {
+      clearTimeout(this.sweepTimeoutId);
+      done();
+    }
+  };
 
   setup(co(function* () {
     yield new Promise(function(accept, reject) {
@@ -38,33 +62,24 @@ suite('garbage collection tests', function () {
 
   test('remove containers', function (done) {
     co(function* () {
+      var testMarkedContainers = [];
+
       var gc = new GarbageCollector({
         log: log,
         docker: docker,
-        interval: 2 * 1000
+        interval: 1 * 1000
       });
-      var markedContainers = [];
+
+      gc.on('gc:container:marked', assertMarkedContainers);
+      gc.on('gc:container:removed', assertRemovedContainer.bind(gc, testMarkedContainers));
+      gc.on('gc:error', removalError);
+      gc.on('gc:sweep:stop', sweepStopped.bind(gc, testMarkedContainers, done));
 
       for (var i = 0; i < 2; i++) {
         var container = yield docker.createContainer({Image: IMAGE});
-        markedContainers.push(container.id);
+        testMarkedContainers.push(container.id);
         gc.removeContainer(container.id);
       }
-
-      markedContainers.forEach(function (container) {
-        assert.ok(container in gc.markedContainers,
-                  'Container was not found in the list of garbage ' +
-                  'collected containers.');
-      });
-
-
-      setTimeout(function () {
-        assert.ok(!(container in gc.markedContainers),
-                  'Container was found in the list of garbage ' +
-                  'collected containers.');
-        clearTimeout(gc.sweepTimeoutId);
-        done();
-      }, 5 * 1000);
     })();
   });
 
@@ -77,19 +92,14 @@ suite('garbage collection tests', function () {
       });
 
       var container = yield docker.createContainer({Image: IMAGE, Cmd: '/bin/bash && sleep 60'});
+      var testMarkedContainers = [container.id];
       gc.removeContainer(container.id);
 
-      assert.ok(container.id in gc.markedContainers,
-                'Container was not found in the list of garbage ' +
-                'collected containers.');
+      gc.on('gc:container:marked', assertMarkedContainers);
+      gc.on('gc:container:removed', assertRemovedContainer.bind(gc, testMarkedContainers));
+      gc.on('gc:error', removalError);
+      gc.on('gc:sweep:stop', sweepStopped.bind(gc, testMarkedContainers, done));
 
-      setTimeout(function () {
-        assert.ok(!(container in gc.markedContainers),
-                  'Container was found in the list of garbage ' +
-                  'collected containers.');
-        clearTimeout(gc.sweepTimeoutId);
-        done();
-      }, 5 * 1000);
     })();
   });
 
@@ -101,21 +111,41 @@ suite('garbage collection tests', function () {
         interval: 2 * 1000
       });
 
+      var retryLimitEncountered = false;
+      var cleanupComplete = false;
+
       var container = yield docker.createContainer({Image: IMAGE});
       gc.removeContainer(container.id);
       gc.markedContainers[container.id] = 0;
 
-      assert.ok(container.id in gc.markedContainers,
-                'Container was not found in the list of garbage ' +
-                'collected containers.');
+      gc.on('gc:container:marked', assertMarkedContainers);
+      gc.on('gc:container:removed', function () {
+        if (retryLimitEncountered) {
+          cleanupComplete = true;
+        }
+      });
+      gc.on('gc:error', function(error) {
+        assert.ok(error.error === 'Retry limit exceeded',
+                  'Error message does not match \'Retry limit exceeded\'');
+        assert.ok(!(error.container in this.markedContainers),
+                  'Container has exceeded the retry limit but has not been ' +
+                  'removed from the list of marked containers.');
+        assert.ok(this.ignoredContainers.indexOf(error.container) !== -1,
+                  'Container has exceeded the retry limit but has not been ' +
+                  'added to the list of ignored containers');
+        retryLimitEncountered = true;
+      });
 
-      setTimeout(function () {
-        assert.ok(!(container in gc.markedContainers),
-                  'Container was found in the list of garbage ' +
-                  'collected containers.');
-        clearTimeout(gc.sweepTimeoutId);
-        done();
-      }, 5 * 1000);
+      gc.on('gc:sweep:stop', function () {
+        if (!cleanupComplete) {
+          assert.ok(retryLimitEncountered,
+                    'Retry limit has not been encountered for the container');
+          gc.removeContainer(container.id);
+        } else {
+          clearTimeout(this.sweepTimeoutId);
+          done();
+        }
+      });
     })();
   });
 });
