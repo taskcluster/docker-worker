@@ -42,9 +42,11 @@ suite('garbage collection tests', function () {
     var testMarkedContainers = [];
 
     var gc = new GarbageCollector({
+      capacity: 1,
       log: log,
       docker: docker,
-      interval: 2 * 1000
+      interval: 2 * 1000,
+      taskListener: {pending: 1}
     });
 
     var container = yield docker.createContainer({Image: IMAGE});
@@ -63,13 +65,14 @@ suite('garbage collection tests', function () {
 
   test('remove running container', co(function* () {
     var gc = new GarbageCollector({
+      capacity: 1,
       log: log,
       docker: docker,
-      interval: 2 * 1000
+      interval: 2 * 1000,
+      taskListener: {pending: 1}
     });
 
-    var container = yield docker.createContainer({Image: IMAGE,
-      Cmd: '/bin/bash && sleep 60'});
+    var container = yield docker.createContainer({Image: IMAGE, Cmd: '/bin/bash && sleep 60'});
     gc.removeContainer(container.id);
 
     var removedContainerId = yield waitForEvent(gc, 'gc:container:removed');
@@ -84,11 +87,13 @@ suite('garbage collection tests', function () {
   }));
 
   test('container removal retry limit exceeded', co(function* () {
-      var gc = new GarbageCollector({
-        log: log,
-        docker: docker,
-        interval: 2 * 1000
-      });
+    var gc = new GarbageCollector({
+      capacity: 1,
+      log: log,
+      docker: docker,
+      interval: 2 * 1000,
+      taskListener: {pending: 1}
+    });
 
       var container = yield docker.createContainer({Image: IMAGE});
       gc.removeContainer(container.id);
