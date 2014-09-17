@@ -27,29 +27,18 @@ packer_config() {
   echo "deploy/packer/$1.json"
 }
 
-configure() {
-  local path=$(template_vars $1)
-  if [ ! -f $path ];
-  then
-    echo "$path missing running configure"
-    ./deploy/bin/configure $1
-    configure $1
-  fi
-}
-
 cmd_app() {
   # Package up the node app.
   local npm_package=$(npm pack)
 
-  # Tar up the target files.
-  tar cvfz deploy.tar.gz deploy/target
+  # Configure the deployment if needed...
+  make -j100 -C deploy
 
-  configure app
   packer_run \
     build \
     $@ \
     -var-file $(template_vars app) \
-    -var "templateContents=deploy.tar.gz" \
+    -var "templateContents=deploy/deploy.tar.gz" \
     -var "npmPackage=$npm_package" \
     $(packer_config app)
 }

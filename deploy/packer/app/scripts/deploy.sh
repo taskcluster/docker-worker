@@ -10,7 +10,7 @@ template_source=$1
 docker_worker_source=$2
 
 # install the system configuration
-sudo tar xzf $template_source -C / --strip-components=2
+sudo tar xzf $template_source -C / --strip-components=1
 
 # install the node app.
 target=$HOME/docker_worker
