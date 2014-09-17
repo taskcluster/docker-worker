@@ -3,7 +3,7 @@ var spawn = require('child_process').spawn;
 
 var proc = spawn(
   'node',
-  ['--harmony', __dirname + '/configure.js'],
+  ['--harmony', __dirname + '/configure.js'].concat(process.argv.slice(2)),
   { stdio: 'inherit' }
 );
 

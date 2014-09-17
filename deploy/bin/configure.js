@@ -1,3 +1,5 @@
+#! /usr/bin/env node --harmony
+
 /**
 Interactive configuration of the deploy configuration for the docker worker.
 */
@@ -8,7 +10,7 @@ var color = require('cli-color');
 var prompt = require('co-prompt');
 var util = require('util');
 
-var CONFIG = __dirname + '/../deploy.json';
+var CONFIG = fsPath.resolve(process.argv[2] || __dirname + '/../deploy.json');
 var VARIABLES = require('../variables');
 
 function* question(field, desc) {
