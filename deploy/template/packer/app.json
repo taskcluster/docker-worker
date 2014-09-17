@@ -1,9 +1,8 @@
 {
-  "environment": "deploy/target/etc/defaults/docker-worker",
-  "source_ami": "ami-2da9e81d",
-  "loggly_account": "{{logglyAccount}}",
-  "loggly_auth": "{{logglyAuth}}",
-  "fs_type": "{{fsType}}",
-  "papertrail": "{{papertrail}}"
+  "templateContents": "deploy.tar.gz",
+  "logglyAccount": "{{logglyAccount}}",
+  "logglyAuth": "{{logglyAuth}}",
+  "papertrail": "{{papertrail}}",
+  "fsType": "{{fsType}}"
 }
 

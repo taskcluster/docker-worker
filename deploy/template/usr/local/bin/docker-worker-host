@@ -1,0 +1,45 @@
+#! /bin/bash
+
+# Setting the actual hostname on a node is expensive and tricky to do well given
+# you have to reboot... The much saner approach is to craft the hostname and
+# hardcode it into syslog/diamond/etc.. The hostname for a docker-worker (on
+# aws) is split up into three parts $INSTANCE_ID-$INSTANCE_TYPE-$WORKER_TYPE.
+# This script can also output the delimiter in "." (period) for things like
+# graphite/statsd.
+
+help() {
+  echo "Usage: $0 [delimiter]"
+  echo
+  echo "  Determine the hostname based on the instance id/worker-type"
+  echo
+}
+
+if [ "$1" == "--help" ];
+then
+  help
+fi
+
+# Figure out what the worker type is...
+workerType=$(curl -q http://169.254.169.254/latest/user-data | jq -r .workerType)
+if [ "$workerType" == "" ] || [ "$?" != "0" ];
+then
+  workerType=$(curl http://169.254.169.254/latest/meta-data/ami-id)
+fi
+
+# Figure out the instance-type
+instanceType=$(curl http://169.254.169.254/latest/meta-data/instance-type)
+instanceId=$(curl http://169.254.169.254/latest/meta-data/instance-id)
+
+delimiter=$1
+if [ "$delimiter" == "" ];
+then
+  delimiter="-"
+fi
+
+echo -n $instanceId
+echo -n $delimiter
+echo -n $instanceType | sed 's/\.//'
+echo -n $delimiter
+echo -n $workerType | sed 's/\.//'
+echo
+

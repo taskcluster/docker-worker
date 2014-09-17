@@ -1,5 +1,5 @@
 export DEBUG='{{debugLevel}}'
-export STATSD_PREFIX='{{statsdPrefix}}'
+export STATSD_PREFIX='udp://{{statsdHost}}:{{statsdPort}}'
 export STATSD_URL='{{statsdUrl}}'
 export TASKCLUSTER_CLIENT_ID='{{taskclusterClientId}}'
 export TASKCLUSTER_ACCESS_TOKEN='{{taskclusterAccessToken}}'

@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/bash -e
 
 cmd_help() {
   echo "Usage: ./deploy/bin/build"
@@ -37,17 +37,20 @@ configure() {
   fi
 }
 
-cmd_build_app() {
-  npm pack
-}
-
 cmd_app() {
+  # Package up the node app.
+  local npm_package=$(npm pack)
+
+  # Tar up the target files.
+  tar cvfz deploy.tar.gz deploy/target
+
   configure app
   packer_run \
     build \
     $@ \
     -var-file $(template_vars app) \
-    -var "docker_worker=$(cmd_build_app)" \
+    -var "templateContents=deploy.tar.gz" \
+    -var "npmPackage=$npm_package" \
     $(packer_config app)
 }
 
