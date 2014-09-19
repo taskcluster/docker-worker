@@ -134,14 +134,12 @@ co(function *() {
     workerType: config.workerType
   });
 
+  var gcConfig = config.garbageCollection;
+  gcConfig.capacity = config.capacity,
+  gcConfig.docker = config.docker;
+  gcConfig.log = config.log
 
-  config.gc = new GarbageCollector({
-    capacity: config.capacity,
-    diskspaceThreshold: config.garbageCollection.diskspaceThreshold,
-    docker: config.docker,
-    interval: config.garbageCollection.interval,
-    log: config.log,
-  });
+  config.gc = new GarbageCollector(gcConfig);
 
   var runtime = new Runtime(config);
 
