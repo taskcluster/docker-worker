@@ -36,10 +36,11 @@ then
   delimiter="-"
 fi
 
+echo -n "docker-worker"
+echo -n $delimiter
 echo -n $instanceId
 echo -n $delimiter
 echo -n $instanceType | sed 's/\.//'
 echo -n $delimiter
 echo -n $workerType | sed 's/\.//'
 echo
-

@@ -4,7 +4,7 @@
   "variables": {
     "npmPackage":          "",
     "templateContents":    "",
-    "sourceAMI":           "ami-67337357",
+    "sourceAMI":           "ami-95db9ba5",
     "logglyAccount":       "",
     "logglyAuth":          "",
     "papertrail":          "",
@@ -32,12 +32,12 @@
     {
       "type":           "file",
       "source":         "{{user `npmPackage`}}",
-      "destination":    "/tmp/{{user `npmPackage`}}"
+      "destination":    "/tmp/docker-worker.tgz"
     },
     {
       "type":           "file",
       "source":         "{{user `templateContents`}}",
-      "destination":    "/tmp/{{user `templateContents`}}"
+      "destination":    "/tmp/deploy.tar.gz"
     },
     {
       "type":           "file",
@@ -52,7 +52,7 @@
       "type":           "shell",
       "environment_vars": ["PAPERTRAIL={{user `papertrail`}}"],
       "inline": [
-        "/tmp/deploy.sh /tmp/{{user `templateContents`}} /tmp/{{user `npmPackage`}}"
+        "/tmp/deploy.sh /tmp/deploy.tar.gz /tmp/docker-worker.tgz"
       ]
     }
   ],
