@@ -42,7 +42,7 @@ for the docker worker in particular these are important:
 ### Directory Structure
 
   - [/bin - primary entrypoint for worker](/bin)
-  - [/deploy - code related to pakcer and deployment](/pakcer)
+  - [/deploy - code related to pakcer and deployment](/deploy)
   - [/config - configuration profiles for worker](/config)
   - [/lib - source of internal worker apis](/lib)
   - [/lib/task_listener.js - primary entrypoint of worker](/lib/task_listener.js)
