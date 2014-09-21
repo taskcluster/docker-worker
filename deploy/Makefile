@@ -16,3 +16,7 @@ $(CONFIG_FILE): variables.js bin/configure.js
 # part of the statement in the invocation.
 target/%: template/% $(CONFIG_FILE)
 	./bin/build-template $(CONFIG_FILE) $< $@
+
+.PHONY: clean
+clean:
+	rm -Rf target $(DEPLOY_TAR)
