@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
+
+- [Docker Worker](#docker-worker)
+  - [Requirements](#requirements)
+  - [Usage](#usage)
+    - [Configuration](#configuration)
+    - [Directory Structure](#directory-structure)
+  - [Running tests](#running-tests)
+    - [Common problems](#common-problems)
+  - [Deployment](#deployment)
+    - [Requirements](#requirements-1)
+    - [Building AMI's](#building-amis)
+    - [Block-Device Mapping](#block-device-mapping)
+    - [Updating Schema](#updating-schema)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Docker Worker
 
 Docker task host for linux.
