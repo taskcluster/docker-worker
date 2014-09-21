@@ -68,26 +68,82 @@ This will build the docker image for the tasks and run the entire suite.
   - Time synchronization : if your running docker in a VM your VM may
     drift in time... This often results in stale warnings on the queue.
 
-## Deploying the worker
+## Deployment
 
-This repo contains a deployment script `./deploy/bin/build` (run `./deploy/bin/build
---help` for all the options) which is a wrapper
-for the awesome [packer](www.packer.io) the worker is then packed up
-(currently only for AWS AMI) and managed via upstart...
+### Requirements
 
-Schema changes are not deployed automatically so if the
-schema has been changed, the run the upload-schema.js script to update.
+  - [packer](www.packer.io)
+  - make
+  - node 0.11 or greater
+  - credentials for required services
 
-Before running the upload schema script, ensure that AWS credentials are loaded 
-into your environment.  See [Configuring AWS with Node](http://docs.aws.amazon.com/AWSJavaScriptSDK/guide/node-configuring.html)
 
-Run the upload-schema.js script to update the schema:
-```
-chmod +x bin/upload-schema.js
-./bin/upload-schema.js
-```
-Or:
-`node --harmony bin/upload-schema.js`
+### Building AMI's
+
+The docker worker deploy script is essentially a wrapper around `packer`
+with an interactive configuration script to ensure your not missing
+particular environment variables. There are two primary workflows that
+are important.
+
+  1. Building the [base](/deploy/packer/base.json) AMI. Do this when:
+      - You need to add new apt packages.
+      - You need to update docker (see above).
+      - You need to run some expensive one-off installation.
+
+      Note that you need to _manually_ update the `sourceAMI` field in
+      the `app.json` file after you create a new base AMI.
+
+      Example:
+
+      ```sh
+      ./deploy/bin/build base
+      ```
+
+  2. Building the [app](/deploy/packer/app.json) AMI. Do this when:
+      - You want to deploy new code/features.
+      - You need to update diamond/statsd/configs (not packages).
+      - You need to update any baked in credentials (these usually can
+        be overriden in the provisioner but sometimes this is desirable).
+
+      Note: That just because you deploy an AMI does not mean anyone is
+      using it.. Usually you need to also update a provisioner workerType with
+      the new AMI id.
+
+      Example:
+
+      ```sh
+      ./deploy/bin/build app
+      ```
+
+Everything related to the deployment of the worker is in the
+[deploy](/deploy) folder which has a number of other important sub
+folders.
+
+  - [deploy/packer](/deploy/packer) : The packer folder contains a list
+    (app/base) of ami(s) which need to be created... Typically you only
+    need to build the "app" ami which is built on a pre-existing base
+    ami (see `sourceAMI` in [app.json](/deploy/packer/app.json)).
+
+  - [deploy/variables.js](/deploy/variables.js) : contains the list of
+    variables for the deployment and possible defaults
+
+  - [deploy/template](/deploy/template) : This folder is a mirror of what will
+    be deployed on the server but with mustache like variables (see
+    variables.js for the list of all possible variables) if you need to
+    add a script/config/etc... Add it here in one of the sub folders.
+
+  - deploy/deploy.json : A generated file (created by running
+    [deploy/bin/build](/deploy/bin/build) ) or running `make -C deploy`
+    this file contains all the variables needed to deploy the
+    application
+
+  - deploy/target : Contains the final files to be uploaded when creating the
+    AMI all template values have been subsituted... It is useful to
+    check this by running `make -C deploy` prior to building the full ami.
+
+  - [deploy/bin/build](/deploy/bin/build) : The script responsible for
+    invoking packer with the correct arguments and creating the
+    artifacts which need to be uploaded to the AMI)
 
 ### Block-Device Mapping
 The AMI built with packer will mount all available instances storage under
@@ -116,3 +172,15 @@ An example block device mapping looks as follows:
     ]
   }
 ```
+
+### Updating Schema
+
+Schema changes are not deployed automatically so if the
+schema has been changed, the run the upload-schema.js script to update.
+
+Before running the upload schema script, ensure that AWS credentials are loaded 
+into your environment.  See [Configuring AWS with Node](http://docs.aws.amazon.com/AWSJavaScriptSDK/guide/node-configuring.html)
+
+Run the upload-schema.js script to update the schema:
+
+`node --harmony bin/upload-schema.js`
