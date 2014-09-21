@@ -116,7 +116,7 @@ co(function *() {
     host: statsdConf.hostname,
     port: statsdConf.port,
     // docker-worker.<worker-type>.<provisionerId>.
-    prefix: config.statsd.prefix +
+    prefix: (config.statsd.prefix ? config.statsd.prefix + '.' : '') +
       'docker-worker.' +
       config.workerType + '.' +
       config.provisionerId + '.'
