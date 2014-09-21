@@ -1,5 +1,4 @@
+# This file contains environment variable exports which are run during the
+# upstart boot process for the `docker-worker` where possible we should avoid
+# environment variables and use `/etc/docker-worker.conf.json` instead.
 export DEBUG='{{debug.level}}'
-export STATSD_URL='udp://{{statsd.host}}:{{statsd.port}}'
-export STATSD_PREFIX='{{statsd.prefix}}'
-export TASKCLUSTER_CLIENT_ID='{{taskcluster.clientId}}'
-export TASKCLUSTER_ACCESS_TOKEN='{{taskcluster.accessToken}}'
