@@ -32,7 +32,7 @@ userdata_or() {
 }
 
 workerType=$(userdata_or '.workerType' "$META_URL/latest/meta-data/ami-id")
-workerGroup=$(userdata_or '.workerGroup' "$META_URL/meta-data/placement/availability-zone")
+workerGroup=$(userdata_or '.workerGroup' "$META_URL/latest/meta-data/placement/availability-zone")
 instanceType=$(curl $META_URL/latest/meta-data/instance-type 2>/dev/null)
 instanceId=$(curl $META_URL/latest/meta-data/instance-id 2>/dev/null)
 
