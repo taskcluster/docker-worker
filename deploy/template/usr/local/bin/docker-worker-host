@@ -4,48 +4,83 @@
 # you have to reboot... The much saner approach is to craft the hostname and
 # hardcode it into syslog/diamond/etc.. The hostname for a docker-worker (on
 # aws) is split up into three parts $INSTANCE_ID-$INSTANCE_TYPE-$WORKER_TYPE.
-# This script can also output the delimiter in "." (period) for things like
+# This script can also output the DELIMITER in "." (period) for things like
 # graphite/statsd.
 
-help() {
-  echo "Usage: $0 [delimiter]"
-  echo
-  echo "  Determine the hostname based on the instance id/worker-type"
-  echo
-}
 
-if [ "$1" == "--help" ];
-then
-  help
-fi
+PREFIX='docker-worker'
+DELIMITER='.'
 
+# Figure out the meta url before we begin
 if [ "$META_URL" == "" ];
 then
   META_URL="http://169.254.169.254"
 fi
 
+# Fetch a field from userdata OR fallback to another url
+userdata_or() {
+  local field=$1
+  local fallback_url=$2
 
-# Figure out what the worker type is...
-workerType=$(curl -q $META_URL/latest/user-data | jq -r .workerType)
-if [ "$workerType" == "" ] || [ "$?" != "0" ];
-then
-  workerType=$(curl $META_URL/latest/meta-data/ami-id)
-fi
+  # Figure out what the worker type is...
+  value=$(curl -q $META_URL/latest/user-data 2> /dev/null | jq -r $1)
+  if [ "$value" == "" ] || [ "$value" == "null" ] || [ "$?" != "0" ];
+  then
+    value=$(curl $2 2>/dev/null)
+  fi
+  echo -n $value
+}
 
-# Figure out the instance-type
-instanceType=$(curl $META_URL/latest/meta-data/instance-type)
-instanceId=$(curl $META_URL/latest/meta-data/instance-id)
+workerType=$(userdata_or '.workerType' "$META_URL/latest/meta-data/ami-id")
+workerGroup=$(userdata_or '.workerGroup' "$META_URL/meta-data/placement/availability-zone")
+instanceType=$(curl $META_URL/latest/meta-data/instance-type 2>/dev/null)
+instanceId=$(curl $META_URL/latest/meta-data/instance-id 2>/dev/null)
 
-delimiter=$1
-if [ "$delimiter" == "" ];
-then
-  delimiter="."
-fi
+cmd_instance() {
+  echo -n $PREFIX
+  echo -n $DELIMITER
+  echo -n $workerGroup
+  echo -n $DELIMITER
+  echo -n $workerType | sed 's/\./-/'
+  echo -n $DELIMITER
+  echo -n $instanceType | sed 's/\./-/'
+  echo -n $DELIMITER
+  echo -n $instanceId
+}
 
-echo -n "docker-worker"
-echo -n $delimiter
-echo -n $instanceId
-echo -n $delimiter
-echo -n $instanceType | sed 's/\.//'
-echo -n $delimiter
-echo -n $workerType | sed 's/\.//'
+cmd_group() {
+  echo -n $PREFIX
+  echo -n $DELIMITER
+  echo -n $workerGroup
+  echo -n $DELIMITER
+  echo -n $workerType | sed 's/\./-/'
+  echo -n $DELIMITER
+  echo -n $instanceType | sed 's/\./-/'
+}
+
+cmd_help() {
+  echo "Determine the hostname based on the instance id/worker-type"
+  echo "Note that the \$META_URL environment variable can be used to override"
+  echo "the default aws metadata url"
+  echo
+  echo "  Usage: $0 <command>"
+  echo
+  echo "  Commands:"
+  echo
+  echo "    help - show this help command."
+  echo "    instance - return the instance name."
+  echo "    group - return the group name."
+  echo
+}
+
+case "$1" in
+"instance")
+  cmd_instance
+  ;;
+"group")
+  cmd_group
+  ;;
+*)
+  cmd_help
+  ;;
+esac
