@@ -91,13 +91,15 @@ are important.
 
   1. Building the [base](/deploy/packer/base.json) AMI. Do this when:
       - You need to add new apt packages.
+      
       - You need to update docker (see above).
+      
       - You need to run some expensive one-off installation.
 
       Note that you need to _manually_ update the `sourceAMI` field in
       the `app.json` file after you create a new base AMI.
 
-      Example:
+      *Example*:
 
       ```sh
       ./deploy/bin/build base
@@ -105,7 +107,9 @@ are important.
 
   2. Building the [app](/deploy/packer/app.json) AMI. Do this when:
       - You want to deploy new code/features.
+      
       - You need to update diamond/statsd/configs (not packages).
+      
       - You need to update any baked in credentials (these usually can
         be overriden in the provisioner but sometimes this is desirable).
 
@@ -113,7 +117,7 @@ are important.
       using it.. Usually you need to also update a provisioner workerType with
       the new AMI id.
 
-      Example:
+      *Example*:
 
       ```sh
       ./deploy/bin/build app
