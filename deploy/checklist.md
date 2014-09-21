@@ -3,14 +3,14 @@
 1. Do you need to update docker/node/diamond/apt package versions?
 
   a. No: Okay go to 2.
-  b. Yes: Go to `Creating a base image` then go to 2.
+  b. Yes: Go to [Creating a base image](#creating-a-base-image) then go to 2.
 
 
 2. Did you update the base image or need to deploy new code
    changes/config changes from [templates](/deploy/templates)?
 
   a. No: Okay go to 3
-  b. Yes: Go to `Creating a app image`
+  b. Yes: Go to [Creating a app image](#creating-a-app-image)
 
 
 3. JSON schema changes?
