@@ -19,21 +19,27 @@ then
   help
 fi
 
+if [ "$META_URL" == "" ];
+then
+  META_URL="http://169.254.169.254"
+fi
+
+
 # Figure out what the worker type is...
-workerType=$(curl -q http://169.254.169.254/latest/user-data | jq -r .workerType)
+workerType=$(curl -q $META_URL/latest/user-data | jq -r .workerType)
 if [ "$workerType" == "" ] || [ "$?" != "0" ];
 then
-  workerType=$(curl http://169.254.169.254/latest/meta-data/ami-id)
+  workerType=$(curl $META_URL/latest/meta-data/ami-id)
 fi
 
 # Figure out the instance-type
-instanceType=$(curl http://169.254.169.254/latest/meta-data/instance-type)
-instanceId=$(curl http://169.254.169.254/latest/meta-data/instance-id)
+instanceType=$(curl $META_URL/latest/meta-data/instance-type)
+instanceId=$(curl $META_URL/latest/meta-data/instance-id)
 
 delimiter=$1
 if [ "$delimiter" == "" ];
 then
-  delimiter="-"
+  delimiter="."
 fi
 
 echo -n "docker-worker"
@@ -43,4 +49,3 @@ echo -n $delimiter
 echo -n $instanceType | sed 's/\.//'
 echo -n $delimiter
 echo -n $workerType | sed 's/\.//'
-echo

@@ -1,7 +1,7 @@
 #! /bin/bash -vex
 
 # pip deps
-sudo pip install python-statsd
+sudo pip install python-statsd influxdb
 
 # template source which must override system files.
 template_source=$1
