@@ -70,6 +70,10 @@ This will build the docker image for the tasks and run the entire suite.
 
 ## Deployment
 
+The below is a detailed guide to how deployment works if you know what
+your doing and just need a check list see: [deployment check
+list](/deploy/checklist.md)
+
 ### Requirements
 
   - [packer](www.packer.io)
