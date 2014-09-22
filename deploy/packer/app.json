@@ -12,12 +12,6 @@
   },
   "provisioners": [
     {
-      "type":           "shell",
-      "inline": [
-        "sudo apt-get install -y git lvm2 linux-image-extra-`uname -r`"
-      ]
-    },
-    {
       "type":           "file",
       "source":         "deploy/packer/app/scripts/configure-syslog.py",
       "destination":    "/tmp/loggly.py"

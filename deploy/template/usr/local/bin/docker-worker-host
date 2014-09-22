@@ -17,27 +17,50 @@ then
   META_URL="http://169.254.169.254"
 fi
 
-# Fetch a field from userdata OR fallback to another url
-userdata_or() {
+# Fetch single field from userdata.
+userdata() {
   local field=$1
-  local fallback_url=$2
-
-  # Figure out what the worker type is...
-  value=$(curl -q $META_URL/latest/user-data 2> /dev/null | jq -r $1)
-  if [ "$value" == "" ] || [ "$value" == "null" ] || [ "$?" != "0" ];
+  value=$(curl -q $META_URL/latest/user-data 2> /dev/null | jq -r $field)
+  if [ "$value" == "null" ] || [ "$?" != "0" ];
   then
-    value=$(curl $2 2>/dev/null)
+    value=""
   fi
   echo -n $value
 }
 
-workerType=$(userdata_or '.workerType' "$META_URL/latest/meta-data/ami-id")
-workerGroup=$(userdata_or '.workerGroup' "$META_URL/latest/meta-data/placement/availability-zone")
+# Fetch a field from userdata OR fallback to another url.
+userdata_or_url() {
+  local field=$1
+  local fallback_url=$2
+  value=$(userdata $field)
+  if [ "$value" == "" ];
+  then
+    value=$(curl $fallback_url 2>/dev/null)
+  fi
+  echo -n $value
+}
+
+userdata_or_value() {
+  local field=$1
+  local default=$2
+  value=$(userdata $field)
+  if [ "$value" == "" ];
+  then
+    value=$default
+  fi
+  echo -n $value
+}
+
+workerType=$(userdata_or_url '.workerType' "$META_URL/latest/meta-data/ami-id")
+workerGroup=$(userdata_or_url '.workerGroup' "$META_URL/latest/meta-data/placement/availability-zone")
 instanceType=$(curl $META_URL/latest/meta-data/instance-type 2>/dev/null)
 instanceId=$(curl $META_URL/latest/meta-data/instance-id 2>/dev/null)
+provisionerId=$(userdata_or_value '.provisionerId' 'aws-provisioner')
 
 cmd_instance() {
   echo -n $PREFIX
+  echo -n $DELIMITER
+  echo -n $provisionerId
   echo -n $DELIMITER
   echo -n $workerGroup
   echo -n $DELIMITER
@@ -50,6 +73,8 @@ cmd_instance() {
 
 cmd_group() {
   echo -n $PREFIX
+  echo -n $DELIMITER
+  echo -n $provisionerId
   echo -n $DELIMITER
   echo -n $workerGroup
   echo -n $DELIMITER
@@ -84,3 +109,4 @@ case "$1" in
   cmd_help
   ;;
 esac
+

@@ -17,8 +17,14 @@ var GarbageCollector = require('../lib/gc');
 var allowedHosts = ['aws', 'test'];
 
 // All overridable configuration options from the CLI.
-var overridableFields =
-  ['capacity', 'workerId', 'workerType', 'workerGroup', 'provisionerId'];
+var overridableFields = [
+  'capacity',
+  'workerId',
+  'workerType',
+  'workerGroup',
+  'workerNodeType',
+  'provisionerId'
+];
 
 // Terrible wrapper around program.option.
 function o() {
@@ -47,6 +53,7 @@ o('--provisioner-id <provisioner-id>','override provisioner id configuration');
 o('--worker-type <worker-type>', 'override workerType configuration');
 o('--worker-group <worker-group>', 'override workerGroup');
 o('--worker-id <worker-id>', 'override the worker id');
+o('--worker-node-type <worker-node-type>', 'override the worker node type');
 
 program.parse(process.argv);
 
@@ -118,8 +125,10 @@ co(function *() {
     // docker-worker.<worker-type>.<provisionerId>.
     prefix: (config.statsd.prefix ? config.statsd.prefix + '.' : '') +
       'docker-worker.' +
+      config.provisionerId + '.' +
+      config.workerGroup + '.' +
       config.workerType + '.' +
-      config.provisionerId + '.'
+      config.workerNodeType + '.'
   });
 
   // Wrapped stats helper to support generators, etc...
@@ -131,7 +140,8 @@ co(function *() {
     provisionerId: config.provisionerId,
     workerId: config.workerId,
     workerGroup: config.workerGroup,
-    workerType: config.workerType
+    workerType: config.workerType,
+    workerNodeType: config.workerNodeType
   });
 
   var gcConfig = config.garbageCollection;
