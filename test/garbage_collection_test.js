@@ -9,8 +9,6 @@ suite('garbage collection tests', function () {
   var streams = require('stream');
   var waitForEvent = require('../lib/wait_for_event');
 
-  var stdout = new streams.PassThrough();
-
   var log = createLogger({
     source: 'top', // top level logger details...
     provisionerId: 'test_provisioner',
@@ -37,7 +35,7 @@ suite('garbage collection tests', function () {
         dockerUtils.pullImageIfMissing(docker, IMAGE);
 
       // pipe the pull stream into stdout but don't end
-      pullStream.pipe(stdout, { end: false });
+      pullStream.pipe(process.stdout, { end: false });
 
       pullStream.once('error', reject);
       pullStream.once('end', function() {
@@ -149,7 +147,7 @@ suite('garbage collection tests', function () {
     clearTimeout(gc.sweepTimeoutId);
 
     var imageName = 'busybox:latest';
-    yield pullImage(docker, imageName, stdout);
+    yield pullImage(docker, imageName, process.stdout);
 
     var container = yield docker.createContainer({Image: imageName,
       Cmd: ['/bin/sh', '-c', 'ls && sleep 5']});
@@ -186,7 +184,7 @@ suite('garbage collection tests', function () {
     clearTimeout(gc.sweepTimeoutId);
 
     var imageName = 'busybox:latest';
-    yield pullImage(docker, imageName, stdout);
+    yield pullImage(docker, imageName, process.stdout);
 
     var container = yield docker.createContainer({Image: imageName,
       Cmd: ['/bin/sh', '-c', 'ls']});
@@ -226,7 +224,7 @@ suite('garbage collection tests', function () {
       clearTimeout(gc.sweepTimeoutId);
 
       var imageName = 'busybox:latest';
-      yield pullImage(docker, imageName, stdout);
+      yield pullImage(docker, imageName, process.stdout);
 
       gc.markImage(imageName);
       gc.sweep();
@@ -262,8 +260,8 @@ suite('garbage collection tests', function () {
 
       clearTimeout(gc.sweepTimeoutId);
 
-      var imageName = 'busybox:ubuntu-14.04';
-      yield pullImage(docker, imageName, stdout);
+      var imageName = 'busybox:latest';
+      yield pullImage(docker, imageName, process.stdout);
 
       gc.markImage(imageName);
       gc.sweep();
