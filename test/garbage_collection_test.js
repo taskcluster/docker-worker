@@ -69,6 +69,8 @@ suite('garbage collection tests', function () {
     yield waitForEvent(gc, 'gc:sweep:stop');
     assert.ok(!gc.markedContainers.length,
               'List of marked containers is not empty when it should be');
+
+    yield waitForEvent(gc, 'gc:sweep:stop');
     clearTimeout(gc.sweepTimeoutId);
  }));
 
@@ -97,6 +99,8 @@ suite('garbage collection tests', function () {
     yield waitForEvent(gc, 'gc:sweep:stop');
     assert.ok(!gc.markedContainers.length,
               'List of marked containers is not empty when it should be');
+
+    yield waitForEvent(gc, 'gc:sweep:stop');
     clearTimeout(gc.sweepTimeoutId);
   }));
 
@@ -126,6 +130,8 @@ suite('garbage collection tests', function () {
 
       var c = docker.getContainer(container.id);
       yield c.remove({force: true});
+
+      yield waitForEvent(gc, 'gc:sweep:stop');
       clearTimeout(gc.sweepTimeoutId);
   }));
 
@@ -163,6 +169,7 @@ suite('garbage collection tests', function () {
     var imageId = yield getImageId(docker, imageName);
     assert.ok(!imageId, 'Image has not been removed.');
 
+    yield waitForEvent(gc, 'gc:sweep:stop');
     clearTimeout(gc.sweepTimeoutId);
   }));
 
@@ -173,7 +180,7 @@ suite('garbage collection tests', function () {
       docker: docker,
       interval: 2 * 1000,
       taskListener: {pending: 1},
-      diskspaceThreshold: 500000 * 100000000,
+      diskspaceThreshold: 1 * 100000000,
     });
 
     clearTimeout(gc.sweepTimeoutId);
@@ -200,37 +207,77 @@ suite('garbage collection tests', function () {
     var imageId = yield getImageId(docker, imageName);
     assert.ok(!imageId, 'Image has not been removed.');
 
+    yield waitForEvent(gc, 'gc:sweep:stop');
     clearTimeout(gc.sweepTimeoutId);
   }));
 
-  test('images not removed when diskspace threshold not reached', co(function* () {
-    var gc = new GarbageCollector({
-      capacity: 2,
-      log: log,
-      docker: docker,
-      interval: 2 * 1000,
-      taskListener: {pending: 1},
-      diskspaceThreshold: 1 * 100000000,
-      imageExpiration: 1
-    });
+  test('unexpired images are not removed when diskspace threshold is not reached',
+    co(function* () {
+      var gc = new GarbageCollector({
+        capacity: 2,
+        log: log,
+        docker: docker,
+        interval: 2 * 1000,
+        taskListener: {pending: 1},
+        diskspaceThreshold: 1 * 100000000,
+        imageExpiration: 1
+      });
 
-    clearTimeout(gc.sweepTimeoutId);
+      clearTimeout(gc.sweepTimeoutId);
 
-    var imageName = 'busybox:latest';
-    yield pullImage(docker, imageName, stdout);
+      var imageName = 'busybox:latest';
+      yield pullImage(docker, imageName, stdout);
 
-    gc.markImage(imageName);
-    gc.sweep();
+      gc.markImage(imageName);
+      gc.sweep();
 
-    var infoMessage = yield waitForEvent(gc, 'gc:info');
-    assert.ok('Diskspace threshold not reached.' === infoMessage.message);
+      var infoMessage = yield waitForEvent(gc, 'gc:info');
+      var msg = 'Diskspace threshold not reached. Removing only expired images.';
+      assert.ok(msg === infoMessage.message);
 
-    gc.diskspaceThreshold = 500000 * 100000000;
+      gc.diskspaceThreshold = 500000 * 100000000;
 
-    yield waitForEvent(gc, 'gc:image:removed');
-    var imageId = yield getImageId(docker, imageName);
-    assert.ok(!imageId, 'Image has not been removed.');
+      var removedImage = yield waitForEvent(gc, 'gc:image:removed');
+      assert.ok(imageName === removedImage.image.name);
 
-    clearTimeout(gc.sweepTimeoutId);
-  }));
+      var imageId = yield getImageId(docker, imageName);
+      assert.ok(!imageId, 'Image has not been removed.');
+
+      yield waitForEvent(gc, 'gc:sweep:stop');
+      clearTimeout(gc.sweepTimeoutId);
+    })
+  );
+
+  test('unexpired images are removed when diskspace threshold is reached',
+    co(function* () {
+      var gc = new GarbageCollector({
+        capacity: 2,
+        log: log,
+        docker: docker,
+        interval: 2 * 1000,
+        taskListener: {pending: 1},
+        diskspaceThreshold: 5000000 * 100000000,
+        imageExpiration: 1
+      });
+
+      clearTimeout(gc.sweepTimeoutId);
+
+      var imageName = 'busybox:ubuntu-14.04';
+      yield pullImage(docker, imageName, stdout);
+
+      gc.markImage(imageName);
+      gc.sweep();
+
+      var warningMessage = yield waitForEvent(gc, 'gc:warning');
+      var msg = 'Diskspace threshold reached. Removing all non-running images.';
+      assert.ok(msg === warningMessage.message);
+
+      yield waitForEvent(gc, 'gc:image:removed');
+      var imageId = yield getImageId(docker, imageName);
+      assert.ok(!imageId, 'Image has not been removed.');
+
+      yield waitForEvent(gc, 'gc:sweep:stop');
+      clearTimeout(gc.sweepTimeoutId);
+    })
+  );
 });
