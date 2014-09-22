@@ -26,6 +26,15 @@ var overridableFields = [
   'provisionerId'
 ];
 
+function sanitizeGraphPath() {
+  return Array.prototype.slice.call(arguments).reduce(function(result, v) {
+    if (!v) return result;
+    // Remove any dots which can get confused...
+    result.push(v.replace('.', '-'));
+    return result;
+  }, []).join('.');
+}
+
 // Terrible wrapper around program.option.
 function o() {
   program.option.apply(program, arguments);
@@ -123,12 +132,14 @@ co(function *() {
     host: statsdConf.hostname,
     port: statsdConf.port,
     // docker-worker.<worker-type>.<provisionerId>.
-    prefix: (config.statsd.prefix ? config.statsd.prefix + '.' : '') +
-      'docker-worker.' +
-      config.provisionerId + '.' +
-      config.workerGroup + '.' +
-      config.workerType + '.' +
-      config.workerNodeType + '.'
+    prefix: sanitizeGraphPath(
+      config.statsd.prefix,
+      'docker-worker',
+      config.provisionerId || 'unknown',
+      config.workerGroup || 'unknown',
+      config.workerType || 'unknown',
+      config.workerNodeType || 'unknown'
+    )
   });
 
   // Wrapped stats helper to support generators, etc...
