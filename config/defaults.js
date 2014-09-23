@@ -14,7 +14,8 @@ module.exports = {
   garbageCollection: {
     imageExpiration: 2 * 60 * 60 * 1000,
     interval: 60 * 1000,
-    diskspaceThreshold: 10 * 1000000000
+    diskspaceThreshold: 10 * 1000000000,
+    dockerVolume: '/mnt'
   },
 
   logging: {
