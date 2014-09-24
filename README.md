@@ -84,13 +84,13 @@ This will build the docker image for the tasks and run the entire suite.
 
 ### Common problems
 
-  - Time synchronization : if your running docker in a VM your VM may
+  - Time synchronization : if you're running docker in a VM your VM may
     drift in time... This often results in stale warnings on the queue.
 
 ## Deployment
 
 The below is a detailed guide to how deployment works if you know what
-your doing and just need a check list see: [deployment check
+you're doing and just need a check list see: [deployment check
 list](/deploy/checklist.md)
 
 ### Requirements
@@ -104,7 +104,7 @@ list](/deploy/checklist.md)
 ### Building AMI's
 
 The docker worker deploy script is essentially a wrapper around `packer`
-with an interactive configuration script to ensure your not missing
+with an interactive configuration script to ensure you're not missing
 particular environment variables. There are two primary workflows that
 are important.
 
