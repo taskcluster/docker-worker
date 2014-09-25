@@ -313,4 +313,39 @@ suite('garbage collection tests', function () {
       clearTimeout(gc.sweepTimeoutId);
     })
   );
+
+  test('remove image that does not exist', co(function* () {
+    var gc = new GarbageCollector({
+      capacity: 2,
+      log: log,
+      docker: docker,
+      dockerVolume: '/',
+      interval: 2 * 1000,
+      taskListener: {pending: 1},
+      diskspaceThreshold: 1 * 100000000,
+      imageExpiration: 5
+    });
+
+    clearTimeout(gc.sweepTimeoutId);
+
+    var imageName = 'busybox:latest';
+    yield pullImage(docker, imageName, process.stdout);
+    gc.markImage(imageName);
+
+    var imageId = yield getImageId(docker, imageName);
+    var image = docker.getImage(imageId);
+    yield image.remove();
+
+    gc.sweep();
+
+    var removalError = yield waitForEvent(gc, 'gc:image:error');
+    var errorMessage = 'No such image. Will remove from marked images list.';
+    assert.ok(errorMessage === removalError.message);
+    assert.ok(imageName === removalError.image.name);
+    assert.ok(!(imageName in gc.markedImages),
+              'Image still appears in the list of marked images');
+
+    yield waitForEvent(gc, 'gc:sweep:stop');
+    clearTimeout(gc.sweepTimeoutId);
+  }));
 });
