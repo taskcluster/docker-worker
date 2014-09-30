@@ -112,7 +112,6 @@ suite('artifact extration tests', function() {
     });
 
     // Get task specific results
-    console.log(result);
     assert.ok(result.run.success, 'task was successful');
     assert.ok('public/test' in result.artifacts,
               'Artifact does not appear in the list of uploaded artifacts');
@@ -129,7 +128,7 @@ suite('artifact extration tests', function() {
         command: cmd('ls'),
         features: {
           // No need to actually issue live logging...
-          liveLog: false
+          localLiveLog: false
         },
         artifacts: {
           'public/etc': {
@@ -191,7 +190,8 @@ suite('artifact extration tests', function() {
         features: {
           bufferLog: true,
           azureLivelog: false,
-          extractArtifacts: true
+          extractArtifacts: true,
+          localLiveLog: false
         },
         artifacts: {
           // name -> source
