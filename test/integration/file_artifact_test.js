@@ -80,7 +80,7 @@ suite('artifact extration tests', function() {
     assert.ok('public/test.html' in result.artifacts,
               'Artifact does not appear in the list of uploaded artifacts');
 
-    assert.ok(result.artifacts['public/test.html'].contentType === 'text/html')
+    assert.ok(result.artifacts['public/test.html'].contentType === 'text/html');
 
     var testContents = yield getArtifact(result, 'public/test.html');
     assert.ok(Buffer.byteLength(testContents) === 1000000,
@@ -115,8 +115,8 @@ suite('artifact extration tests', function() {
     assert.ok(result.run.success, 'task was successful');
     assert.ok('public/test' in result.artifacts,
               'Artifact does not appear in the list of uploaded artifacts');
-
-    assert.ok(result.artifacts['public/test'].contentType === 'application/octet-stream')
+    var contentType = 'application/octet-stream';
+    assert.ok(result.artifacts['public/test'].contentType === contentType);
     // TODO handle response streams to validate content size
 
   }));
@@ -174,7 +174,7 @@ suite('artifact extration tests', function() {
     );
 
     assert.ok(result.run.success, 'task was successful');
-    assert.ok(result.artifacts['my-missing.txt'])
+    assert.ok(result.artifacts['my-missing.txt']);
     assert.equal(result.artifacts['my-missing.txt'].storageType, 'error');
   }));
 
