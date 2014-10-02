@@ -113,7 +113,7 @@ suite('garbage collection tests', function () {
 
       var container = yield docker.createContainer({Image: IMAGE});
       gc.removeContainer(container.id);
-      gc.markedContainers[container.id] = 0;
+      gc.markedContainers[container.id].retries = 0;
 
       var error = yield waitForEvent(gc, 'gc:error');
       assert.ok(error.container === container.id);

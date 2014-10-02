@@ -12,6 +12,7 @@ var TaskListener = require('../lib/task_listener');
 var ShutdownManager = require('../lib/shutdown_manager');
 var Stats = require('../lib/stat');
 var GarbageCollector = require('../lib/gc');
+var VolumeCache = require('../lib/volume_cache');
 
 // Available target configurations.
 var allowedHosts = ['aws', 'test'];
@@ -161,6 +162,17 @@ co(function *() {
   gcConfig.log = config.log
 
   config.gc = new GarbageCollector(gcConfig);
+
+  config.volumeCache = new VolumeCache({
+    rootCachePath: config.cache.volumeCachePath,
+    log: config.log
+  });
+
+  config.gc.on('gc:container:removed', function (container) {
+    container.caches.forEach(function (cacheKey) {
+      config.volumeCache.release(cacheKey);
+    });
+  });
 
   var runtime = new Runtime(config);
 
