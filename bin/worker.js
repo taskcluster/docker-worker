@@ -175,6 +175,8 @@ co(function *() {
     });
   });
 
+  config.gc.addManager(config.volumeCache);
+
   var runtime = new Runtime(config);
 
   // Build the listener and connect to the queue.
