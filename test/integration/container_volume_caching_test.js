@@ -69,7 +69,7 @@ suite('container volume cache tests', function () {
         cache: {},
         maxRunTime:         5 * 60
       },
-    scopes: neededScopes
+      scopes: neededScopes
     };
 
     task.payload.cache[cacheName1] = '/tmp-obj-dir1';
