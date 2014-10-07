@@ -54,8 +54,9 @@ module.exports = {
     },
     "cache": {
       "title": "Caches available within the docker container",
-      "description": "Caches are mounted within the docker container at the mount point specified. Example: ```\n{\n 'CACHE NAME': '/mount/path/in/container' \n}\n```",
+      "description": "Caches are mounted within the docker container at the mount point specified. Example: ```{ \"CACHE NAME\": \"/mount/path/in/container\" }```",
       "type": "object",
+    },
     "command": {
       "title": "Docker command to run (see docker api).",
       "type": "array",
