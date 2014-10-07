@@ -22,6 +22,10 @@ suite('volume cache test', function () {
     workerType: 'test_worker_type'
   });
 
+  var stats = {
+    increment: function(stat) { return; }
+  }
+
   var IMAGE = 'taskcluster/test-ubuntu';
 
   setup(co(function* () {
@@ -30,8 +34,9 @@ suite('volume cache test', function () {
 
   test('cache directories created', function () {
     var cache = new VolumeCache({
-      cachePath: localCacheDir,
-      log: log
+      rootCachePath: localCacheDir,
+      log: log,
+      stats: stats
     });
 
     var cacheName = 'tmp-obj-dir-' + Date.now().toString();
@@ -77,8 +82,9 @@ suite('volume cache test', function () {
     var hostCacheDir = '/docker_test_data';
 
     var cache = new VolumeCache({
-      cachePath: localCacheDir,
-      log: log
+      rootCachePath: localCacheDir,
+      log: log,
+      stats: stats
     });
 
     var cacheInstance = cache.get(cacheName);
