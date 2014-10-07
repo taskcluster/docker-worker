@@ -355,7 +355,8 @@ suite('garbage collection tests', function () {
 
     var localCacheDir = process.env.DOCKER_WORKER_CACHE_DIR || '/var/cache';
     var stats = {
-      increment: function(stat) { return; }
+      increment: function(stat) { return; },
+      timeGen: function* (stat, fn) { yield fn; }
     }
 
     var cache = new VolumeCache({
@@ -368,8 +369,8 @@ suite('garbage collection tests', function () {
 
     var cacheName = 'tmp-obj-dir-' + Date.now().toString();
 
-    var instance1 = cache.get(cacheName);
-    var instance2 = cache.get(cacheName);
+    var instance1 = yield cache.get(cacheName);
+    var instance2 = yield cache.get(cacheName);
     cache.set(instance2.key, {mounted: false});
     gc.sweep();
     yield waitForEvent(gc, 'gc:sweep:stop');

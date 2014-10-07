@@ -48,7 +48,7 @@ suite('container volume cache tests', function () {
     var cacheName1 = 'tmp-obj-dir-' + Date.now().toString();
     var cacheName2 = 'tmp-obj-dir-' + (Date.now()+1).toString();
 
-    var neededScopes = []
+    var neededScopes = [];
     neededScopes.push('docker-worker:cache:' + cacheName1);
     neededScopes.push('docker-worker:cache:' + cacheName2);
 

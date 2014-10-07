@@ -24,7 +24,7 @@ suite('volume cache test', function () {
 
   var stats = {
     increment: function(stat) { return; }
-  }
+  };
 
   var IMAGE = 'taskcluster/test-ubuntu';
 
@@ -32,7 +32,7 @@ suite('volume cache test', function () {
     yield pullImage(docker, IMAGE, process.stdout);
   }));
 
-  test('cache directories created', function () {
+  test('cache directories created', co(function* () {
     var cache = new VolumeCache({
       rootCachePath: localCacheDir,
       log: log,
@@ -46,9 +46,9 @@ suite('volume cache test', function () {
       rmrf.sync(fullPath);
     }
 
-    var instance1 = cache.get(cacheName);
-    var instance2 = cache.get(cacheName);
-    var instance3 = cache.get(cacheName);
+    var instance1 = yield cache.get(cacheName);
+    var instance2 = yield cache.get(cacheName);
+    var instance3 = yield cache.get(cacheName);
 
     assert.ok(fs.existsSync(instance1.path));
     assert.ok(fs.existsSync(instance2.path));
@@ -59,10 +59,10 @@ suite('volume cache test', function () {
     assert.ok(instance2.path !== instance3.path);
 
     // Release clame on cached volume
-    cache.release(instance2.key);
+    yield cache.release(instance2.key);
 
     // Should reclaim cache directory path created by instance2
-    var instance4 = cache.get(cacheName);
+    var instance4 = yield cache.get(cacheName);
 
     assert.ok(instance2.key !== instance4.key);
     assert.ok(instance2.path === instance4.path);
@@ -70,7 +70,7 @@ suite('volume cache test', function () {
     if(fs.existsSync(fullPath)) {
       rmrf.sync(fullPath);
     }
-  });
+  }));
 
   test('cache directory mounted in container', co(function* () {
     // Test is currently setup using container volumes exposed via samba using
@@ -87,12 +87,13 @@ suite('volume cache test', function () {
       stats: stats
     });
 
-    var cacheInstance = cache.get(cacheName);
     var localCachePath = path.join(localCacheDir, cacheName);
 
     if (fs.existsSync(localCachePath)) {
       rmrf.sync(localCachePath);
     }
+
+    var cacheInstance = yield cache.get(cacheName);
 
     var c = cmd(
       'echo "foo" > /docker_cache/tmp-obj-dir/blah.txt'

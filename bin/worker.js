@@ -170,9 +170,9 @@ co(function *() {
   });
 
   config.gc.on('gc:container:removed', function (container) {
-    container.caches.forEach(function (cacheKey) {
-      config.volumeCache.release(cacheKey);
-    });
+    container.caches.forEach(co(function* (cacheKey) {
+      yield config.volumeCache.release(cacheKey);
+    }));
   });
 
   config.gc.addManager(config.volumeCache);
