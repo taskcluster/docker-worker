@@ -372,9 +372,13 @@ suite('garbage collection tests', function () {
     var instance1 = yield cache.get(cacheName);
     var instance2 = yield cache.get(cacheName);
     cache.set(instance2.key, {mounted: false});
+
     gc.sweep();
+
     yield waitForEvent(gc, 'gc:sweep:stop');
+
     clearTimeout(gc.sweepTimeoutId);
+
     assert.ok(fs.existsSync(instance1.path));
     assert.ok(!fs.existsSync(instance2.path));
   }));

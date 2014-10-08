@@ -132,4 +132,35 @@ suite('volume cache test', function () {
       rmrf.sync(localCachePath);
     }
   }));
+
+  test('invalid cache name is rejected', co(function* () {
+    var cacheName = 'tmp-obj::dir-' + Date.now().toString();
+
+    var hostCacheDir = '/docker_test_data';
+    var localCachePath = path.join(localCacheDir, cacheName);
+
+    if (fs.existsSync(localCachePath)) {
+      rmrf.sync(localCachePath);
+    }
+
+    var cache = new VolumeCache({
+      rootCachePath: localCacheDir,
+      log: log,
+      stats: stats
+    });
+
+
+    assert.throws(cache.get(cacheName), Error);
+
+    var dirExists = fs.existsSync(localCachePath);
+
+    if (dirExists) {
+      rmrf.sync(localCachePath)
+    }
+
+    assert.ok(!dirExists,
+      'Volume cache created cached volume directory when it should not ' +
+      'have.'
+    );
+  }));
 });

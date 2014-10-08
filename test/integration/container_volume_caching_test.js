@@ -26,7 +26,7 @@ suite('container volume cache tests', function () {
         cache: {},
         maxRunTime:         5 * 60
       },
-    scopes: [neededScope]
+      scopes: [neededScope]
     };
 
     task.payload.cache[cacheName] = '/tmp-obj-dir';
@@ -109,12 +109,12 @@ suite('container volume cache tests', function () {
           ),
           features: {
             // No need to actually issue live logging...
-            localLiveLog: false
+            localLiveLog: true
           },
           cache: {},
           maxRunTime:         5 * 60
         },
-      scopes: [neededScope]
+        scopes: [neededScope]
       };
 
       task.payload.cache[cacheName] = '/tmp-obj-dir';
@@ -125,14 +125,67 @@ suite('container volume cache tests', function () {
       assert.ok(!result.run.success,
         'Task completed successfully when it should not have.');
 
+      var expectedError = 'Insufficient scopes to attach "' + cacheName + '"';
+      assert.ok(result.log.indexOf(expectedError) !== -1,
+        'Insufficient scopes error message did not appear in the log'
+      );
+
       var dirExists = fs.existsSync(fullCacheDir);
       if (dirExists) {
         rmrf.sync(fullCacheDir);
       }
 
       assert.ok(!dirExists,
-          'Volume cache created cached volume directory when it should not ' +
-          'have.'
+        'Volume cache created cached volume directory when it should not ' +
+        'have.'
+      );
+    })
+  );
+
+  test('task unsuccesful when invalid cache name is requested',
+    co(function* () {
+      var cacheName = 'tmp-obj-dir::-' + Date.now().toString();
+      var neededScope = 'docker-worker:cache:' + cacheName;
+      var fullCacheDir = path.join(cacheDir, cacheName);
+
+      var task = {
+        payload: {
+          image: 'taskcluster/test-ubuntu',
+          command: cmd(
+            'echo "foo" > /tmp-obj-dir/foo.txt'
+          ),
+          features: {
+            // No need to actually issue live logging...
+            localLiveLog: true
+          },
+          cache: {},
+          maxRunTime:         5 * 60
+        },
+        scopes: [neededScope]
+      };
+
+      task.payload.cache[cacheName] = '/tmp-obj-dir';
+
+      var result = yield testworker(task);
+
+      // Get task specific results
+      assert.ok(!result.run.success,
+        'Task completed successfully when it should not have.');
+
+      var expectedError = 'Error: Invalid key name was provided';
+      assert.ok(result.log.indexOf(expectedError) !== -1,
+        'Invalid key name message did not appear in the logs'
+      );
+
+      var dirExists = fs.existsSync(fullCacheDir);
+
+      if (dirExists) {
+        rmrf.sync(fullCacheDir);
+      }
+
+      assert.ok(!dirExists,
+        'Volume cache created cached volume directory when it should not ' +
+        'have.'
       );
     })
   );
