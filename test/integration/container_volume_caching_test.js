@@ -17,7 +17,8 @@ suite('container volume cache tests', function () {
       payload: {
         image: 'taskcluster/test-ubuntu',
         command: cmd(
-          'echo "foo" > /tmp-obj-dir/foo.txt'
+          'echo "foo" > /tmp-obj-dir/foo.txt',
+          'ls /tmp-obj-dir'
         ),
         features: {
           // No need to actually issue live logging...

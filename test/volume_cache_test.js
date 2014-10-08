@@ -1,5 +1,6 @@
 suite('volume cache test', function () {
   var VolumeCache = require('../lib/volume_cache');
+  var GarbageCollector = require('../lib/gc');
   var createLogger = require('../lib/log');
   var docker = require('../lib/docker')();
   var waitForEvent = require('../lib/wait_for_event');
@@ -64,7 +65,7 @@ suite('volume cache test', function () {
     // Should reclaim cache directory path created by instance2
     var instance4 = yield cache.get(cacheName);
 
-    assert.ok(instance2.key !== instance4.key);
+    assert.ok(instance2.key === instance4.key);
     assert.ok(instance2.path === instance4.path);
 
     if(fs.existsSync(fullPath)) {
@@ -72,20 +73,56 @@ suite('volume cache test', function () {
     }
   }));
 
-  test('cache directory mounted in container', co(function* () {
-    // Test is currently setup using container volumes exposed via samba using
-    // boot2docker
+  test('most recently used unmounted cache instance is used', co(function* () {
+    var cache = new VolumeCache({
+      rootCachePath: localCacheDir,
+      log: log,
+      stats: stats
+    });
 
     var cacheName = 'tmp-obj-dir-' + Date.now().toString();
-    // Location on the docker VM that the cache will exists and is expose via
-    // samba
-    var hostCacheDir = '/docker_test_data';
+    var fullPath = path.join(localCacheDir, cacheName);
+
+    var instance1 = yield cache.get(cacheName);
+    var instance2 = yield cache.get(cacheName);
+    var instance3 = yield cache.get(cacheName);
+    var instance4 = yield cache.get(cacheName);
+
+    // Release claim on cached volume
+    yield cache.release(instance4.key);
+    yield cache.release(instance2.key);
+
+    // Should reclaim cache directory path created by instance2
+    var instance5 = yield cache.get(cacheName);
+
+    assert.ok(instance5.key === instance2.key);
+    assert.ok(instance5.path === instance2.path);
+    assert.ok(instance5.lastUsed > instance2.lastUsed);
+
+    if(fs.existsSync(fullPath)) {
+      rmrf.sync(fullPath);
+    }
+  }));
+
+
+  test('cache directory mounted in container', co(function* () {
+    var cacheName = 'tmp-obj-dir-' + Date.now().toString();
 
     var cache = new VolumeCache({
       rootCachePath: localCacheDir,
       log: log,
       stats: stats
     });
+
+    var gc = new GarbageCollector({
+      capacity: 1,
+      log: log,
+      docker: docker,
+      interval: 2 * 1000,
+      taskListener: {pending: 1}
+    });
+
+    clearTimeout(gc.sweepTimeoutId);
 
     var localCachePath = path.join(localCacheDir, cacheName);
 
@@ -107,24 +144,25 @@ suite('volume cache test', function () {
       AttachStderr:true,
       Tty: true
     };
-    var hostObjPath = path.join(
-        hostCacheDir,
-        cacheName,
-        cacheInstance.key.split('::')[1]
-    );
+
     var create = yield docker.createContainer(createConfig);
 
     container = docker.getContainer(create.id);
     var stream = yield container.attach({stream: true, stdout: true, stderr: true});
     stream.pipe(process.stdout);
 
-    var binds = hostObjPath + ':/docker_cache/tmp-obj-dir/';
+    var binds = cacheInstance.path + ':/docker_cache/tmp-obj-dir/';
 
     var startConfig = {
       Binds: binds,
     };
 
     yield container.start(startConfig);
+    gc.removeContainer(create.id);
+    gc.sweep();
+    removedContainerId = yield waitForEvent(gc, 'gc:container:removed');
+
+    console.log(cacheInstance);
 
     assert.ok(fs.existsSync(path.join(cacheInstance.path, 'blah.txt')));
 
@@ -136,7 +174,6 @@ suite('volume cache test', function () {
   test('invalid cache name is rejected', co(function* () {
     var cacheName = 'tmp-obj::dir-' + Date.now().toString();
 
-    var hostCacheDir = '/docker_test_data';
     var localCachePath = path.join(localCacheDir, cacheName);
 
     if (fs.existsSync(localCachePath)) {
