@@ -1,10 +1,13 @@
-suite('container volume cache tests', function () {
+suite('volume cache tests', function () {
+  var settings = require('../settings');
   var co = require('co');
   var cmd = require('./helper/cmd');
   var fs = require('fs');
   var rmrf = require('rimraf');
   var path = require('path');
   var testworker = require('../post_task');
+  var DockerWorker = require('../dockerworker');
+  var TestWorker = require('../testworker');
 
   var cacheDir = process.env.DOCKER_WORKER_CACHE_DIR || '/var/cache';
 
@@ -39,6 +42,105 @@ suite('container volume cache tests', function () {
 
     var objDir = fs.readdirSync(fullCacheDir);
     assert.ok(fs.existsSync(path.join(fullCacheDir, objDir[0], 'foo.txt')));
+
+    if (fs.existsSync(fullCacheDir)) {
+      rmrf.sync(fullCacheDir);
+    }
+  }));
+
+  test('mounted cached volumes are not reused between tasks', co(function* () {
+    var cacheName = 'tmp-obj-dir-' + Date.now().toString();
+    var neededScope = 'docker-worker:cache:' + cacheName;
+
+    settings.configure({
+      capacity: 2,
+    });
+
+    worker = new TestWorker(DockerWorker);
+    yield worker.launch()
+
+    var tasks = [];
+
+    for (var i = 0; i < 2; i++) {
+      var fileName = 'file' + i.toString() + '.txt';
+      var task = {
+        payload: {
+          image: 'taskcluster/test-ubuntu',
+          command: cmd(
+            'echo "foo" > /tmp-obj-dir/' + fileName,
+            'sleep 10',
+            'ls -lah /tmp-obj-dir'
+          ),
+          features: {
+            // No need to actually issue live logging...
+            localLiveLog: true
+          },
+          cache: {},
+          maxRunTime: 60 * 60
+        },
+        scopes: [neededScope]
+      };
+      task.payload.cache[cacheName] = '/tmp-obj-dir';
+
+      tasks.push(worker.postToQueue(task));
+    }
+
+    var results = yield tasks;
+    assert.ok(results.length === 2);
+    assert.ok(results[0].log.indexOf('file0.txt') !== -1);
+    assert.ok(results[0].log.indexOf('file1.txt') === -1);
+    assert.ok(results[1].log.indexOf('file1.txt') !== -1);
+    assert.ok(results[1].log.indexOf('file0.txt') === -1);
+
+    yield worker.terminate();
+  }));
+
+  test('cached volumes can be reused between tasks', co(function* () {
+    var cacheName = 'tmp-obj-dir-' + Date.now().toString();
+    var fullCacheDir = path.join(cacheDir, cacheName);
+    var neededScope = 'docker-worker:cache:' + cacheName;
+
+    settings.configure({
+      capacity: 2,
+      garbageCollection: {
+        imageExpiration: 2 * 60 * 60 * 1000,
+        interval: 500,
+        diskspaceThreshold: 10 * 1000000000,
+        dockerVolume: '/mnt'
+      },
+    });
+
+    worker = new TestWorker(DockerWorker);
+    yield worker.launch()
+
+    var task = {
+      payload: {
+        image: 'taskcluster/test-ubuntu',
+        command: cmd(
+          'echo "This is a shared file." > /tmp-obj-dir/foo.txt'
+        ),
+        features: {
+          // No need to actually issue live logging...
+          localLiveLog: false
+        },
+        cache: {},
+        maxRunTime:         5 * 60
+      },
+      scopes: [neededScope]
+    };
+
+    task.payload.cache[cacheName] = '/tmp-obj-dir';
+
+    var result1 = yield worker.postToQueue(task);
+
+    task.payload.command = cmd('cat /tmp-obj-dir/foo.txt');
+    task.payload.features.localLiveLog = true;
+
+    var result2 = yield worker.postToQueue(task);
+    assert.ok(result2.run.success, 'task was successful');
+    assert.ok(result2.log.indexOf('This is a shared file') !== -1);
+
+    yield worker.terminate();
 
     if (fs.existsSync(fullCacheDir)) {
       rmrf.sync(fullCacheDir);

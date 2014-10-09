@@ -162,8 +162,6 @@ suite('volume cache test', function () {
     gc.sweep();
     removedContainerId = yield waitForEvent(gc, 'gc:container:removed');
 
-    console.log(cacheInstance);
-
     assert.ok(fs.existsSync(path.join(cacheInstance.path, 'blah.txt')));
 
     if (fs.existsSync(localCachePath)) {
