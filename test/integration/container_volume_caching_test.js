@@ -24,8 +24,7 @@ suite('volume cache tests', function () {
           'ls /tmp-obj-dir'
         ),
         features: {
-          // No need to actually issue live logging...
-          localLiveLog: false
+          localLiveLog: true
         },
         cache: {},
         maxRunTime:         5 * 60
@@ -39,6 +38,8 @@ suite('volume cache tests', function () {
 
     // Get task specific results
     assert.ok(result.run.success, 'task was successful');
+    assert.ok(result.log.indexOf(cacheName) !== -1, 'lists cache');
+    assert.ok(result.log.indexOf(cacheName) !== -1, '/tmp-obj-dir');
 
     var objDir = fs.readdirSync(fullCacheDir);
     assert.ok(fs.existsSync(path.join(fullCacheDir, objDir[0], 'foo.txt')));
