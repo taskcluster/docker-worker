@@ -18,7 +18,7 @@ var Graph = require('taskcluster-task-factory/graph');
 var LocalWorker = require('./localworker');
 var Queue  = require('taskcluster-client').Queue;
 var Scheduler = require('taskcluster-client').Scheduler;
-var Listener = require('taskcluster-client').Listener;
+var PulseListener = require('taskcluster-client').PulseListener;
 var Promise = require('promise');
 var EventEmitter = require('events').EventEmitter;
 
@@ -186,8 +186,9 @@ TestWorker.prototype = {
   postToScheduler: function* (graphId, graph) {
     // Create and bind the listener which will notify us when the worker
     // completes a task.
-    var listener = new Listener({
-      connectionString: (yield this.queue.getAMQPConnectionString()).url
+    var listener = new PulseListener({
+      credentials:      // TODO, somehow load {username:,  password:} from
+                        // a configuration file
     });
 
     // Listen for either blocked or finished...
@@ -237,8 +238,9 @@ TestWorker.prototype = {
 
     // Create and bind the listener which will notify us when the worker
     // completes a task.
-    var listener = new Listener({
-      connectionString: (yield this.queue.getAMQPConnectionString()).url
+    var listener = new PulseListener({
+      credentials:      // TODO, somehow load {username:,  password:} from
+                        // a configuration file
     });
 
     // listen for this one task and only this task...
