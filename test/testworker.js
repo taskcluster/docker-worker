@@ -41,6 +41,8 @@ function TestWorker(Worker, workerType, workerId) {
   this.workerId = workerId || this.workerType;
   this.worker = new Worker(PROVISIONER_ID, this.workerType, this.workerId);
 
+  this.pulse = config.get('pulse');
+
   this.queue = new Queue({
     credentials: config.get('taskcluster')
   });
@@ -187,8 +189,7 @@ TestWorker.prototype = {
     // Create and bind the listener which will notify us when the worker
     // completes a task.
     var listener = new PulseListener({
-      credentials:      // TODO, somehow load {username:,  password:} from
-                        // a configuration file
+      credentials:      this.pulse
     });
 
     // Listen for either blocked or finished...
@@ -239,8 +240,7 @@ TestWorker.prototype = {
     // Create and bind the listener which will notify us when the worker
     // completes a task.
     var listener = new PulseListener({
-      credentials:      // TODO, somehow load {username:,  password:} from
-                        // a configuration file
+      credentials:      this.pulse
     });
 
     // listen for this one task and only this task...
