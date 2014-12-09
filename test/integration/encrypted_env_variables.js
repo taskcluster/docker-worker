@@ -18,7 +18,7 @@ suite('encrypted private env variables', function() {
     settings.configure({
       dockerWorkerPrivateKey: '/worker/test/docker-worker-priv.pem'
     });
-     
+
     var pubKeyArmored = fs.readFileSync('test\/docker-worker.pem', 'ascii');
     pubKey = openpgp.key.readArmored(pubKeyArmored);
   }));

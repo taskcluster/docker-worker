@@ -8,8 +8,7 @@
     "logglyAccount":       "",
     "logglyAuth":          "",
     "papertrail":          "",
-    "fsType":              "",
-    "privateKeyLocation":  ""
+    "fsType":              ""
   },
   "provisioners": [
     {
@@ -49,11 +48,6 @@
       "inline": [
         "/tmp/deploy.sh /tmp/deploy.tar.gz /tmp/docker-worker.tgz"
       ]
-    },
-    {
-      "type":           "file",
-      "source":         "{{user `privateKeyLocation`}}",
-      "destination":    "/etc/docker-worker-priv.pem"
     }
   ],
   "builders": [
