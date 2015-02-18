@@ -183,10 +183,19 @@ co(function *() {
   // Instantiate PrivateKey object for decrypting secure data
   // (currently encrypted environment variables)
   runtime.privateKey = new PrivateKey(runtime.dockerWorkerPrivateKey);
-  
+
   // Build the listener and connect to the queue.
   var taskListener = new TaskListener(runtime);
   runtime.gc.taskListener = taskListener;
+
+  // Billing cycle logic is host specific so we cannot handle shutdowns without
+  // both the host and the configuration to shutdown.
+  if (host && config.shutdown) {
+    runtime.log('handle shutdowns');
+    var shutdownManager = new ShutdownManager(host, runtime);
+    shutdownManager.observe(taskListener);
+    runtime.shutdownManager = shutdownManager;
+  }
 
   yield taskListener.connect();
 
@@ -204,16 +213,8 @@ co(function *() {
     setTimeout(co(alivenessCheck), config.alivenessCheckInterval)
   }
 
-  // Always run the initial alivenss check during startup.
+  // Always run the initial aliveness check during startup.
   yield alivenessCheck();
-
-  // Billing cycle logic is host specific so we cannot handle shutdowns without
-  // both the host and the configuration to shutdown.
-  if (host && config.shutdown) {
-    runtime.log('handle shutdowns');
-    var shutdownManager = new ShutdownManager(host, runtime);
-    shutdownManager.observe(taskListener);
-  }
 
   // Test only logic for clean shutdowns (this ensures our tests actually go
   // through the entire steps of running a task).
