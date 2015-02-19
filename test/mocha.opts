@@ -1,5 +1,5 @@
 --ui tdd
 --require test/helper
 --require test/babel-register
---timeout 135s
+--timeout 240s
 --reporter spec

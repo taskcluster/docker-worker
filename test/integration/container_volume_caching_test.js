@@ -100,13 +100,13 @@ suite('volume cache tests', function () {
     }
 
     var results = yield tasks;
+    yield worker.terminate();
+
     assert.ok(results.length === 2);
     assert.ok(results[0].log.indexOf('file0.txt') !== -1);
     assert.ok(results[0].log.indexOf('file1.txt') === -1);
     assert.ok(results[1].log.indexOf('file1.txt') !== -1);
     assert.ok(results[1].log.indexOf('file0.txt') === -1);
-
-    yield worker.terminate();
   }));
 
   test('cached volumes can be reused between tasks', co(function* () {
@@ -154,11 +154,11 @@ suite('volume cache tests', function () {
     task.payload.features.localLiveLog = true;
 
     var result2 = yield worker.postToQueue(task);
+    yield worker.terminate();
+
     assert.equal(result2.run.state, 'completed');
     assert.equal(result2.run.reasonResolved, 'completed');
     assert.ok(result2.log.indexOf('This is a shared file') !== -1);
-
-    yield worker.terminate();
   }));
 
   test('mount multiple cached volumes in docker worker', co(function* () {

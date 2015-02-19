@@ -7,9 +7,6 @@ suite('Capacity', function() {
   var DockerWorker = require('../dockerworker');
   var TestWorker = require('../testworker');
 
-  // Ensure we don't leave behind our test configurations.
-  teardown(settings.cleanup);
-
   var CAPACITY = 10;
 
   var worker;
@@ -24,6 +21,7 @@ suite('Capacity', function() {
 
   teardown(co(function* () {
     yield worker.terminate();
+    settings.cleanup();
   }));
 
   test(CAPACITY + ' tasks in parallel', co(function* () {
@@ -33,6 +31,9 @@ suite('Capacity', function() {
     for (var i = 0; i < CAPACITY; i++) {
       tasks.push(worker.postToQueue({
         payload: {
+          features: {
+            localLiveLog: false
+          },
           image: 'taskcluster/test-ubuntu',
           command: cmd(
             'sleep ' + sleep

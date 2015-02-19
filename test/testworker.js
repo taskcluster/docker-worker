@@ -38,9 +38,9 @@ function TestWorker(Worker, workerType, workerId) {
 
   this.provisionerId = PROVISIONER_ID;
   this.workerType = workerType || slugid.v4();
-  // TODO remove leading underscores and other invalid characters for docker container
-  // names but are allowed in slugid.v4. container name must be [a-zA-Z0-9][a-zA-Z0-9_.-]
-  this.workerId = workerId || this.workerType;
+  // remove leading underscores because workerId could be used as container name
+  // and container names must start with an alphanumeric character.
+  this.workerId = workerId || this.workerType.replace(/^_*/, '');
   this.worker = new Worker(PROVISIONER_ID, this.workerType, this.workerId);
 
   this.pulse = config.get('pulse');
