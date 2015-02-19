@@ -50,7 +50,8 @@ suite('Capacity', function() {
 
     assert.equal(results.length, CAPACITY, 'all 5 tasks must have completed');
     results.forEach(function(taskRes) {
-      assert.ok(taskRes.run.success, 'all tasks are successful');
+      assert.equal(taskRes.run.state, 'completed');
+      assert.equal(taskRes.run.reasonResolved, 'completed');
     });
     assert.ok(end < (sleep * CAPACITY), 'tasks ran in parallel');
   }));

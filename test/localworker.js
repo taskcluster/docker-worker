@@ -36,7 +36,7 @@ LocalWorker.prototype.launch = function() {
 
     // Provide commandline arguments
     var args = [
-      '--harmony',
+      '--experimental',
       BINARY,
       '--host', 'test',
       '--provisioner-id', this.provisionerId,
@@ -47,8 +47,8 @@ LocalWorker.prototype.launch = function() {
     ];
 
     // Launch worker process.
-    var proc = this.process = spawn('node', args, {
-      execArgv: ['--harmony'],
+    var proc = this.process = spawn('babel-node', args, {
+      execArgv: ['--experimental'],
       env: envs,
       stdio: 'pipe'
     });

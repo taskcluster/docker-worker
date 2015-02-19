@@ -18,7 +18,8 @@ suite('Reclaiming task', function() {
         // frequent reclaims but allow us to easily test that it reclaims at
         // least once...
         reclaimDivisor: 1000
-      }
+      },
+      dockerWorkerPrivateKey: './test/docker-worker-priv.pem'
     });
 
     worker = new TestWorker(LocalWorker);
@@ -41,7 +42,10 @@ suite('Reclaiming task', function() {
         command: cmd(
           'sleep 10'
         ),
-        maxRunTime: 60 * 60
+        maxRunTime: 60 * 60,
+        features: {
+          localLiveLog: false,
+        },
       }
     });
     assert.ok(reclaims.length > 1, 'issued more than one reclaim');
@@ -52,7 +56,8 @@ suite('Reclaiming task', function() {
       'Last reclaim occurs after the first reclaim'
     );
 
-    assert.ok(result.run.success, 'task is successful');
+    assert.equal(result.run.state, 'completed', 'task should be successfull');
+    assert.equal(result.run.reasonResolved, 'completed', 'task should be successfull');
   }));
 });
 

@@ -38,6 +38,8 @@ function TestWorker(Worker, workerType, workerId) {
 
   this.provisionerId = PROVISIONER_ID;
   this.workerType = workerType || slugid.v4();
+  // TODO remove leading underscores and other invalid characters for docker container
+  // names but are allowed in slugid.v4. container name must be [a-zA-Z0-9][a-zA-Z0-9_.-]
   this.workerId = workerId || this.workerType;
   this.worker = new Worker(PROVISIONER_ID, this.workerType, this.workerId);
 
@@ -162,7 +164,6 @@ TestWorker.prototype = {
       // Generally useful for most of the tests...
       artifacts: this.queue.listArtifacts(taskId, runId),
     };
-
     // XXX: Ugh status.status...
     var status = fetch.status.status;
     var indexedArtifacts =
@@ -245,6 +246,14 @@ TestWorker.prototype = {
 
     // listen for this one task and only this task...
     yield listener.bind(queueEvents.taskCompleted({
+      taskId: taskId
+    }));
+
+    yield listener.bind(queueEvents.taskFailed({
+      taskId: taskId
+    }));
+
+    yield listener.bind(queueEvents.taskException({
       taskId: taskId
     }));
 
