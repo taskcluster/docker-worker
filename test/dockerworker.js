@@ -53,7 +53,7 @@ DockerWorker.prototype = {
       Cmd: [
         '/bin/bash', '-c',
          [
-          'node --harmony /worker/bin/worker.js',
+          'babel-node --experimental /worker/bin/worker.js',
           '--host test',
           '--worker-group', 'random-local-worker',
           '--worker-id', this.workerId,
