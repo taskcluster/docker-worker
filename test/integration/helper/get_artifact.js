@@ -11,8 +11,9 @@ module.exports = function* getArtifact(result, path) {
   var taskId = result.taskId;
   var runId = result.runId;
 
-  var url = 'https://queue.taskcluster.net/v1/task/' +
+  var url = 'http://localhost:60001/v1/task/' +
             taskId + '/runs/' + runId + '/artifacts/' + path;
+  console.log("get artifact: "+url);
 
   return yield get(url);
 }

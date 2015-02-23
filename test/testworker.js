@@ -40,12 +40,13 @@ function TestWorker(Worker, workerType, workerId) {
   this.workerType = workerType || slugid.v4();
   // remove leading underscores because workerId could be used as container name
   // and container names must start with an alphanumeric character.
-  this.workerId = workerId || this.workerType.replace(/^_*/, '');
+  this.workerId = workerId || this.workerType.replace(/^[_-]*/, '');
   this.worker = new Worker(PROVISIONER_ID, this.workerType, this.workerId);
 
   this.pulse = config.get('pulse');
 
   this.queue = new Queue({
+    baseUrl: 'http://localhost:60001/v1',
     credentials: config.get('taskcluster')
   });
 

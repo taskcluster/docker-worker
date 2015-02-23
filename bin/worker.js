@@ -1,3 +1,4 @@
+var fs = require('fs');
 var program = require('commander');
 var co = require('co');
 var taskcluster = require('taskcluster-client');
@@ -119,7 +120,13 @@ co(function *() {
   // Initialize the classes and objects with core functionality used by higher
   // level docker-worker components.
   config.docker = require('../lib/docker')();
-  config.queue = new taskcluster.Queue({ credentials: config.taskcluster });
+  var jsonFromUrl = JSON.parse(fs.readFileSync('test/integration/cancelTaskReference.json'));
+
+  var CancelQueue = taskcluster.createClient(jsonFromUrl);
+  config.queue = new CancelQueue({
+    baseUrl: config.queue.baseUrl || undefined,
+    credentials: config.taskcluster
+  });
   config.scheduler =
     new taskcluster.Scheduler({ credentials: config.taskcluster });
   config.schema = require('../lib/schema')();
