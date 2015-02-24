@@ -37,8 +37,7 @@ suite('Shutdown on idle', function() {
   }));
 
   test('with timer shutdown', co(function *() {
-    yield worker.launch();
-    yield waitForEvent(worker, 'pending shutdown');
+    yield [worker.launch(), waitForEvent(worker, 'pending shutdown')];
     settings.billingCycleUptime(469);
 
     var res = yield {
@@ -64,10 +63,12 @@ suite('Shutdown on idle', function() {
     // We are very close to end of the cycle so might as well wait for some more
     // work rather then shutting down...
     settings.billingCycleUptime(79);
-    yield worker.launch();
-    var res = yield waitForEvent(worker, 'pending shutdown');
     // 2 seconds prior to the next billing interval.
-    assert.equal(res.time, 39);
+    var res = yield {
+      start: worker.launch(),
+      pendingShutdown: waitForEvent(worker, 'pending shutdown'),
+    };
+    assert.equal(res.pendingShutdown.time, 39);
   }));
 
   test('cancel idle', co(function *() {
