@@ -153,6 +153,7 @@ TestWorker.prototype = {
   Fetch all the common stats used by the tests.
   */
   fetchTaskStats: function* (taskId, runId) {
+    debug('fetch task stats');
     var fetch = yield {
       // Just about every single test needs status of the task...
       status: this.queue.status(taskId),
@@ -266,6 +267,7 @@ TestWorker.prototype = {
     var creation = yield [
       waitForEvent(listener, 'message'),
       this.createTask(taskId, task),
+      waitForEvent(this, 'task resolved')
     ];
 
     // Fetch the final result json.
