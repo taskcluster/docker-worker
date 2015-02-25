@@ -1,15 +1,14 @@
-var fs = require('fs');
-var taskcluster = require('taskcluster-client');
-var DockerWorker = require('../dockerworker');
-var TestWorker = require('../testworker');
-var slugid = require('slugid');
-var cmd = require('./helper/cmd');
-var co = require('co');
+import fs from 'fs';
+import slugid from 'slugid';
+import co from 'co';
+import taskcluster from 'taskcluster-client';
+import DockerWorker from '../dockerworker';
+import TestWorker from '../testworker';
 
-suite('Cancel Task', function() {
-  var jsonFromUrl = JSON.parse(fs.readFileSync('test/integration/cancelTaskReference.json'));
+var jsonFromUrl = JSON.parse(fs.readFileSync('test/integration/cancelTaskReference.json'));
 
-  test('cancel', co(function* () {
+suite('Cancel Task', () => {
+  test("cancel", async () => {
     var CancelQueue = taskcluster.createClient(jsonFromUrl);
     var queue = new CancelQueue({baseUrl: 'http://localhost:60001/v1'});
     var task = {
@@ -18,25 +17,21 @@ suite('Cancel Task', function() {
         command:        [
           '/bin/bash', '-c', 'echo "Hello"; sleep 60; echo "done";'
         ],
+        features: {
+          localLiveLog: false
+        },
         maxRunTime: 60 * 60
       }
     };
     var taskId = slugid.v4();
     var worker = new TestWorker(DockerWorker);
+    let canceledTask;
     worker.on('task run', co(function* () { yield queue.cancelTask(taskId); }));
-    try {
-      var launch = yield worker.launch();
-      var result = yield worker.postToQueue(task, taskId);
-      console.log("after post to queue");
-      console.dir(result);
-    }
-    catch (e) {
-      console.log('hi');
-      console.log(e); 
-
-    }
-    yield worker.terminate();
-
-  }));
+    worker.on('cancel task', () => { canceledTask = true });
+    var launch = await worker.launch();
+    var result = await worker.postToQueue(task, taskId);
+    assert.ok(canceledTask, 'task execution should have been canceled');
+    await worker.terminate();
+  });
 });
 
