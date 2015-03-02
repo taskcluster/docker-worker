@@ -1,4 +1,3 @@
-var fs = require('fs');
 var program = require('commander');
 var co = require('co');
 var taskcluster = require('taskcluster-client');
@@ -121,10 +120,7 @@ co(function *() {
   // level docker-worker components.
   config.docker = require('../lib/docker')();
 
-  config.queue = new taskcluster.Queue({
-    baseUrl: config.queue.baseUrl || undefined,
-    credentials: config.taskcluster
-  });
+  config.queue = new taskcluster.Queue({ credentials: config.taskcluster });
   config.scheduler =
     new taskcluster.Scheduler({ credentials: config.taskcluster });
   config.schema = require('../lib/schema')();
