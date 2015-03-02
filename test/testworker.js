@@ -53,7 +53,6 @@ export default class TestWorker extends EventEmitter {
     this.pulse = config.get('pulse');
 
     this.queue = new Queue({
-      baseUrl: 'http://localhost:60001/v1',
       credentials: config.get('taskcluster')
     });
 

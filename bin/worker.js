@@ -120,10 +120,8 @@ co(function *() {
   // Initialize the classes and objects with core functionality used by higher
   // level docker-worker components.
   config.docker = require('../lib/docker')();
-  var jsonFromUrl = JSON.parse(fs.readFileSync('test/integration/cancelTaskReference.json'));
 
-  var CancelQueue = taskcluster.createClient(jsonFromUrl);
-  config.queue = new CancelQueue({
+  config.queue = new taskcluster.Queue({
     baseUrl: config.queue.baseUrl || undefined,
     credentials: config.taskcluster
   });

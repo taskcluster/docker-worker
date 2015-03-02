@@ -11,7 +11,7 @@ export default async (result, path) => {
   let taskId = result.taskId;
   let runId = result.runId;
 
-  let url = 'http://localhost:60001/v1/task/' +
+  let url = 'https://queue.taskcluster.net/v1/task/' +
             taskId + '/runs/' + runId + '/artifacts/' + path;
   console.log("get artifact: "+url);
 

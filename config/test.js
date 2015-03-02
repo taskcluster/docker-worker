@@ -3,9 +3,6 @@ var path = require('path');
 module.exports = {
   testMode: true,
   createQueue: false,
-  queue: {
-    baseUrl: 'http://localhost:60001/v1'
-  },
 
   // Disable statsd by default...
   statsd: {

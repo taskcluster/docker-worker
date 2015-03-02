@@ -9,8 +9,7 @@ var jsonFromUrl = JSON.parse(fs.readFileSync('test/integration/cancelTaskReferen
 
 suite('Cancel Task', () => {
   test("cancel", async () => {
-    var CancelQueue = taskcluster.createClient(jsonFromUrl);
-    var queue = new CancelQueue({baseUrl: 'http://localhost:60001/v1'});
+    var queue = new taskcluster.Queue();
     var task = {
       payload: {
         image: 'taskcluster/test-ubuntu',
