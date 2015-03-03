@@ -32,6 +32,7 @@ var PROVISIONER_ID = 'no-provisioning-nope';
 var fs = require('fs');
 var taskcluster = require('taskcluster-client');
 
+
 export default class TestWorker extends EventEmitter {
   constructor(Worker, workerType, workerId) {
     // Load the test time configuration for all the components...
@@ -232,6 +233,19 @@ export default class TestWorker extends EventEmitter {
   }
 
   /**
+  * Only listen for task resolved events for the particular task we're working with.
+  */
+  waitForTaskResolution(taskId) {
+    return new Promise(function(accept, reject) {
+      this.on('task resolved', (message) => {
+        if (message.taskId === taskId) {
+          accept(message);
+        }
+      });
+    }.bind(this));
+  }
+
+  /**
   Post a message to the queue and wait for the results.
 
   @param {Object} task partial definition to upload.
@@ -247,7 +261,7 @@ export default class TestWorker extends EventEmitter {
     // being finished.
     var creation = await Promise.all([
       this.createTask(taskId, task),
-      waitForEvent(this, 'task resolved')
+      this.waitForTaskResolution(taskId)
     ]);
 
     var taskStatus = await this.queue.status(taskId);
