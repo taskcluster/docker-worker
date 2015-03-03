@@ -31,8 +31,6 @@ var PROVISIONER_ID = 'no-provisioning-nope';
 // TODO remove this once new queue and client is deployed
 var fs = require('fs');
 var taskcluster = require('taskcluster-client');
-var jsonFromUrl = JSON.parse(fs.readFileSync('test/integration/cancelTaskReference.json'));
-Queue = taskcluster.createClient(jsonFromUrl);
 
 export default class TestWorker extends EventEmitter {
   constructor(Worker, workerType, workerId) {
@@ -226,11 +224,11 @@ export default class TestWorker extends EventEmitter {
     }
 
     var graph = await this.scheduler.inspect(graphId);
-    return await graph.tasks.map(function(task) {
+    return await Promise.all(graph.tasks.map(async (task) => {
       // Note: that we assume runId 0 here which is fine locally since we know
       // the number of runs but not safe is we wanted to test reruns.
-      return this.fetchTaskStats(task.taskId, 0);
-    }, this);
+      return await this.fetchTaskStats(task.taskId, 0);
+    }));
   }
 
   /**

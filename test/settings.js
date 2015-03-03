@@ -30,8 +30,8 @@ function billingCycleUptime(seconds) {
   write('billingCycleUptime', seconds);
 }
 
-function spotNodeTermination() {
-  write('spotNodeTermination', 'terminated');
+function nodeTermination() {
+  write('nodeTermination', 'terminated');
 }
 
 function configure(config) {
@@ -42,7 +42,7 @@ function configure(config) {
 function cleanup() {
   unlink('billingCycleInterval');
   unlink('billingCycleUptime');
-  unlink('spotNodeTermination');
+  unlink('nodeTermination');
   unlink('configure');
 }
 
@@ -51,4 +51,4 @@ module.exports.cleanup = cleanup;
 module.exports.configure = configure;
 module.exports.billingCycleUptime = billingCycleUptime;
 module.exports.billingCycleInterval = billingCycleInterval;
-module.exports.spotNodeTermination = spotNodeTermination;
+module.exports.nodeTermination = nodeTermination;

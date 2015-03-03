@@ -48,16 +48,10 @@ suite('Spot Node Termination', () => {
     };
     let taskId = slugid.v4();
     worker = new TestWorker(DockerWorker);
-    worker.on('task run', () => { settings.spotNodeTermination(); });
+    worker.on('task run', () => { settings.nodeTermination(); });
     let launch = await worker.launch();
     let result = await worker.postToQueue(task, taskId);
     let taskStatus = await worker.queue.status(taskId);
-
-    assert(
-      (taskStatus.status.runs.length === 2 &&
-       taskStatus.status.runs[1].state === 'pending'),
-      'New pending task run should be created on worker-shutdown'
-    );
 
     assert.equal(taskStatus.status.runs[0].state, 'exception',
       'First run should have been marked as exception on worker-shutdown'
@@ -103,17 +97,11 @@ suite('Spot Node Termination', () => {
     let taskId = slugid.v4();
     worker = new TestWorker(DockerWorker);
     worker.on('pull image', (msg) => {
-      if (msg.image === image) { settings.spotNodeTermination(); }
+      if (msg.image === image) { settings.nodeTermination(); }
     });
     let launch = await worker.launch();
     let result = await worker.postToQueue(task, taskId);
     let taskStatus = await worker.queue.status(taskId);
-
-    assert(
-      (taskStatus.status.runs.length === 2 &&
-       taskStatus.status.runs[1].state === 'pending'),
-      'New pending task run should be created on worker-shutdown'
-    );
 
     assert.equal(taskStatus.status.runs[0].state, 'exception',
       'First run should have been marked as exception on worker-shutdown'
