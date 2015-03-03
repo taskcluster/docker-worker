@@ -64,7 +64,7 @@ suite('Spot Node Termination', () => {
     let log = await getArtifact(
       { taskId: taskId, runId: 0 }, 'public/logs/live_backing.log'
     );
-    console.log(log);
+
     assert.equal(log.indexOf('Artifact not found'), -1,
       'Backing log should have been created when task was aborted'
     );
@@ -114,7 +114,7 @@ suite('Spot Node Termination', () => {
     let log = await getArtifact(
       { taskId: taskId, runId: 0 }, 'public/logs/live_backing.log'
     );
-    console.log(log);
+
     assert.equal(log.indexOf('Artifact not found'), -1,
       'Backing log should have been created when task was aborted'
     );
