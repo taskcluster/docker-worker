@@ -4,7 +4,7 @@ suite('Reclaiming task', function() {
   var settings = require('../settings');
   var cmd = require('./helper/cmd');
 
-  var LocalWorker = require('../localworker');
+  var DockerWorker = require('../dockerworker');
   var TestWorker = require('../testworker');
 
   // Ensure we don't leave behind our test configurations.
@@ -17,12 +17,13 @@ suite('Reclaiming task', function() {
         // just use crazy high reclaim divisor... This will result in way to
         // frequent reclaims but allow us to easily test that it reclaims at
         // least once...
-        reclaimDivisor: 1000
+        reclaimDivisor: 1000,
+        dequeueCount: 15
       },
       dockerWorkerPrivateKey: './test/docker-worker-priv.pem'
     });
 
-    worker = new TestWorker(LocalWorker);
+    worker = new TestWorker(DockerWorker);
     yield worker.launch();
   }));
 
