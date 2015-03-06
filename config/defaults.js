@@ -54,7 +54,11 @@ module.exports = {
     // Task queue will be polled on a frequent interval for new pending tasks
     pollInterval: 5 * 1000,
     // If signed url for queue expires within now()+expiration, refresh queues
-    expiration: 5 * 60 * 1000
+    expiration: 5 * 60 * 1000,
+    // Number of times to retry requests to the task queue
+    maxRetries: 5,
+    // Amount of time to wait between retries
+    requestRetryInterval: 2 * 1000
   },
 
   /**

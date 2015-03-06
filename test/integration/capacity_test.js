@@ -12,7 +12,15 @@ suite('Capacity', function() {
   var worker;
   setup(co(function * () {
     settings.configure({
-      capacity: CAPACITY
+      capacity: CAPACITY,
+      taskQueue: {
+        // Make the poll very high so that once tasks start, it will not
+        // poll again to interupt the event loop
+        pollInterval: 30 * 1000,
+        expiration: 5 * 60 * 1000,
+        maxRetries: 5,
+        requestRetryInterval: 2 * 1000
+      }
     });
 
     worker = new TestWorker(DockerWorker);
@@ -45,15 +53,21 @@ suite('Capacity', function() {
 
     // The logic here is a little weak but the idea is if run in parallel the
     // total runtime should be _less_ then sleep * CAPACITY even with overhead.
+
+    // Wait for the first claim to start timing.  This weeds out any issues with
+    // waiting for the task queue to be polled
+    yield waitForEvent(worker, 'claim task');
     var start = Date.now();
+
     var results = yield tasks;
     var end = (Date.now() - start) / 1000;
 
-    assert.equal(results.length, CAPACITY, 'all 5 tasks must have completed');
+    assert.equal(results.length, CAPACITY, `all ${CAPACITY} tasks must have completed`);
     results.forEach(function(taskRes) {
       assert.equal(taskRes.run.state, 'completed');
       assert.equal(taskRes.run.reasonResolved, 'completed');
     });
-    assert.ok(end < (sleep * CAPACITY), 'tasks ran in parallel');
+    assert.ok(end < (sleep * CAPACITY),
+      `tasks ran in parallel. Duration ${end} seconds > expected ${sleep * CAPACITY}`);
   }));
 });
