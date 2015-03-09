@@ -1,0 +1,29 @@
+{
+  "tasks": [
+    {
+      "task": {
+        "metadata": {
+          "name": "Docker-worker tests",
+          "description": "Runs entire docker-worker test suite",
+          "source": "http://todo.com/soon",
+          "owner": "mozilla@mozilla.org"
+        },
+        "workerType": "worker-ci-test",
+        "provisionerId": "aws-provisioner",
+        "payload": {
+          "command": [
+            "npm install && npm test"
+          ],
+          "image": "gregarndt/worker-ci:0.0.2",
+          "maxRunTime": 3600,
+          "features": {
+            "privileged": true
+          }
+        },
+        "extra": {
+        },
+        "schedulerId": "task-graph-scheduler"
+      }
+    }
+  ]
+}

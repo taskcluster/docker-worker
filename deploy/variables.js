@@ -134,5 +134,25 @@ module.exports = {
   'pulse.password': {
     description: 'Pulse password (see https://pulse.mozilla.org/profile)',
     value: process.env.PULSE_PASSWORD
+  },
+
+  'test.taskcluster.clientId': {
+    description: 'Taskcluster client id (used only for tests)',
+    value: process.env.TEST_TASKCLUSTER_CLIENT_ID
+  },
+
+  'test.taskcluster.accessToken': {
+    description: 'Taskcluster access token (used only for tests)',
+    value: process.env.TEST_TASKCLUSTER_ACCESS_TOKEN
+  },
+
+  'test.pulse.username': {
+    description: 'Pulse username (see https://pulse.mozilla.org/profile) (used only for tests)',
+    value: process.env.TEST_PULSE_USERNAME
+  },
+
+  'test.pulse.password': {
+    description: 'Pulse password (see https://pulse.mozilla.org/profile) (used only for tests)',
+    value: process.env.TEST_PULSE_PASSWORD
   }
 };
