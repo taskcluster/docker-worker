@@ -120,10 +120,12 @@ suite('volume cache tests', function () {
         volumeCachePath: localCacheDir
       },
       capacity: 2,
+      capacityManagement: {
+        diskspaceThreshold: 1
+      },
       garbageCollection: {
         imageExpiration: 2 * 60 * 60 * 1000,
         interval: 5000,
-        diskspaceThreshold: 1,
         dockerVolume: '/mnt'
       },
     });
@@ -312,10 +314,12 @@ suite('volume cache tests', function () {
       cache: {
         volumeCachePath: localCacheDir
       },
+      capacityManagement: {
+        diskspaceThreshold: 1
+      },
       garbageCollection: {
         imageExpiration: 2 * 60 * 60 * 1000,
         interval: 5000,
-        diskspaceThreshold: 1,
         dockerVolume: '/mnt'
       },
     });

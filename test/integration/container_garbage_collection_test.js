@@ -16,10 +16,12 @@ suite('Container garbage collection tests', () => {
 
   test('containers removed after task completes', async () => {
     settings.configure({
+      capacityManagement: {
+        diskspaceThreshold: 10 * 1000000000
+      },
       garbageCollection: {
         imageExpiration: 2 * 60 * 60 * 1000,
         interval: 15 * 1000,
-        diskspaceThreshold: 10 * 1000000000,
         dockerVolume: '/mnt'
       }
     });
@@ -75,10 +77,12 @@ suite('Container garbage collection tests', () => {
 
   test('containers removed after task exceeds max run time', async () => {
     settings.configure({
+      capacityManagement: {
+        diskspaceThreshold: 10 * 1000000000
+      },
       garbageCollection: {
         imageExpiration: 2 * 60 * 60 * 1000,
         interval: 15 * 1000,
-        diskspaceThreshold: 10 * 1000000000,
         dockerVolume: '/mnt'
       }
     });

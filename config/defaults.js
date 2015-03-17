@@ -13,6 +13,12 @@ module.exports = {
 
   alivenessCheckInterval: 30000, // 30 seconds
 
+  capacityManagement: {
+    diskspaceThreshold: 10 * 1000000000,
+  },
+
+  dockerVolume: '/mnt',
+
   // Garbage Collection configuration
   garbageCollection: {
     imageExpiration: 2 * 60 * 60 * 1000,
@@ -20,8 +26,6 @@ module.exports = {
     // explicitly marked for removal is removed.
     containerExpiration: 30 * 60 * 1000,
     interval: 60 * 1000,
-    diskspaceThreshold: 10 * 1000000000,
-    dockerVolume: '/mnt'
   },
 
   // Shutdown configuration...
