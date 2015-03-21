@@ -147,6 +147,10 @@ suite('Extend Task Graph', function() {
       'Task graph should have been logged as invalid'
     );
     assert.ok(
+      result[0].log.indexOf("Incident ID") !== -1,
+      'Incident lookup message did not appear in the log'
+    );
+    assert.ok(
       result[0].run.state === 'failed',
       'Task should have been marked as failed'
     );
@@ -214,10 +218,14 @@ suite('Extend Task Graph', function() {
         }
       }]
     });
-    console.log(result);
+
     assert.ok(
       result[0].log.indexOf("Graph server error while extending task graph") !== -1,
       'Task graph error not logged'
+    );
+    assert.ok(
+      result[0].log.indexOf("Incident ID") !== -1,
+      'Incident lookup message did not appear in the log'
     );
     assert.ok(
       result[0].run.state === 'failed',
