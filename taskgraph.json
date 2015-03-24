@@ -14,7 +14,7 @@
           "command": [
             "npm install && npm test"
           ],
-          "image": "gregarndt/worker-ci:0.0.2",
+          "image": "quay.io/mozilla/worker-ci:0.0.2",
           "maxRunTime": 3600,
           "features": {
             "privileged": true
