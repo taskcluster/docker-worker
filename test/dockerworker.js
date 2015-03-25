@@ -27,11 +27,7 @@ var COPIED_ENV = [
   'TASKCLUSTER_CLIENT_ID',
   'TASKCLUSTER_ACCESS_TOKEN',
   'PULSE_USERNAME',
-  'PULSE_PASSWORD',
-  'TEST_TASKCLUSTER_CLIENT_ID',
-  'TEST_TASKCLUSTER_ACCESS_TOKEN',
-  'TEST_PULSE_USERNAME',
-  'TEST_PULSE_PASSWORD'
+  'PULSE_PASSWORD'
 ];
 
 function eventPromise(listener, event) {
@@ -57,7 +53,7 @@ export default class DockerWorker {
       Cmd: [
         '/bin/bash', '-c',
          [
-          '/worker/node_modules/babel/bin/babel-node --experimental /worker/bin/worker.js',
+          'babel-node --experimental /worker/bin/worker.js',
           '--host test',
           '--worker-group', 'random-local-worker',
           '--worker-id', this.workerId,

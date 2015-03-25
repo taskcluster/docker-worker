@@ -14,7 +14,9 @@ suite('Parallel workers', function() {
   // Total of number of tasks to run...
   var PARALLEL_TOTAL = 2;
 
-  var workerA, workerB, workerType = slugid.v4();
+  var workerA, workerB;
+  var workerType = slugid.v4();
+
   setup(co(function * () {
     // Each worker should use the same worker type but a unique worker id.
     workerA = new TestWorker(DockerWorker, workerType, slugid.v4());

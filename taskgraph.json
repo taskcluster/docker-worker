@@ -12,11 +12,11 @@
         "provisionerId": "aws-provisioner",
         "payload": {
           "command": [
-            "npm install && npm test"
+            "npm install && ./build.sh && npm test"
           ],
           "image": "quay.io/mozilla/worker-ci:0.0.2",
           "maxRunTime": 3600,
-          "features": {
+          "capabilities": {
             "privileged": true
           }
         },
