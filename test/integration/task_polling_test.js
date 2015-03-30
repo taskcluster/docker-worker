@@ -4,8 +4,7 @@ import cmd from './helper/cmd';
 import slugid from 'slugid';
 import DockerWorker from '../dockerworker';
 import TestWorker from '../testworker';
-
-const AZURE_QUEUE_LIMIT = 32;
+import loadConfig from 'taskcluster-base/config';
 
 suite('Task Polling', () => {
 
@@ -18,8 +17,6 @@ suite('Task Polling', () => {
     settings.cleanup();
   });
 
-  // Total of number of tasks to run...
-  let PARALLEL_TOTAL = 2;
   let worker;
 
   test('do not poll if diskspace threshold is reached', async () => {
@@ -62,7 +59,15 @@ suite('Task Polling', () => {
   });
 
   test('poll for tasks beyond Azure queue limit', async () => {
-    const CAPACITY = AZURE_QUEUE_LIMIT + 4;
+    let config = loadConfig({
+      defaults: require('../../config/defaults'),
+      profile: require('../../config/test'),
+      filename: 'docker-worker-test'
+    });
+
+    const QUEUE_LIMIT = config.get('taskQueue').maxMessagesPerRequest;
+    const CAPACITY = QUEUE_LIMIT + 4;
+
     settings.configure({
       capacity: CAPACITY,
       capacityManagement: {
