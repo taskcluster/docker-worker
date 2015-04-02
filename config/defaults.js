@@ -69,10 +69,7 @@ module.exports = {
     // Number of times to retry requests to the task queue
     maxRetries: 5,
     // Amount of time to wait between retries
-    requestRetryInterval: 2 * 1000,
-    // Azure currently has a max of 32 messages that can be retrieved from the
-    // queue at a time.
-    maxMessagesPerRequest: 32
+    requestRetryInterval: 2 * 1000
   },
 
   /**

@@ -4,7 +4,6 @@ import cmd from './helper/cmd';
 import slugid from 'slugid';
 import DockerWorker from '../dockerworker';
 import TestWorker from '../testworker';
-import loadConfig from 'taskcluster-base/config';
 
 suite('Task Polling', () => {
 
@@ -59,13 +58,7 @@ suite('Task Polling', () => {
   });
 
   test('poll for tasks beyond Azure queue limit', async () => {
-    let config = loadConfig({
-      defaults: require('../../config/defaults'),
-      profile: require('../../config/test'),
-      filename: 'docker-worker-test'
-    });
-
-    const QUEUE_LIMIT = config.get('taskQueue').maxMessagesPerRequest;
+    const QUEUE_LIMIT = 32;
     const CAPACITY = QUEUE_LIMIT + 4;
 
     settings.configure({
