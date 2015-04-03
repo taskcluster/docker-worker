@@ -14,6 +14,7 @@ module.exports = {
   taskclusterProxyImage: 'quay.io/mozilla/taskcluster-proxy',
   taskclusterLogImage: 'quay.io/mozilla/taskcluster-logserve',
   testdroidProxyImage: 'quay.io/mozilla/testdroid-proxy:0.0.6',
+  balrogVPNProxyImage: 'quay.io/mozillab2g/taskcluster-vpn-proxy:0.0.1',
 
   alivenessCheckInterval: 30000, // 30 seconds
 
@@ -111,6 +112,12 @@ module.exports = {
     url:      process.env.TESTDROID_URL,
     username: process.env.TESTDROID_USERNAME,
     password: process.env.TESTDROID_PASSWORD
+  },
+
+  features: {
+    balrogVPNProxy: {
+      url: "https://aus4-admin.mozilla.org"
+    }
   },
 
   dockerWorkerPrivateKey: '/etc/docker-worker-priv.pem'
