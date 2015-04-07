@@ -114,11 +114,5 @@ module.exports = {
     password: process.env.TESTDROID_PASSWORD
   },
 
-  features: {
-    balrogVPNProxy: {
-      url: "https://aus4-admin.mozilla.org"
-    }
-  },
-
   dockerWorkerPrivateKey: '/etc/docker-worker-priv.pem'
 };
