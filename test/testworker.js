@@ -35,6 +35,7 @@ var taskcluster = require('taskcluster-client');
 
 export default class TestWorker extends EventEmitter {
   constructor(Worker, workerType, workerId) {
+    super();
     // Load the test time configuration for all the components...
     var config = loadConfig({
       defaults: require('../config/defaults'),
@@ -77,7 +78,6 @@ export default class TestWorker extends EventEmitter {
         }
       }
     });
-    super();
   }
 
   /**
