@@ -2,7 +2,6 @@
 Stub for the aws metadata server.
 */
 
-console.log("here");
 var app = require('koa')();
 var PREFIX = '/latest';
 
