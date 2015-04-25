@@ -87,7 +87,7 @@ export default class DockerWorker {
 
       Binds: [
         util.format('%s:%s', path.resolve(__dirname, '..'), '/worker')
-      ]
+      ],
     };
 
     // If docker is supposed to connect over a socket set the socket as a bind
