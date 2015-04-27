@@ -20,8 +20,13 @@ sudo apt-get update -y
 ## Install all the packages
 sudo apt-get install -y lxc-docker-1.4.1 btrfs-tools lvm2 curl build-essential \
   linux-image-extra-`uname -r` git-core pbuilder python-mock python-configobj \
-  python-support cdbs python-pip jq rsyslog-gnutls openvpn v4l2loopback-utils \
-  lxc
+  python-support cdbs python-pip jq rsyslog-gnutls openvpn lxc
+
+cd $HOME
+git clone https://github.com/umlaeute/v4l2loopback.git
+cd v4l2loopback
+make KCPPFLAGS="-DMAX_DEVICES=100" && sudo make install
+cd / && rm -rf $HOME/v4l2loopback
 
 ## Clear mounts created in base image so fstab is empty in other builds...
 sudo sh -c 'echo "" > /etc/fstab'
