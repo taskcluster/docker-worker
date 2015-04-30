@@ -33,7 +33,11 @@ if (files.length >= totalChunks) {
   files = files.slice(chunk, chunk + chunkLength);
 }
 
-spawn(binary, files, {
+let proc = spawn(binary, files, {
   env: process.env,
   stdio: 'inherit'
+});
+
+proc.on('exit', (code) => {
+    process.exit(code);
 });
