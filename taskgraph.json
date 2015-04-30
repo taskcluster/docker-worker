@@ -3,7 +3,7 @@
     {
       "task": {
         "metadata": {
-          "name": "Docker-worker tests",
+          "name": "Docker-worker tests - 1",
           "description": "Runs entire docker-worker test suite",
           "source": "http://todo.com/soon",
           "owner": "mozilla@mozilla.org"
@@ -28,7 +28,7 @@
     {
       "task": {
         "metadata": {
-          "name": "Docker-worker tests",
+          "name": "Docker-worker tests - 2",
           "description": "Runs entire docker-worker test suite",
           "source": "http://todo.com/soon",
           "owner": "mozilla@mozilla.org"
@@ -53,7 +53,7 @@
     {
       "task": {
         "metadata": {
-          "name": "Docker-worker tests",
+          "name": "Docker-worker tests - 3",
           "description": "Runs entire docker-worker test suite",
           "source": "http://todo.com/soon",
           "owner": "mozilla@mozilla.org"
@@ -78,7 +78,7 @@
     {
       "task": {
         "metadata": {
-          "name": "Docker-worker tests",
+          "name": "Docker-worker tests - 4",
           "description": "Runs entire docker-worker test suite",
           "source": "http://todo.com/soon",
           "owner": "mozilla@mozilla.org"
@@ -103,7 +103,7 @@
     {
       "task": {
         "metadata": {
-          "name": "Docker-worker tests",
+          "name": "Docker-worker tests - 5",
           "description": "Runs entire docker-worker test suite",
           "source": "http://todo.com/soon",
           "owner": "mozilla@mozilla.org"

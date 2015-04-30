@@ -15,7 +15,7 @@ suite('Parallel workers', function() {
   var PARALLEL_TOTAL = 2;
 
   var workerA, workerB;
-  var workerType = slugid.v4();
+  var workerType = `test_worker_${slugid.v4()}`.substring(0,22);
 
   setup(co(function * () {
     // Each worker should use the same worker type but a unique worker id.
