@@ -1,6 +1,11 @@
 {
+  "metadata": {
+    "name": "Worker CI taskgraph",
+    "description": "Worker CI taskgraph"
+  },
   "tasks": [
     {
+      "reruns": 2,
       "task": {
         "metadata": {
           "name": "Docker-worker tests - 1",
@@ -26,6 +31,7 @@
       }
     },
     {
+      "reruns": 2,
       "task": {
         "metadata": {
           "name": "Docker-worker tests - 2",
@@ -51,6 +57,7 @@
       }
     },
     {
+      "reruns": 2,
       "task": {
         "metadata": {
           "name": "Docker-worker tests - 3",
@@ -76,6 +83,7 @@
       }
     },
     {
+      "reruns": 2,
       "task": {
         "metadata": {
           "name": "Docker-worker tests - 4",
@@ -101,6 +109,7 @@
       }
     },
     {
+      "reruns": 2,
       "task": {
         "metadata": {
           "name": "Docker-worker tests - 5",
