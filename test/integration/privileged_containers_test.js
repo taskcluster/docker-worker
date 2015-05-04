@@ -16,10 +16,41 @@ suite('Privileged containers', () => {
     worker = null;
   });
 
+  test('task error when necessary scopes missing', async () => {
+    settings.configure({
+      dockerConfig: {
+        allowPrivileged: true
+      }
+    });
+
+    worker = new TestWorker(DockerWorker);
+    await worker.launch();
+    let result = await worker.postToQueue({
+      payload: {
+        image: 'taskcluster/test-ubuntu',
+        command: [
+          '/bin/bash',
+          '-c',
+          'sleep 1'
+        ],
+        capabilities: {
+          privileged: true
+        },
+        maxRunTime: 5 * 60
+      }
+    });
+
+    let errorMessage = 'Insufficient scopes to run task in privileged mode';
+    assert.ok(result.log.indexOf(errorMessage) !== -1);
+    assert.equal(result.run.state, 'failed', 'task should not be successfull');
+    assert.equal(result.run.reasonResolved, 'failed', 'task should not be successfull');
+  });
+
   test('task error when privileged requested but not enabled in worker', async () => {
     worker = new TestWorker(DockerWorker);
     await worker.launch();
     let result = await worker.postToQueue({
+      scopes: ["docker-worker:capability:privileged"],
       payload: {
         image: 'taskcluster/test-ubuntu',
         command: [
@@ -50,6 +81,7 @@ suite('Privileged containers', () => {
     worker = new TestWorker(DockerWorker);
     await worker.launch();
     let result = await worker.postToQueue({
+      scopes: ["docker-worker:capability:privileged"],
       payload: {
         image: 'taskcluster/test-ubuntu',
         command: [
@@ -73,6 +105,7 @@ suite('Privileged containers', () => {
     worker = new TestWorker(DockerWorker);
     await worker.launch();
     let result = await worker.postToQueue({
+      scopes: ["docker-worker:capability:privileged"],
       payload: {
         image: 'taskcluster/test-ubuntu',
         command: [
