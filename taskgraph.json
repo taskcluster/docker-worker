@@ -15,6 +15,7 @@
         },
         "workerType": "worker-ci-test",
         "provisionerId": "aws-provisioner-v1",
+        "scopes": ["docker-worker:capability:privileged"],
         "payload": {
           "command": [
             "npm install && ./build.sh && ./test/docker-worker-test --this-chunk 1 --total-chunks 5"
@@ -41,6 +42,7 @@
         },
         "workerType": "worker-ci-test",
         "provisionerId": "aws-provisioner-v1",
+        "scopes": ["docker-worker:capability:privileged"],
         "payload": {
           "command": [
             "npm install && ./build.sh && ./test/docker-worker-test --this-chunk 2 --total-chunks 5"
@@ -67,6 +69,7 @@
         },
         "workerType": "worker-ci-test",
         "provisionerId": "aws-provisioner-v1",
+        "scopes": ["docker-worker:capability:privileged"],
         "payload": {
           "command": [
             "npm install && ./build.sh && ./test/docker-worker-test --this-chunk 3 --total-chunks 5"
@@ -93,6 +96,7 @@
         },
         "workerType": "worker-ci-test",
         "provisionerId": "aws-provisioner-v1",
+        "scopes": ["docker-worker:capability:privileged"],
         "payload": {
           "command": [
             "npm install && ./build.sh && ./test/docker-worker-test --this-chunk 4 --total-chunks 5"
@@ -119,6 +123,7 @@
         },
         "workerType": "worker-ci-test",
         "provisionerId": "aws-provisioner-v1",
+        "scopes": ["docker-worker:capability:privileged"],
         "payload": {
           "command": [
             "npm install && ./build.sh && ./test/docker-worker-test --this-chunk 5 --total-chunks 5"
