@@ -18,13 +18,15 @@ suite('device linking within containers', () => {
   test('link valid video loopback device', async () => {
     var task = {
       payload: {
-        devices: {
-          'loopbackAudio': true,
-          'loopbackVideo': true
+        capabilities: {
+          devices: {
+            'loopbackVideo': true
+          }
         },
         image: 'ubuntu:14.10',
         command: cmd(
-          "find /dev -name 'video0'"
+          "ls /dev",
+          "test -c /dev/video0 || { echo 'Device not found' ; exit 1; }"
         ),
         maxRunTime:         5 * 60
       }
@@ -32,7 +34,7 @@ suite('device linking within containers', () => {
 
     let result = await worker.postToQueue(task);
 
-    assert.equal(result.status.state, 'completed', 'Task not marked as failed');
+    assert.equal(result.status.state, 'completed', 'Task state is not marked as completed');
     assert.equal(
       result.run.reasonResolved,
       'completed',
@@ -40,15 +42,23 @@ suite('device linking within containers', () => {
     );
   });
 
-  test('link valid video loopback device', async () => {
+  test('link valid audio loopback device', async () => {
     var task = {
       payload: {
-        devices: {
-          'loopbackAudio': true
+        capabilities: {
+          devices: {
+            'loopbackAudio': true
+          }
         },
         image: 'ubuntu:14.10',
         command: cmd(
-          "find /dev/snd -name 'controlC0'"
+          "ls /dev/snd",
+          "test -c /dev/snd/controlC0 -a \
+          -c /dev/snd/pcmC0D0c -a \
+          -c /dev/snd/pcmC0D0p -a \
+          -c /dev/snd/pcmC0D1c -a \
+          -c /dev/snd/pcmC0D1p \
+          || { echo 'Devices not found' ; exit 1; }"
         ),
         maxRunTime:         5 * 60
       }
@@ -56,7 +66,7 @@ suite('device linking within containers', () => {
 
     let result = await worker.postToQueue(task);
 
-    assert.equal(result.status.state, 'completed', 'Task not marked as failed');
+    assert.equal(result.status.state, 'completed', 'Task state is not marked as completed');
     assert.equal(
       result.run.reasonResolved,
       'completed',
