@@ -15,7 +15,7 @@ make KCPPFLAGS="-DMAX_DEVICES=100" && sudo make install
 cd / && rm -rf $HOME/v4l2loopback
 
 cat << EOF > /etc/modprobe.d/test-modules.conf
-options snd-aloop enable=1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 index=0,1,2,3,4,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30
+options snd-aloop enable=1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 index=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29
 options v4l2loopback devices=100
 EOF
 
