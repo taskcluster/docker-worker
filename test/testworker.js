@@ -43,10 +43,10 @@ export default class TestWorker extends EventEmitter {
     this.provisionerId = PROVISIONER_ID;
     // Use worker_test_ prefix so ci worker scopes can be more restrictive for
     // claiming/creating work
-    this.workerType = workerType || `${DEFAULT_WORKER_PREFIX}-type`;
+    this.workerType = workerType || `dummy-type-${slugid.v4()}`.substring(0, 22);
     // remove leading underscores because workerId could be used as container name
     // and container names must start with an alphanumeric character.
-    this.workerId = workerId || `${DEFAULT_WORKER_PREFIX}-${slugid.v4()}`.substring(0, 22);
+    this.workerId = workerId || `dummy-worker-${slugid.v4()}`.substring(0, 22);
     this.worker = new Worker(PROVISIONER_ID, this.workerType, this.workerId);
 
     this.pulse = config.get('pulse');
