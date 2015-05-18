@@ -24,5 +24,7 @@ module.exports = {
     diskspaceThreshold: 1 * 1000000000,
   },
 
-  dockerWorkerPrivateKey: '/worker/test/docker-worker-priv.pem'
+  dockerWorkerPrivateKey: '/worker/test/docker-worker-priv.pem',
+  sslCertificate: '/worker/test/fixtures/ssl_cert.crt',
+  sslKey: '/worker/test/fixtures/ssl_cert.key'
 };
