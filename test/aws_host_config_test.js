@@ -34,7 +34,8 @@ suite('configuration/aws', function() {
       workerType: 'ami-333333',
       workerNodeType: 'c3.xlarge',
       workerGroup: 'us-west-2',
-      capacity: 1
+      capacity: 1,
+      publicIp: '22.33.44.252'
     });
   }));
 
