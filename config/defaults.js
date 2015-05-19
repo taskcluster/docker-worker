@@ -22,7 +22,7 @@ module.exports = {
   taskclusterProxyImage: 'taskcluster/taskcluster-proxy:latest',
   taskclusterLogImage: 'taskcluster/livelog:v3',
   testdroidProxyImage: 'taskcluster/testdroid-proxy:0.0.6',
-  balrogVPNProxyImage: 'taskclusterprivate/taskcluster-vpn-proxy:0.0.1',
+  balrogVPNProxyImage: 'quay.io/mozillab2g/taskcluster-vpn-proxy:0.0.1',
 
   alivenessCheckInterval: 30000, // 30 seconds
 
