@@ -41,8 +41,8 @@ function sanitizeGraphPath() {
 
 function verifySSLCertificates(config) {
   try {
-    fs.statSync(config.sslCertificate);
-    fs.statSync(config.sslKey);
+    fs.statSync(config.ssl.certificate);
+    fs.statSync(config.ssl.key);
   }
   catch (error) {
     config.log(

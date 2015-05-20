@@ -1,4 +1,3 @@
-import co from 'co';
 import request from 'superagent-promise';
 import slugid from 'slugid';
 
@@ -70,12 +69,12 @@ suite('live logging', () => {
     // Don't follow redirect, we just care about where it's going
     let res = await request.get(artifactUrl).redirects(0).end();
     let logUrl = res.headers.location;
-    let token = /^http:\/\/localhost:[0-9]+\/log\/([a-zA-Z0-9]+)$/.exec(logUrl);
-    token = token[1] || '';
+    let token = /^http:\/\/localhost:[0-9]+\/log\/([a-zA-Z0-9_-]+)$/.exec(logUrl);
+    token = token ? token[1] : '';
 
     assert.equal(
       token.length,
-      128, 'Token should be 128 characters long (64 hexadecimal characters)'
+      22, 'Token should be 22 characters long'
     );
 
   });

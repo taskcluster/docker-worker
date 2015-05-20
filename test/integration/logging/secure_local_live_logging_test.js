@@ -67,8 +67,10 @@ suite('secure local live logging', () => {
 
   test('ssl disabled by default', async () => {
     settings.configure({
-      sslCertificate: '/some/path/ssl.cert',
-      sslKey: '/some/path/ssl.key'
+      ssl: {
+        certificate: '/some/path/ssl.cert',
+        key: '/some/path/ssl.key'
+      }
     });
 
     let taskId = slugid.v4();
@@ -117,8 +119,10 @@ suite('secure local live logging', () => {
         enabled: true,
         minimumCycleSeconds: 2 // always wait 2 seconds before shutdown...
       },
-      sslCertificate: '/some/path/ssl.cert',
-      sslKey: '/some/path/ssl.key'
+      ssl: {
+        certificate: '/some/path/ssl.cert',
+        key: '/some/path/ssl.key'
+      }
     });
 
     let taskId = slugid.v4();

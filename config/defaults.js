@@ -12,6 +12,11 @@ module.exports = {
     defaultRegistry: 'registry.hub.docker.com'
   },
 
+  ssl: {
+    certificate: '/etc/star_taskcluster-worker_net.crt',
+    key: '/etc/star_taskcluster-worker_net.key'
+  },
+
   // Hostname of this docker worker
   host: 'localhost',
 
@@ -135,8 +140,5 @@ module.exports = {
     password: process.env.TESTDROID_PASSWORD
   },
 
-  dockerWorkerPrivateKey: '/etc/docker-worker-priv.pem',
-
-  sslCertificate: '/etc/star_taskcluster-worker_net.crt',
-  sslKey: '/etc/star_taskcluster-worker_net.key'
+  dockerWorkerPrivateKey: '/etc/docker-worker-priv.pem'
 };

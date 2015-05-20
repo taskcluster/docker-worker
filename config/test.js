@@ -10,6 +10,11 @@ module.exports = {
     url: 'tcp://localhost:8125'
   },
 
+  ssl: {
+    certificate: '/worker/test/fixtures/ssl_cert.crt',
+    key: '/worker/test/fixtures/ssl_cert.key'
+  },
+
   logging: {
     // Expires one hour from now so test logs don't live too long...
     liveLogExpires: 3600,
@@ -24,7 +29,5 @@ module.exports = {
     diskspaceThreshold: 1 * 1000000000,
   },
 
-  dockerWorkerPrivateKey: '/worker/test/docker-worker-priv.pem',
-  sslCertificate: '/worker/test/fixtures/ssl_cert.crt',
-  sslKey: '/worker/test/fixtures/ssl_cert.key'
+  dockerWorkerPrivateKey: '/worker/test/docker-worker-priv.pem'
 };
