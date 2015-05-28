@@ -46,7 +46,8 @@ module.exports = function* (credentials) {
   // XXX: This is a probable hack as localhost is only true if we run the docker
   // worker in a docker container on the target system... This is a big
   // assumption that happens to be true in the tests at least.
-  var domain = 'localhost:' + portConfig.Ports[0].PublicPort;
+  //var domain = 'localhost:' + portConfig.Ports[0].PublicPort;
+  var domain = 'localhost:32785';
 
   // Public api to interface with registry proxy...
   return {

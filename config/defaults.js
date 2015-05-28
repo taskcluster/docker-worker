@@ -1,4 +1,26 @@
 module.exports = {
+  deviceManagement: {
+    'loopbackAudio': {
+      enabled: true
+    },
+    'loopbackVideo': {
+      enabled: true,
+    },
+    // Phone device configuration will provide details for what kinds of phones
+    // this worker is responsible for providing to tasks. This will ensure that
+    // tasks are not claimed if the worker detects there will be no phones available.
+    // In the future a session can be started on these phones prior to claiming tasks
+    // and that session passed into the task.
+    // Example:
+    //   {
+    //     enabled: true,
+    //     'sims': '1',
+    //     'type': 'flame-kk'
+    //   }
+    'phone': {
+      enabled: false,
+    }
+  },
   dockerConfig: {
     // Privileged mode will allow tasks to run with elevated privileges similar
     // to process running on the host.  The task containers will have access to
