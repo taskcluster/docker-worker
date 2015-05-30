@@ -2,6 +2,8 @@ suite('garbage collection tests', function () {
   var co = require('co');
   var fs = require('fs');
   var createLogger = require('../lib/log');
+  var debug = require('debug')('garbageCollectionTests');
+  var devnull = require('dev-null');
   var docker = require('../lib/docker')();
   var dockerUtils = require('dockerode-process/utils');
   var pullImage = require('../lib/pull_image_to_stream').pullImageStreamTo;
@@ -17,14 +19,6 @@ suite('garbage collection tests', function () {
 
   var localCacheDir = path.join(__dirname, 'tmp');
 
-  var log = createLogger({
-    source: 'top', // top level logger details...
-    provisionerId: 'test_provisioner',
-    workerId: 'test_worker',
-    workerGroup: 'test_worker_group',
-    workerType: 'test_worker_type'
-  });
-
   function* getImageId(docker, imageName) {
     var dockerImages = yield docker.listImages();
     var imageId;
@@ -36,8 +30,10 @@ suite('garbage collection tests', function () {
     return imageId;
   }
 
+  var log = debug;
+
   setup(co(function* () {
-    yield pullImage(docker, IMAGE, process.stdout);
+    yield pullImage(docker, IMAGE, devnull());
   }));
 
   teardown(function () {
@@ -51,7 +47,7 @@ suite('garbage collection tests', function () {
 
     var gc = new GarbageCollector({
       capacity: 1,
-      log: log,
+      log: debug,
       docker: docker,
       interval: 2 * 1000,
       taskListener: { availableCapacity: 0 },
@@ -76,7 +72,7 @@ suite('garbage collection tests', function () {
   test('remove running container', co(function* () {
     var gc = new GarbageCollector({
       capacity: 1,
-      log: log,
+      log: debug,
       docker: docker,
       interval: 2 * 1000,
       taskListener: { availableCapacity: 0 },
@@ -106,7 +102,7 @@ suite('garbage collection tests', function () {
   test('container removal retry limit exceeded', co(function* () {
     var gc = new GarbageCollector({
       capacity: 1,
-      log: log,
+      log: debug,
       docker: docker,
       interval: 2 * 1000,
       taskListener: { availableCapacity: 0 },
@@ -137,7 +133,7 @@ suite('garbage collection tests', function () {
   test('remove container that does not exist', co(function* () {
     var gc = new GarbageCollector({
       capacity: 1,
-      log: log,
+      log: debug,
       docker: docker,
       interval: 2 * 1000,
       taskListener: { availableCapacity: 0 },
@@ -168,7 +164,7 @@ suite('garbage collection tests', function () {
   test('remove marked images that are not in use', co(function* () {
     var gc = new GarbageCollector({
       capacity: 2,
-      log: log,
+      log: debug,
       docker: docker,
       dockerVolume: '/',
       interval: 2 * 1000,
@@ -181,7 +177,7 @@ suite('garbage collection tests', function () {
     clearTimeout(gc.sweepTimeoutId);
 
     var imageName = 'busybox:ubuntu-14.04';
-    yield pullImage(docker, imageName, process.stdout);
+    yield pullImage(docker, imageName, devnull());
 
     var container = yield docker.createContainer({Image: imageName,
       Cmd: ['/bin/sh', '-c', 'ls && sleep 5']});
@@ -208,7 +204,7 @@ suite('garbage collection tests', function () {
   test('images are removed when expiration is reached', co(function* () {
     var gc = new GarbageCollector({
       capacity: 2,
-      log: log,
+      log: debug,
       docker: docker,
       dockerVolume: '/',
       interval: 2 * 1000,
@@ -220,7 +216,7 @@ suite('garbage collection tests', function () {
     clearTimeout(gc.sweepTimeoutId);
 
     var imageName = 'busybox:ubuntu-14.04';
-    yield pullImage(docker, imageName, process.stdout);
+    yield pullImage(docker, imageName, devnull());
 
     var container = yield docker.createContainer({Image: imageName,
       Cmd: ['/bin/sh', '-c', 'ls']});
@@ -249,7 +245,7 @@ suite('garbage collection tests', function () {
     co(function* () {
       var gc = new GarbageCollector({
         capacity: 2,
-        log: log,
+        log: debug,
         docker: docker,
         dockerVolume: '/',
         interval: 2 * 1000,
@@ -262,7 +258,7 @@ suite('garbage collection tests', function () {
       clearTimeout(gc.sweepTimeoutId);
 
       var imageName = 'busybox:ubuntu-14.04';
-      yield pullImage(docker, imageName, process.stdout);
+      yield pullImage(docker, imageName, devnull());
 
       gc.markImage(imageName);
       gc.sweep();
@@ -288,7 +284,7 @@ suite('garbage collection tests', function () {
     co(function* () {
       var gc = new GarbageCollector({
         capacity: 2,
-        log: log,
+        log: debug,
         docker: docker,
         dockerVolume: '/',
         interval: 2 * 1000,
@@ -300,7 +296,7 @@ suite('garbage collection tests', function () {
       clearTimeout(gc.sweepTimeoutId);
 
       var imageName = 'busybox:ubuntu-14.04';
-      yield pullImage(docker, imageName, process.stdout);
+      yield pullImage(docker, imageName, devnull());
 
       gc.markImage(imageName);
       gc.sweep();
@@ -321,7 +317,7 @@ suite('garbage collection tests', function () {
   test('remove image that does not exist', co(function* () {
     var gc = new GarbageCollector({
       capacity: 2,
-      log: log,
+      log: debug,
       docker: docker,
       dockerVolume: '/',
       interval: 2 * 1000,
@@ -333,7 +329,7 @@ suite('garbage collection tests', function () {
     clearTimeout(gc.sweepTimeoutId);
 
     var imageName = 'busybox:ubuntu-14.04';
-    yield pullImage(docker, imageName, process.stdout);
+    yield pullImage(docker, imageName, devnull());
     gc.markImage(imageName);
 
     var imageId = yield getImageId(docker, imageName);
@@ -356,7 +352,7 @@ suite('garbage collection tests', function () {
   test('clear volume cache when diskspace threshold reached', co(function* () {
     var gc = new GarbageCollector({
       capacity: 2,
-      log: log,
+      log: debug,
       docker: docker,
       dockerVolume: '/',
       interval: 2 * 1000,
@@ -375,7 +371,7 @@ suite('garbage collection tests', function () {
 
     var cache = new VolumeCache({
       rootCachePath: localCacheDir,
-      log: log,
+      log: debug,
       stats: stats
     });
 
@@ -405,7 +401,7 @@ suite('garbage collection tests', function () {
 
       var gc = new GarbageCollector({
         capacity: 1,
-        log: log,
+        log: debug,
         docker: docker,
         interval: 2 * 1000,
         taskListener: { availableCapacity: 0 },
@@ -452,7 +448,7 @@ suite('garbage collection tests', function () {
 
     var gc = new GarbageCollector({
       capacity: 1,
-      log: log,
+      log: debug,
       docker: docker,
       dockerVolume: '/',
       interval: 2 * 1000,
