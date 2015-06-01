@@ -30,8 +30,6 @@ suite('garbage collection tests', function () {
     return imageId;
   }
 
-  var log = debug;
-
   setup(co(function* () {
     yield pullImage(docker, IMAGE, devnull());
   }));
