@@ -1,20 +1,34 @@
+import assert from 'assert';
+import DockerWorker from '../dockerworker';
+import TestWorker from '../testworker';
+
 suite('use dind-service', () => {
-  var testworker = require('../post_task');
-  var co = require('co');
+  let worker;
+  setup(async () => {
+    worker = new TestWorker(DockerWorker);
+    await worker.launch();
+  });
+
+  teardown(async () => {
+    if (worker) {
+      await worker.terminate();
+      worker = null;
+    }
+  });
 
   test('run docker in docker', async () => {
-    let result = await co(testworker({
+    let result = await worker.postToQueue({
       payload: {
-        image:          'jonasfj/dind-test:v1',
-        command:        [''],
+        image: 'jonasfj/dind-test:v1',
+        command: [''],
         features: {
-          bufferLog:    true,
+          bufferLog: true,
           azureLiveLog: false,
-          dind:         true
+          dind: true
         },
         maxRunTime: 5 * 60
       }
-    }))
+    });
 
     assert.equal(result.run.state, 'completed', 'task should be successfull');
     assert.equal(result.run.reasonResolved, 'completed', 'task should be successfull');
@@ -22,4 +36,3 @@ suite('use dind-service', () => {
               'Expected to see busybox --help message');
   });
 });
-
