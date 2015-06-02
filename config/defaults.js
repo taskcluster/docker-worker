@@ -4,7 +4,7 @@ module.exports = {
       enabled: true
     },
     'loopbackVideo': {
-      enabled: true,
+      enabled: true
     },
     // Phone device configuration will provide details for what kinds of phones
     // this worker is responsible for providing to tasks. This will ensure that
@@ -18,7 +18,7 @@ module.exports = {
     //     'type': 'flame-kk'
     //   }
     'phone': {
-      enabled: false,
+      enabled: false
     }
   },
   dockerConfig: {
