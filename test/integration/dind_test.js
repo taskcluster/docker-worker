@@ -1,3 +1,4 @@
+
 import assert from 'assert';
 import DockerWorker from '../dockerworker';
 import TestWorker from '../testworker';
@@ -22,7 +23,7 @@ suite('use dind-service', () => {
         image: 'jonasfj/dind-test:v1',
         command: [''],
         features: {
-          bufferLog: true,
+          bufferLog: false,
           azureLiveLog: false,
           dind: true
         },
@@ -31,8 +32,10 @@ suite('use dind-service', () => {
     });
 
     assert.equal(result.run.state, 'completed', 'task should be successfull');
-    assert.equal(result.run.reasonResolved, 'completed', 'task should be successfull');
+    assert.equal(result.run.reasonResolved, 'completed',
+                 'task should be successfull');
     assert.ok(result.log.indexOf('BusyBox is a multi-call binary') !== -1,
               'Expected to see busybox --help message');
   });
 });
+
