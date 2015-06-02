@@ -18,7 +18,10 @@ suite('device linking within containers', () => {
 
   teardown(async() => {
     settings.cleanup();
-    await worker.terminate();
+    if (worker) {
+      await worker.terminate();
+      worker = null;
+    }
   });
 
   test('link valid video loopback device', async () => {
@@ -128,7 +131,7 @@ suite('device linking within containers', () => {
     // prior to claiming a task.
     let server = http.createServer(app.callback());
     let testdroidUrl;
-    let ip = (os.networkInterfaces()).docker0.find((networkInterface) => {
+    let ip = os.networkInterfaces().docker0.find((networkInterface) => {
       return networkInterface.family === 'IPv4';
     });
     ip = ip.address;
