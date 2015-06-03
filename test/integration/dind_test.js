@@ -1,4 +1,3 @@
-
 import assert from 'assert';
 import DockerWorker from '../dockerworker';
 import TestWorker from '../testworker';
@@ -20,7 +19,7 @@ suite('use dind-service', () => {
   test('run docker in docker', async () => {
     let result = await worker.postToQueue({
       payload: {
-        image: 'jonasfj/dind-test:v1',
+        image: 'taskcluster/dind-test:v1',
         command: [''],
         features: {
           bufferLog: false,
