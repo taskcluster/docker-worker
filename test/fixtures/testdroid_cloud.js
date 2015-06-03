@@ -4,7 +4,6 @@ import json from 'koa-json';
 let app = new App();
 
 function route(path) {
-  console.log(path);
   switch (path || true) {
     case '/oauth/token':
       return {
