@@ -20,10 +20,11 @@ suite('use dind-service', () => {
     let result = await worker.postToQueue({
       payload: {
         image: 'taskcluster/dind-test:v1',
-        command: [''],
+        command: [
+          'docker', 'run', '--rm', 'busybox:buildroot-2014.02',
+          'busybox', '--help'
+        ],
         features: {
-          bufferLog: false,
-          azureLiveLog: false,
           dind: true
         },
         maxRunTime: 5 * 60
