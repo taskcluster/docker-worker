@@ -87,6 +87,7 @@ module.exports = {
               "title": "Phone device",
               "description": "Phone device that will be created using Testdroid",
               "type": "object",
+              "required": ["type", "sims", "build", "memory"],
               "properties": {
                 "type": {
                   "title": "Phone Type",
