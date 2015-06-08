@@ -26,8 +26,7 @@ suite('live logging', () => {
           '/bin/bash',
           '-c',
           'echo "first command!"; ' +
-          'for i in {1..1000}; do echo "Hello Number $i"; done;' +
-          'sleep 60'
+          'for i in {1..1000}; do echo "Hello Number $i"; done;'
         ],
         maxRunTime: 5 * 60
       }
