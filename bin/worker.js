@@ -161,6 +161,13 @@ co(function *() {
   // Wrapped stats helper to support generators, etc...
   config.stats = new Stats(config);
   config.stats.record('workerStart', Date.now()-os.uptime() * 1000);
+
+  base.stats.startProcessUsageReporting({
+    drain: config.stats.influx,
+    component: 'docker-worker',
+    process: 'docker-worker'
+  });
+
   setInterval(reportHostMetrics.bind(this, config), config.influx.hostMetricsInterval);
 
   config.log = createLogger({
