@@ -154,7 +154,8 @@ module.exports = {
     connectionString: undefined,
     maxDelay: 10,
     maxPendingPoints: 100,
-    hostMetricsInterval: 10 * 1000
+    // Only collect host level metrics every minute
+    hostMetricsInterval: 60 * 1000
   },
 
   testdroid: {
