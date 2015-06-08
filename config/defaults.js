@@ -153,7 +153,8 @@ module.exports = {
   influx: {
     connectionString: undefined,
     maxDelay: 10,
-    maxPendingPoints: 100
+    maxPendingPoints: 100,
+    hostMetricsInterval: 10 * 1000
   },
 
   testdroid: {

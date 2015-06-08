@@ -17,6 +17,7 @@ var Stats = require('../lib/stats/stat');
 var GarbageCollector = require('../lib/gc');
 var VolumeCache = require('../lib/volume_cache');
 var PrivateKey = require('../lib/private_key');
+var reportHostMetrics = require('../lib/stats/host_metrics');
 
 // Available target configurations.
 var allowedHosts = ['aws', 'test'];
@@ -159,7 +160,8 @@ co(function *() {
 
   // Wrapped stats helper to support generators, etc...
   config.stats = new Stats(config);
-  config.stats.increment('workerStart', Date.now()-(os.uptime() * 1000));
+  config.stats.increment('workerStart', Date.now()-os.uptime() * 1000);
+  setInterval(reportHostMetrics.bind(this, config), config.influx.hostMetricsInterval);
 
   config.log = createLogger({
     source: 'top', // top level logger details...
