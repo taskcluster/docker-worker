@@ -363,7 +363,7 @@ suite('garbage collection tests', function () {
 
 
     var stats = {
-      increment: function(stat) { return; },
+      record: function(stat) { return; },
       timeGen: async (stat, fn) => { await fn; }
     };
 

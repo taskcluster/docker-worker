@@ -25,7 +25,7 @@ suite('volume cache test', function () {
   });
 
   var stats = {
-    increment: function(stat) { return; }
+    record: function(stat) { return; }
   };
 
   var IMAGE = 'taskcluster/test-ubuntu';
