@@ -368,7 +368,9 @@ suite('garbage collection tests', function () {
     };
 
     var cache = new VolumeCache({
-      rootCachePath: localCacheDir,
+      cache: {
+        volumeCachePath: localCacheDir
+      },
       log: debug,
       stats: stats
     });
