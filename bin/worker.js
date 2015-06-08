@@ -1,9 +1,10 @@
 var fs = require('fs');
+var os = require('os');
 var program = require('commander');
 var co = require('co');
 var taskcluster = require('taskcluster-client');
 var url = require('url');
-var loadConfig = require('taskcluster-base/config');
+var base = require('taskcluster-base');
 var createLogger = require('../lib/log');
 var debug = require('debug')('docker-worker:bin:worker');
 var os = require('os');
@@ -12,7 +13,7 @@ var SDC = require('statsd-client');
 var Runtime = require('../lib/runtime');
 var TaskListener = require('../lib/task_listener');
 var ShutdownManager = require('../lib/shutdown_manager');
-var Stats = require('../lib/stat');
+var Stats = require('../lib/stats/stat');
 var GarbageCollector = require('../lib/gc');
 var VolumeCache = require('../lib/volume_cache');
 var PrivateKey = require('../lib/private_key');
@@ -98,7 +99,7 @@ co(function *() {
     return process.exit(1);
   }
 
-  var workerConf = loadConfig({
+  var workerConf = base.config({
     defaults: require('../config/defaults'),
     profile: require('../config/' + profile),
     filename: 'docker-worker'
@@ -175,8 +176,8 @@ co(function *() {
   });
 
   // Wrapped stats helper to support generators, etc...
-  config.stats = new Stats(config.statsd);
-  config.stats.increment('started');
+  config.stats = new Stats(config);
+  config.stats.increment('workerStart', Date.now()-(os.uptime() * 1000));
 
   config.log = createLogger({
     source: 'top', // top level logger details...
@@ -197,11 +198,7 @@ co(function *() {
 
   config.gc = new GarbageCollector(gcConfig);
 
-  config.volumeCache = new VolumeCache({
-    rootCachePath: config.cache.volumeCachePath,
-    log: config.log,
-    stats: config.stats
-  });
+  config.volumeCache = new VolumeCache(config);
 
   config.gc.on('gc:container:removed', function (container) {
     container.caches.forEach(co(function* (cacheKey) {

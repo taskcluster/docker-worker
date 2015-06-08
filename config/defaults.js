@@ -156,6 +156,12 @@ module.exports = {
     url: process.env.STATSD_URL || 'tcp://localhost:8125'
   },
 
+  influx: {
+    connectionString: undefined,
+    maxDelay: 10,
+    maxPendingPoints: 100
+  },
+
   testdroid: {
     url:      process.env.TESTDROID_URL,
     username: process.env.TESTDROID_USERNAME,

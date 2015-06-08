@@ -57,7 +57,7 @@
     "superagent-promise": "^0.1.1",
     "tar-stream": "^0.4.4",
     "taskcluster-azure-blobstream": "^0.3.0",
-    "taskcluster-base": "^0.4.10",
+    "taskcluster-base": "^0.7.0",
     "taskcluster-client": "^0.21.4",
     "temporary": "0.0.8",
     "testdroid-client": "0.0.7",

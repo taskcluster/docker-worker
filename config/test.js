@@ -10,6 +10,13 @@ module.exports = {
     url: 'tcp://localhost:8125'
   },
 
+  influx: {
+    connectionString: process.env.INFLUX_CONNECTION_STRING,
+    maxDelay: 1,
+    maxPendingPoints: 1,
+    allowHTTP: true
+  },
+
   ssl: {
     certificate: '/worker/test/fixtures/ssl_cert.crt',
     key: '/worker/test/fixtures/ssl_cert.key'
