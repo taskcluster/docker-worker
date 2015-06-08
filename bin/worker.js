@@ -157,24 +157,6 @@ co(function *() {
   // Default to always having at least a capacity of one.
   config.capacity = config.capacity || 1;
 
-  var statsdConf = url.parse(workerConf.get('statsd:url'));
-  // Raw statsd interface.
-  config.statsd = new SDC({
-    debug: !!process.env.DEBUG,
-    // TOOD: Add real configuration options for this.
-    host: statsdConf.hostname,
-    port: statsdConf.port,
-    // docker-worker.<worker-type>.<provisionerId>.
-    prefix: sanitizeGraphPath(
-      config.statsd.prefix,
-      'docker-worker',
-      config.provisionerId || 'unknown',
-      config.workerGroup || 'unknown',
-      config.workerType || 'unknown',
-      config.workerNodeType || 'unknown'
-    )
-  });
-
   // Wrapped stats helper to support generators, etc...
   config.stats = new Stats(config);
   config.stats.increment('workerStart', Date.now()-(os.uptime() * 1000));

@@ -150,12 +150,6 @@ module.exports = {
     password:   process.env.PULSE_PASSWORD
   },
 
-  // Statsd configuration options (these are totally optional).
-  statsd: {
-    prefix: process.env.STATSD_PREFIX || '',
-    url: process.env.STATSD_URL || 'tcp://localhost:8125'
-  },
-
   influx: {
     connectionString: undefined,
     maxDelay: 10,
