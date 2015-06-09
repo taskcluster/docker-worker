@@ -162,7 +162,6 @@ co(function *() {
   config.stats = new Stats(config);
   config.stats.record('workerStart', Date.now()-os.uptime() * 1000);
 
-
   // Only catch these metrics when running on aws host.  Running within
   // test environment causes numerous issues.
   if (host === 'aws') {
@@ -173,7 +172,10 @@ co(function *() {
     });
   }
 
-  setInterval(reportHostMetrics.bind(this, config), config.influx.hostMetricsInterval);
+  setInterval(
+    reportHostMetrics.bind(this, config),
+    config.metricsCollection.hostMetricsInterval
+  );
 
   config.log = createLogger({
     source: 'top', // top level logger details...

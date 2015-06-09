@@ -150,12 +150,15 @@ module.exports = {
     password:   process.env.PULSE_PASSWORD
   },
 
+  metricsCollection: {
+    // Only collect host level metrics every minute
+    hostMetricsInterval: 60 * 1000
+  },
+
   influx: {
     connectionString: undefined,
     maxDelay: 10,
     maxPendingPoints: 100,
-    // Only collect host level metrics every minute
-    hostMetricsInterval: 60 * 1000
   },
 
   testdroid: {
