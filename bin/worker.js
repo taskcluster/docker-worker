@@ -151,16 +151,31 @@ co(function *() {
   // level docker-worker components.
   config.docker = require('../lib/docker')();
 
-  config.queue = new taskcluster.Queue({ credentials: config.taskcluster });
-  config.scheduler =
-    new taskcluster.Scheduler({ credentials: config.taskcluster });
-  config.schema = require('../lib/schema')();
   // Default to always having at least a capacity of one.
   config.capacity = config.capacity || 1;
 
   // Wrapped stats helper to support generators, etc...
   config.stats = new Stats(config);
   config.stats.record('workerStart', Date.now()-os.uptime() * 1000);
+
+  config.queue = new taskcluster.Queue({
+    credentials: config.taskcluster,
+    stats: base.stats.createAPIClientStatsHandler({
+      drain: config.stats.influx,
+      tags: {
+        component: 'docker-worker',
+        workerId: config.workerId,
+        workerGroup: config.workerGroup,
+        workerType: config.workerType,
+        instanceType: config.workerNodeType,
+        provisionerId: config.provisionerId
+      }
+    })
+  });
+
+  config.scheduler =
+    new taskcluster.Scheduler({ credentials: config.taskcluster });
+  config.schema = require('../lib/schema')();
 
   // Only catch these metrics when running on aws host.  Running within
   // test environment causes numerous issues.
