@@ -6,7 +6,7 @@
 
   "influx": {
     "connectionString": "https://{{influxdb.username}}:{{influxdb.password}}@{{influxdb.host}}:{{influxdb.port}}/db/{{influxdb.database}}"
-  }
+  },
 
   "taskcluster": {
     "clientId": "{{taskcluster.clientId}}",
