@@ -162,11 +162,16 @@ co(function *() {
   config.stats = new Stats(config);
   config.stats.record('workerStart', Date.now()-os.uptime() * 1000);
 
-  base.stats.startProcessUsageReporting({
-    drain: config.stats.influx,
-    component: 'docker-worker',
-    process: 'docker-worker'
-  });
+
+  // Only catch these metrics when running on aws host.  Running within
+  // test environment causes numerous issues.
+  if (host === 'aws') {
+    base.stats.startProcessUsageReporting({
+      drain: config.stats.influx,
+      component: 'docker-worker',
+      process: 'docker-worker'
+    });
+  }
 
   setInterval(reportHostMetrics.bind(this, config), config.influx.hostMetricsInterval);
 
