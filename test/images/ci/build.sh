@@ -1,6 +1,9 @@
 #! /bin/bash -vex
 
-make -C git
-docker build --no-cache -t $(cat DOCKER_TAG):$(cat VERSION) $PWD
+registry=$(cat DOCKER_TAG)
+version=$(cat VERSION)
 
-echo "If deploying now you can run 'docker push $DOCKER_TAG:$VERSION'"
+make -C git
+docker build --no-cache -t $registry:$version $PWD
+
+echo "If deploying now you can run 'docker push $registry:$version'"
