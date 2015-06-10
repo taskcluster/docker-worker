@@ -157,7 +157,9 @@ module.exports = {
 
   influx: {
     connectionString: undefined,
-    maxDelay: 10,
+    // Wait no more than 10 minutes before flushing stats
+    maxDelay: 10 * 60,
+    // Maximum number of points to queue before flush
     maxPendingPoints: 100,
   },
 
