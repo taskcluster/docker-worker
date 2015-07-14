@@ -127,7 +127,7 @@ co(function *() {
 
     // execute the configuration helper and merge the results
     var targetConfig = yield host.configure();
-    config = _.defaultsDeep(config, targetConfig);
+    config = _.defaultsDeep(targetConfig, config);
   }
 
   // process CLI specific overrides
