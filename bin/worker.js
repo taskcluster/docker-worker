@@ -136,8 +136,8 @@ co(function *() {
     config[field] = program[field];
   });
 
-  // If isolated containers is set override capacity...
-  if (config.isolatedContainers) {
+  // If isolated containers is set override capacity (as long as capacity is > 0
+  if (config.isolatedContainers && config.capacity > 0) {
     // One capacity per core...
     config.capacity = os.cpus().length;
     config.deviceManagement.cpu.enabled = true;
@@ -149,10 +149,6 @@ co(function *() {
   // Initialize the classes and objects with core functionality used by higher
   // level docker-worker components.
   config.docker = require('../lib/docker')();
-
-  // Default to always having at least a capacity of one.
-  // Default to zero capacity if none is provided by provisioner.  Something must be
-  config.capacity = config.capacity || 1;
 
   // Wrapped stats helper to support generators, etc...
   config.stats = new Stats(config);
