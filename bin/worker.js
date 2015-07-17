@@ -5,6 +5,7 @@ var taskcluster = require('taskcluster-client');
 var base = require('taskcluster-base');
 var createLogger = require('../lib/log');
 var debug = require('debug')('docker-worker:bin:worker');
+var _ = require('lodash');
 
 var Runtime = require('../lib/runtime');
 var TaskListener = require('../lib/task_listener');
