@@ -1,7 +1,6 @@
 var fs = require('fs');
 var os = require('os');
 var program = require('commander');
-var co = require('co');
 var taskcluster = require('taskcluster-client');
 var base = require('taskcluster-base');
 var createLogger = require('../lib/log');
@@ -89,7 +88,7 @@ o('--worker-node-type <worker-node-type>', 'override the worker node type');
 program.parse(process.argv);
 
 // Main.
-co(function *() {
+async function main () {
   var profile = program.args[0];
 
   if (!profile) {
@@ -105,7 +104,7 @@ co(function *() {
 
   // Load all base configuration that is on disk / environment variables /
   // flags.
-  var config = yield workerConf.load.bind(workerConf);
+  var config = await workerConf.load();
 
   // Use a target specific configuration helper if available.
   var host;
@@ -122,7 +121,7 @@ co(function *() {
     host = require('../lib/host/' + program.host);
 
     // execute the configuration helper and merge the results
-    var targetConfig = yield host.configure();
+    var targetConfig = await host.configure();
     config = _.defaultsDeep(targetConfig, config);
   }
 
@@ -153,6 +152,7 @@ co(function *() {
   // Wrapped stats helper to support generators, etc...
   config.stats = new Stats(config);
   config.stats.record('workerStart', Date.now()-os.uptime() * 1000);
+  debug('passed stats')
 
   config.queue = new taskcluster.Queue({
     credentials: config.taskcluster,
@@ -210,9 +210,9 @@ co(function *() {
   config.volumeCache = new VolumeCache(config);
 
   config.gc.on('gc:container:removed', function (container) {
-    container.caches.forEach(co(function* (cacheKey) {
-      yield config.volumeCache.release(cacheKey);
-    }));
+    container.caches.forEach(async (cacheKey) => {
+      await config.volumeCache.release(cacheKey);
+    });
   });
 
   config.gc.addManager(config.volumeCache);
@@ -230,7 +230,7 @@ co(function *() {
     var shutdownManager = new ShutdownManager(host, runtime);
     // Recommended by AWS to query every 5 seconds.  Termination window is 2 minutes
     // so at the very least should have 1m55s to cleanly shutdown.
-    yield shutdownManager.scheduleTerminationPoll();
+    await shutdownManager.scheduleTerminationPoll();
     runtime.shutdownManager = shutdownManager;
   }
 
@@ -243,43 +243,44 @@ co(function *() {
   runtime.gc.taskListener = taskListener;
   shutdownManager.observe(taskListener);
 
-  yield taskListener.connect();
+  await taskListener.connect();
 
   runtime.log('start');
 
   // Aliveness check logic... Mostly useful in combination with a log inactivity
   // check like papertrail/logentries/loggly have.
-  function* alivenessCheck() {
+  async function alivenessCheck() {
     var uptime = host.billingCycleUptime();
     runtime.log('aliveness check', {
       alive: true,
       uptime: uptime,
       interval: config.alivenessCheckInterval
     });
-    setTimeout(co(alivenessCheck), config.alivenessCheckInterval)
+    setTimeout(alivenessCheck, config.alivenessCheckInterval)
   }
 
   // Always run the initial aliveness check during startup.
-  yield alivenessCheck();
+  await alivenessCheck();
 
   // Test only logic for clean shutdowns (this ensures our tests actually go
   // through the entire steps of running a task).
   if (workerConf.get('testMode')) {
     // Gracefullyish close the connection.
-    process.once('message', co(function* (msg) {
+    process.once('message', async (msg) => {
       if (msg.type !== 'halt') return;
       // Halt will wait for the worker to be in an idle state then pause all
       // incoming messages and close the connection...
-      function* halt() {
+      async function halt() {
         taskListener.pause();
-        yield taskListener.close();
+        await taskListener.close();
       }
-      if (taskListener.isIdle()) return yield halt;
-      taskListener.once('idle', co(halt));
-    }));
+      if (taskListener.isIdle()) return await halt;
+      taskListener.once('idle', halt);
+    });
   }
-})(function(err) {
-  if (!err) return;
+}
+
+main().catch((err) => {
   // Top level uncaught fatal errors!
   console.error(err);
   throw err; // nothing to do so show a message and crash
