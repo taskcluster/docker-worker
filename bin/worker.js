@@ -3,14 +3,10 @@ var os = require('os');
 var program = require('commander');
 var co = require('co');
 var taskcluster = require('taskcluster-client');
-var url = require('url');
 var base = require('taskcluster-base');
 var createLogger = require('../lib/log');
 var debug = require('debug')('docker-worker:bin:worker');
-var os = require('os');
-var _ = require('lodash');
 
-var SDC = require('statsd-client');
 var Runtime = require('../lib/runtime');
 var TaskListener = require('../lib/task_listener');
 var ShutdownManager = require('../lib/shutdown_manager');
