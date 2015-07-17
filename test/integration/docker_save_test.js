@@ -51,7 +51,6 @@ suite('use docker-save', () => {
       {expiration: 60 * 5});
 
     //superagent was only downlading 16K of data
-    //TODO: work on error handling here
     await new Promise((accept, reject) => {
       https.request(signedUrl, (res) => { //take the redirect
         https.request(res.headers.location, (res) => {
@@ -64,30 +63,45 @@ suite('use docker-save', () => {
       }).end();
     });
 
-    //maybe there's a better way to get the docker obj than making a new one
     let docker = new Docker();
+    let imageName = 'task/' + taskId + '/' + runId + ':latest';
     await docker.loadImage('/tmp/dockerload.tar');
     let opts = {
+      AttachStdin: true,
       AttachStdout: true,
       AttachStderr: true,
-      Cmd: ['/bin/sh'],
-      Image: taskId + '/' + runId + ':latest'
+      Cmd: ['cat', '/tmp/test.log'],
+      Image: imageName
     };
     let streamOpts = {
-      stream: true,
-      stdin: true,
+      logs: true,
       stdout: true,
-      stderr: true
-    }
+    };
     let container = await docker.createContainer(opts);
     await container.start();
-    debug(container);
     let stream = await container.attach(streamOpts);
-    debug(stream);
+    let finished = false;
     stream.on('data', (data) => {
-      debug(data);
+      assert(data.compare(new Buffer(0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x0b, //header
+        0x74,0x65,0x73,0x74,0x53,0x74,0x72,0x69,0x6e,0x67,0x0a))); //testString\n
+      finished = true;
     });
-    stream.write('cat /tmp/test.log\n');
-    await base.testing.sleep(10000);
+
+    await base.testing.sleep(3000);
+    assert(finished, 'did not receive any data back');
+    await Promise.all([container.remove(), fs.unlink('/tmp/dockerload.tar')]);
+    await docker.getImage(imageName).remove();
+    //TODO: work on error handling here
+    await new Promise((accept, reject) => {
+      https.request(signedUrl, (res) => { //take the redirect
+        https.request(res.headers.location, (res) => {
+          let unzipStream = zlib.Gunzip();
+          res.pipe(unzipStream).pipe(fs.createWriteStream('/tmp/dockerload.tar'));
+          unzipStream.on('end', accept);
+          res.on('error', (err) => reject(err));
+        }).end();
+        res.on('error', (err) => reject(err));
+      }).end();
+    });
   });
 });
