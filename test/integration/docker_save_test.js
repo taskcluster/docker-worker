@@ -64,8 +64,15 @@ suite('use docker-save', () => {
           res.on('error', (err) => reject(err));
         }).end();
       });
-
+    } catch (e) {
+      throw new Error('download from s3 failed');
+    }
+    try {
       let docker = new Docker(dockerOpts());
+    } catch (e) {
+      throw new Error('couldnt make docker');
+    }
+    try {
       let imageName = 'task/' + taskId + '/' + runId + ':latest';
       await docker.loadImage('/tmp/dockerload.tar');
       let opts = {
@@ -93,9 +100,7 @@ suite('use docker-save', () => {
       await Promise.all([container.remove(), fs.unlink('/tmp/dockerload.tar')]);
       await docker.getImage(imageName).remove();
     } catch (e) {
-      console.log(e);
-      if(e.stack) console.log(e.stack);
-      throw e;
+      throw new Error('couldnt do docker things');
     }
   });
 });
