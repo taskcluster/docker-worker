@@ -137,6 +137,10 @@ co(function *() {
   });
 
   // If isolated containers is set override capacity (as long as capacity is > 0
+  // Capacity could be set to zero by the host configuration if the credentials and
+  // other necessary information could not be retrieved from the meta/user/secret-data
+  // endpoints.  We set capacity to zero so no tasks are claimed and wait out the billng
+  // cycle.  This should really only happen if the worker has respawned unintentionally
   if (config.isolatedContainers && config.capacity > 0) {
     // One capacity per core...
     config.capacity = os.cpus().length;
