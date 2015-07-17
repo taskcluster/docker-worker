@@ -90,6 +90,7 @@ suite('use docker-save', () => {
     } catch (e) {
       console.log(e);
       if(e.stack) console.log(e.stack);
+      throw e;
     }
 
     await base.testing.sleep(3000);
