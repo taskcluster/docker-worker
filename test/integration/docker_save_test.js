@@ -50,58 +50,51 @@ suite('use docker-save', () => {
       'private/dockerImage.tar',
       {expiration: 60 * 5});
 
-    //superagent was only downlading 16K of data
-    await new Promise((accept, reject) => {
-      https.request(signedUrl, (res) => { //take the redirect
-        https.request(res.headers.location, (res) => {
-          let unzipStream = zlib.Gunzip();
-          res.pipe(unzipStream).pipe(fs.createWriteStream('/tmp/dockerload.tar'));
-          unzipStream.on('end', accept);
+    try {
+      //superagent was only downlading 16K of data
+      await new Promise((accept, reject) => {
+        https.request(signedUrl, (res) => { //take the redirect
+          https.request(res.headers.location, (res) => {
+            let unzipStream = zlib.Gunzip();
+            res.pipe(unzipStream).pipe(fs.createWriteStream('/tmp/dockerload.tar'));
+            unzipStream.on('end', accept);
+            res.on('error', (err) => reject(err));
+          }).end();
           res.on('error', (err) => reject(err));
         }).end();
-        res.on('error', (err) => reject(err));
-      }).end();
-    });
+      });
 
-    let docker = new Docker();
-    let imageName = 'task/' + taskId + '/' + runId + ':latest';
-    await docker.loadImage('/tmp/dockerload.tar');
-    let opts = {
-      AttachStdin: true,
-      AttachStdout: true,
-      AttachStderr: true,
-      Cmd: ['cat', '/tmp/test.log'],
-      Image: imageName
-    };
-    let streamOpts = {
-      logs: true,
-      stdout: true,
-    };
-    let container = await docker.createContainer(opts);
-    await container.start();
-    let stream = await container.attach(streamOpts);
-    let finished = false;
-    stream.on('data', (data) => {
-      assert(data.compare(new Buffer(0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x0b, //header
-        0x74,0x65,0x73,0x74,0x53,0x74,0x72,0x69,0x6e,0x67,0x0a))); //testString\n
-      finished = true;
-    });
+      let docker = new Docker();
+      let imageName = 'task/' + taskId + '/' + runId + ':latest';
+      await docker.loadImage('/tmp/dockerload.tar');
+      let opts = {
+        AttachStdin: true,
+        AttachStdout: true,
+        AttachStderr: true,
+        Cmd: ['cat', '/tmp/test.log'],
+        Image: imageName
+      };
+      let streamOpts = {
+        logs: true,
+        stdout: true,
+      };
+      let container = await docker.createContainer(opts);
+      await container.start();
+      let stream = await container.attach(streamOpts);
+      let finished = false;
+      stream.on('data', (data) => {
+        assert(data.compare(new Buffer(0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x0b, //header
+          0x74,0x65,0x73,0x74,0x53,0x74,0x72,0x69,0x6e,0x67,0x0a))); //testString\n
+        finished = true;
+      });
+    } catch (e) {
+      console.log(e);
+      if(e.stack) console.log(e.stack);
+    }
 
     await base.testing.sleep(3000);
     assert(finished, 'did not receive any data back');
     await Promise.all([container.remove(), fs.unlink('/tmp/dockerload.tar')]);
     await docker.getImage(imageName).remove();
-    //TODO: work on error handling here
-    await new Promise((accept, reject) => {
-      https.request(signedUrl, (res) => { //take the redirect
-        https.request(res.headers.location, (res) => {
-          let unzipStream = zlib.Gunzip();
-          res.pipe(unzipStream).pipe(fs.createWriteStream('/tmp/dockerload.tar'));
-          unzipStream.on('end', accept);
-          res.on('error', (err) => reject(err));
-        }).end();
-        res.on('error', (err) => reject(err));
-      }).end();
-    });
   });
 });
