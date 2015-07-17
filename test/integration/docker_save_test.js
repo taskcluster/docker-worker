@@ -10,10 +10,10 @@ import request from 'superagent-promise';
 import TestWorker from '../testworker';
 import zlib from 'zlib';
 
-let debug = Debug('docker-worker:test:docker-save-test');
+var debug = Debug('docker-worker:test:docker-save-test');
 
 suite('use docker-save', () => {
-  let worker;
+  var worker;
   setup(async () => {
     worker = new TestWorker(DockerWorker);
     await worker.launch();
@@ -27,7 +27,7 @@ suite('use docker-save', () => {
   });
 
   test('run, then check contents', async () => {
-    let result = await worker.postToQueue({
+    var result = await worker.postToQueue({
       payload: {
         image: 'busybox',
         command: ['/bin/sh', '-c', 'echo testString > /tmp/test.log'],
@@ -42,10 +42,10 @@ suite('use docker-save', () => {
     assert(result.run.reasonResolved === 'completed',
                  'task should be successful');
 
-    let taskId = result.taskId;
-    let runId = result.runId;
+    var taskId = result.taskId;
+    var runId = result.runId;
 
-    let signedUrl = worker.queue.buildSignedUrl(
+    var signedUrl = worker.queue.buildSignedUrl(
       worker.queue.getLatestArtifact,
       taskId,
       'private/dockerImage.tar',
@@ -56,7 +56,7 @@ suite('use docker-save', () => {
       await new Promise((accept, reject) => {
         https.request(signedUrl, (res) => { //take the redirect
           https.request(res.headers.location, (res) => {
-            let unzipStream = zlib.Gunzip();
+            var unzipStream = zlib.Gunzip();
             res.pipe(unzipStream).pipe(fs.createWriteStream('/tmp/dockerload.tar'));
             unzipStream.on('end', accept);
             res.on('error', (err) => reject(err));
@@ -68,28 +68,28 @@ suite('use docker-save', () => {
       throw new Error('download from s3 failed' + taskId);
     }
     try {
-      let docker = new Docker(dockerOpts());
+      var docker = new Docker(dockerOpts());
     } catch (e) {
       throw new Error('couldnt make docker' + taskId);
     }
     try {
-      let imageName = 'task/' + taskId + '/' + runId + ':latest';
+      var imageName = 'task/' + taskId + '/' + runId + ':latest';
       await docker.loadImage('/tmp/dockerload.tar');
-      let opts = {
+      var opts = {
         AttachStdin: true,
         AttachStdout: true,
         AttachStderr: true,
         Cmd: ['cat', '/tmp/test.log'],
         Image: imageName
       };
-      let streamOpts = {
+      var streamOpts = {
         logs: true,
         stdout: true,
       };
-      let container = await docker.createContainer(opts);
+      var container = await docker.createContainer(opts);
       await container.start();
-      let stream = await container.attach(streamOpts);
-      let finished = false;
+      var stream = await container.attach(streamOpts);
+      var finished = false;
       stream.on('data', (data) => {
         assert(data.compare(new Buffer(0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x0b, //header
           0x74,0x65,0x73,0x74,0x53,0x74,0x72,0x69,0x6e,0x67,0x0a))); //testString\n
