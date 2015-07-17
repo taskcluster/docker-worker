@@ -2,6 +2,7 @@ import assert from 'assert';
 import base from 'taskcluster-base'
 import Debug from 'debug';
 import Docker from 'dockerode-promise';
+import dockerOpts from 'dockerode-options';
 import DockerWorker from '../dockerworker';
 import fs from 'mz/fs';
 import https from 'https';
@@ -64,7 +65,7 @@ suite('use docker-save', () => {
         }).end();
       });
 
-      let docker = new Docker();
+      let docker = new Docker(dockerOpts());
       let imageName = 'task/' + taskId + '/' + runId + ':latest';
       await docker.loadImage('/tmp/dockerload.tar');
       let opts = {
@@ -87,15 +88,14 @@ suite('use docker-save', () => {
           0x74,0x65,0x73,0x74,0x53,0x74,0x72,0x69,0x6e,0x67,0x0a))); //testString\n
         finished = true;
       });
+      await base.testing.sleep(3000);
+      assert(finished, 'did not receive any data back');
+      await Promise.all([container.remove(), fs.unlink('/tmp/dockerload.tar')]);
+      await docker.getImage(imageName).remove();
     } catch (e) {
       console.log(e);
       if(e.stack) console.log(e.stack);
       throw e;
     }
-
-    await base.testing.sleep(3000);
-    assert(finished, 'did not receive any data back');
-    await Promise.all([container.remove(), fs.unlink('/tmp/dockerload.tar')]);
-    await docker.getImage(imageName).remove();
   });
 });
