@@ -32,7 +32,7 @@ suite('use docker-save', () => {
         image: 'busybox',
         command: ['/bin/sh', '-c', 'echo testString > /tmp/test.log'],
         features: {
-          dockerSave: true
+          dockerSave: {artifactPath: 'public/heyy.tar'}
         },
         maxRunTime: 5 * 60
       }
@@ -48,7 +48,7 @@ suite('use docker-save', () => {
     var signedUrl = worker.queue.buildSignedUrl(
       worker.queue.getLatestArtifact,
       taskId,
-      'private/dockerImage.tar',
+      'public/heyy.tar',
       {expiration: 60 * 5});
 
     try {
