@@ -1,10 +1,10 @@
-suite('artifact extration tests', () => {
-  var assert = require('assert');
-  var getArtifact = require('./helper/get_artifact');
-  var cmd = require('./helper/cmd');
-  var expires = require('./helper/expires');
-  var testworker = require('../post_task');
+import assert from 'assert';
+import getArtifact from './helper/get_artifact';
+import cmd from 'helper/cmd';
+import expires from './helper/expires';
+import testworker from '../post_task';
 
+suite('artifact extration tests', () => {
   test('extract artifact', async () => {
     let result = await testworker({
       payload: {
