@@ -186,6 +186,10 @@ module.exports = {
 
   dockerWorkerPrivateKey: '/etc/docker-worker-priv.pem',
 
+  dockerSave: {
+    expiration: 7 * 24 * 60 * 60 * 1000
+  },
+
   interactive: {
     ssl: true,
     // Minimum time, in seconds, between start of task and end of task
