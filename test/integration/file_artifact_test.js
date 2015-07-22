@@ -1,6 +1,6 @@
 import assert from 'assert';
 import getArtifact from './helper/get_artifact';
-import cmd from 'helper/cmd';
+import cmd from './helper/cmd';
 import expires from './helper/expires';
 import testworker from '../post_task';
 
