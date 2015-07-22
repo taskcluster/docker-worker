@@ -32,4 +32,5 @@ cd $checkout_path
 git --no-pager log -n 1
 
 # Link busybox to worker
+mkdir /worker
 ln -s $checkout_path/bin-utils /worker/bin-utils
