@@ -18,7 +18,7 @@ suite('use docker exec websocket server', () => {
   // If taskcluster/artifact upload is under high load, this number needs to be adjusted up.
   // It also causes the test to be slower by 2X that many seconds, so be careful with this.
   // TODO: add polling to tests so they don't rely as much on this type of timing
-  let maxTime = 45;
+  let maxTime = 90;
   let expTime = 10;
   setup(async () => {
     settings.cleanup();
@@ -49,6 +49,68 @@ suite('use docker exec websocket server', () => {
     });
     return res.headers.location;
   };
+
+  test('cat', async () => {
+    let taskId = slugid.v4();
+    let task = {
+      payload: {
+        image: 'taskcluster/test-ubuntu',
+        command: cmd('sleep 50'),
+        maxRunTime: 4 * 60,
+        features: {
+          interactive: true
+        }
+      }
+    };
+    debug('posting to queue');
+    worker.postToQueue(task, taskId).catch((err) => {debug(err); debug('Error');});
+    debug('posted to queue');
+    
+    let passed = false;
+
+    let signedUrl = worker.queue.buildSignedUrl(
+      worker.queue.getLatestArtifact,
+      taskId,
+      'private/mozilla/interactive.sock',
+      {expiration: 60 * 5});
+
+    let url;
+    await base.testing.poll(async () => {
+      url = await getWithoutRedirect(signedUrl);
+      assert(url, 'artifact not found');
+    }, 45, 1000);
+
+    //for testing, we don't care about https verification
+    let client = new DockerExecClient({
+      tty: false,
+      command: ['cat'],
+      url: url,
+      wsopts: {rejectUnauthorized: false}
+    });
+    await client.execute();
+
+    client.stderr.on('data', (message) => {
+      debug(message.toString());
+    })
+    client.stdout.on('data', (message) => {
+      debug(message.toString());
+    });
+
+    let buf = new Buffer([0xfa, 0xff, 0x0a]);
+    client.stdin.write(buf);
+    //message is small enough that it should be returned in one chunk
+    client.stdout.on('data', (message) => {
+      assert(buf[0] === message[0], 'message wrong!');
+      assert(buf[1] === message[1], 'message wrong!');
+      assert(buf[2] === message[2], 'message wrong!');
+      passed = true;
+      debug('test finished!');
+      client.close();
+    });
+
+    await new Promise(accept => client.socket.once('close', accept));
+    assert(passed,'message not recieved');
+  });
 
   test('expires', async () => {
     let taskId = slugid.v4();
@@ -175,68 +237,6 @@ suite('use docker exec websocket server', () => {
     assert(status.status.state === 'completed', 'hanging after client closed');
 
     assert(connected, 'interactive session failed to connect');
-  });
-
-  test('cat', async () => {
-    let taskId = slugid.v4();
-    let task = {
-      payload: {
-        image: 'taskcluster/test-ubuntu',
-        command: cmd('sleep 15'),
-        maxRunTime: 4 * 60,
-        features: {
-          interactive: true
-        }
-      }
-    };
-    debug('posting to queue');
-    worker.postToQueue(task, taskId).catch((err) => {debug(err); debug('Error');});
-    debug('posted to queue');
-    
-    let passed = false;
-
-    let signedUrl = worker.queue.buildSignedUrl(
-      worker.queue.getLatestArtifact,
-      taskId,
-      'private/mozilla/interactive.sock',
-      {expiration: 60 * 5});
-
-    let url;
-    await base.testing.poll(async () => {
-      url = await getWithoutRedirect(signedUrl);
-      assert(url, 'artifact not found');
-    }, 20, 1000);
-
-    //for testing, we don't care about https verification
-    let client = new DockerExecClient({
-      tty: false,
-      command: ['cat'],
-      url: url,
-      wsopts: {rejectUnauthorized: false}
-    });
-    await client.execute();
-
-    client.stderr.on('data', (message) => {
-      debug(message.toString());
-    })
-    client.stdout.on('data', (message) => {
-      debug(message.toString());
-    });
-
-    let buf = new Buffer([0xfa, 0xff, 0x0a]);
-    client.stdin.write(buf);
-    //message is small enough that it should be returned in one chunk
-    client.stdout.on('data', (message) => {
-      assert(buf[0] === message[0], 'message wrong!');
-      assert(buf[1] === message[1], 'message wrong!');
-      assert(buf[2] === message[2], 'message wrong!');
-      passed = true;
-      debug('test finished!');
-      client.close();
-    });
-
-    await new Promise(accept => client.socket.once('close', accept));
-    assert(passed,'message not recieved');
   });
 
   test('cat stress test', async () => {
