@@ -41,14 +41,31 @@ suite('use docker exec websocket server', () => {
     settings.cleanup();
   });
 
-  async function getWithoutRedirect (url) {
-    let res = await new Promise((resolve, reject) => {
-      https.request(url, (r) => {
-        resolve(r);
-      }).end();
-    });
-    return res.headers.location;
-  };
+  async function getArtifact (queue, taskId) {
+    async function getWithoutRedirect (url) {
+      let res = await new Promise((resolve, reject) => {
+        https.request(url, (res) => {
+          resolve(res);
+        }).end();
+      });
+      if (res.statusCode === 303) {
+        return res.headers.location;
+      } else {
+        throw new Error('Error with code ' + res.statusCode + ' : ' + res.statusMessage);
+      }
+    };
+    let signedUrl = queue.buildSignedUrl(
+      queue.getLatestArtifact,
+      taskId,
+      'private/docker-worker-tests/interactive.sock',
+      {expiration: 60 * 5});
+
+    let url;
+    await base.testing.poll(async () => {
+      url = await getWithoutRedirect(signedUrl);
+    }, 45, 1000);
+    return url;
+  }
 
   test('cat', async () => {
     let taskId = slugid.v4();
@@ -68,17 +85,7 @@ suite('use docker exec websocket server', () => {
     
     let passed = false;
 
-    let signedUrl = worker.queue.buildSignedUrl(
-      worker.queue.getLatestArtifact,
-      taskId,
-      'private/docker-worker-tests/interactive.sock',
-      {expiration: 60 * 5});
-
-    let url;
-    await base.testing.poll(async () => {
-      url = await getWithoutRedirect(signedUrl);
-      assert(url, 'artifact not found');
-    }, 45, 1000);
+    let url = await getArtifact(worker.queue, taskId);
 
     //for testing, we don't care about https verification
     let client = new DockerExecClient({
@@ -127,17 +134,7 @@ suite('use docker exec websocket server', () => {
     debug('posting to queue');
     worker.postToQueue(task, taskId);
 
-    let signedUrl = worker.queue.buildSignedUrl(
-      worker.queue.getLatestArtifact,
-      taskId,
-      'private/docker-worker-tests/interactive.sock',
-      {expiration: 60 * 5});
-
-    let url;
-    await base.testing.poll(async () => {
-      url = await getWithoutRedirect(signedUrl);
-      assert(url, 'artifact not found');
-    }, 20, 1000);
+    let url = await getArtifact(worker.queue, taskId);
 
     let client = new DockerExecClient({
       tty: false,
@@ -193,17 +190,7 @@ suite('use docker exec websocket server', () => {
     debug('posting to queue');
     worker.postToQueue(task, taskId);
 
-    let signedUrl = worker.queue.buildSignedUrl(
-      worker.queue.getLatestArtifact,
-      taskId,
-      'private/docker-worker-tests/interactive.sock',
-      {expiration: 60 * 5});
-
-    let url;
-    await base.testing.poll(async () => {
-      url = await getWithoutRedirect(signedUrl);
-      assert(url, 'artifact not found');
-    }, 20, 1000);
+    let url = await getArtifact(worker.queue, taskId);
 
     let client = new DockerExecClient({
       tty: false,
@@ -256,17 +243,7 @@ suite('use docker exec websocket server', () => {
     
     let passed = false;
 
-    let signedUrl = worker.queue.buildSignedUrl(
-      worker.queue.getLatestArtifact,
-      taskId,
-      'private/docker-worker-tests/interactive.sock',
-      {expiration: 60 * 5});
-
-    let url;
-    await base.testing.poll(async () => {
-      url = await getWithoutRedirect(signedUrl);
-      assert(url, 'artifact not found');
-    }, 20, 1000);
+    let url = await getArtifact(worker.queue, taskId);
 
     //for testing, we don't care about https verification
     let client = new DockerExecClient({
