@@ -71,7 +71,7 @@ suite('use docker exec websocket server', () => {
     let signedUrl = worker.queue.buildSignedUrl(
       worker.queue.getLatestArtifact,
       taskId,
-      'private/mozilla/interactive.sock',
+      'private/docker-worker-tests/interactive.sock',
       {expiration: 60 * 5});
 
     let url;
@@ -130,7 +130,7 @@ suite('use docker exec websocket server', () => {
     let signedUrl = worker.queue.buildSignedUrl(
       worker.queue.getLatestArtifact,
       taskId,
-      'private/mozilla/interactive.sock',
+      'private/docker-worker-tests/interactive.sock',
       {expiration: 60 * 5});
 
     let url;
@@ -196,7 +196,7 @@ suite('use docker exec websocket server', () => {
     let signedUrl = worker.queue.buildSignedUrl(
       worker.queue.getLatestArtifact,
       taskId,
-      'private/mozilla/interactive.sock',
+      'private/docker-worker-tests/interactive.sock',
       {expiration: 60 * 5});
 
     let url;
@@ -259,7 +259,7 @@ suite('use docker exec websocket server', () => {
     let signedUrl = worker.queue.buildSignedUrl(
       worker.queue.getLatestArtifact,
       taskId,
-      'private/mozilla/interactive.sock',
+      'private/docker-worker-tests/interactive.sock',
       {expiration: 60 * 5});
 
     let url;

@@ -196,6 +196,8 @@ module.exports = {
     // Could be cut short due to worker node shutdown
     minTime: 3 * 60,
     // Extra time the task stays alive after an interactive session finishes
-    expirationAfterSession: 15 * 60
+    expirationAfterSession: 15 * 60,
+    //name of the socket artifact
+    artifactName: 'private/docker-worker/interactive.sock'
   }
 };
