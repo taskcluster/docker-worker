@@ -41,6 +41,6 @@ module.exports = {
   dockerWorkerPrivateKey: '/worker/test/docker-worker-priv.pem',
 
   interactive: {
-    artifactName: 'private/docker-worker-tests/interactive.sock'
+    artifactName: 'private/docker-worker-tests/'
   }
 };

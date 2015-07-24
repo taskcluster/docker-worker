@@ -197,7 +197,7 @@ module.exports = {
     minTime: 3 * 60,
     // Extra time the task stays alive after an interactive session finishes
     expirationAfterSession: 15 * 60,
-    //name of the socket artifact
-    artifactName: 'private/docker-worker/interactive.sock'
+    //base path of the socket artifact
+    artifactName: 'private/docker-worker/'
   }
 };
