@@ -7,9 +7,7 @@ import fs from 'mz/fs';
 import https from 'https';
 import request from 'superagent-promise';
 import TestWorker from '../testworker';
-import url from 'url';
 import waitForEvent from '../../lib/wait_for_event';
-import zlib from 'zlib';
 import Debug from 'debug';
 
 let debug = Debug('docker-worker:test:docker-save-test');
@@ -49,27 +47,8 @@ suite('use docker-save', () => {
 
     let url = `https://queue.taskcluster.net/v1/task/${taskId}/runs/${runId}/artifacts/public/dockerImage.tar`;
 
-/*    //superagent was only downlading 16K of data
-    await new Promise((accept, reject) => {
-      https.request(url, (res) => { //take the redirect
-        let parsedUrl = url.parse(res.headers.location);
-        if(parsedUrl)
-        https.request(res.headers.location, (res) => {
-          let unzipStream = zlib.Gunzip();
-          res.pipe(unzipStream).pipe(fs.createWriteStream('/tmp/dockerload.tar'));
-          unzipStream.on('end', accept);
-          res.on('error', (err) => reject(err));
-        }).end();
-        res.on('error', (err) => reject(err));
-      }).end();
-    });*/
-
+    //superagent means no unzipping required
     let res = await request.get(url).end();
-    debug(res.headers);
-    debug(res.statusCode);
-    // let unzipStream = zlib.Gunzip();
-    // res.pipe(unzipStream, {end: false}).pipe(fs.createWriteStream('/tmp/dockerload.tar'));
-    // await waitForEvent(unzipStream, 'end');
     res.pipe(fs.createWriteStream('/tmp/dockerload.tar'));
     await waitForEvent(res, 'end');
 
