@@ -5,14 +5,15 @@ import dockerOpts from 'dockerode-options';
 import DockerWorker from '../dockerworker';
 import fs from 'mz/fs';
 import https from 'https';
+import rimraf from 'rimraf';
 import request from 'superagent-promise';
 import tar from 'tar-fs';
 import TestWorker from '../testworker';
 import waitForEvent from '../../lib/wait_for_event';
 import zlib from 'zlib';
-import Debug from 'debug';
+// import Debug from 'debug';
 
-let debug = Debug('docker-worker:test:cache-save-test');
+// let debug = Debug('docker-worker:test:cache-save-test');
 
 suite('use docker-save', () => {
   let worker;
@@ -59,5 +60,12 @@ suite('use docker-save', () => {
     await waitForEvent(res, 'end');
     let testStr = await fs.readFile('/tmp/cacheload/test.log', {encoding: 'utf-8'});
     assert(testStr == 'testString\n');
+
+    //cleanup temp folder
+    rimraf('/tmp/cacheload/', (err) => {
+      if (err) {
+        debug("Failed to remove tmpFolder: %s", err.stack);
+      }
+    });
   });
 });
