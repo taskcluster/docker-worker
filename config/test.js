@@ -31,7 +31,7 @@ module.exports = {
   },
 
   cache: {
-    volumeCachePath: path.join(__dirname, '..', 'test', 'tmp')
+    volumeCachePath: path.join('/tmp', 'test-cache')
   },
 
   capacityManagement: {
