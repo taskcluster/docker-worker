@@ -112,7 +112,7 @@ suite('use docker-save', () => {
     res.pipe(tarStream);
     await waitForEvent(res, 'end');
     //so the tar actually finishes extracting; tarStream doesn't have an end event
-    await base.testing.sleep(1000); 
+    await base.testing.sleep(1000);
 
     let testStr = await fs.readFile('/tmp/cacheload/test.log', {encoding: 'utf-8'});
     assert(testStr == 'testString\n');
