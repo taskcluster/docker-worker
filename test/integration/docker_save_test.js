@@ -6,6 +6,7 @@ import DockerWorker from '../dockerworker';
 import fs from 'mz/fs';
 import https from 'https';
 import request from 'superagent-promise';
+import tar from 'tar-fs';
 import TestWorker from '../testworker';
 import waitForEvent from '../../lib/wait_for_event';
 import Debug from 'debug';
@@ -26,7 +27,7 @@ suite('use docker-save', () => {
     }
   });
 
-  test('run, then check contents', async () => {
+  test('run dockerSave, then check contents', async () => {
     let result = await worker.postToQueue({
       payload: {
         image: 'busybox',
@@ -79,5 +80,45 @@ suite('use docker-save', () => {
     assert(finished, 'did not receive any data back');
     await Promise.all([container.remove(), fs.unlink('/tmp/dockerload.tar')]);
     await docker.getImage(imageName).remove();
+  });
+
+  test('run cacheSave, then check contents', async () => {
+    let result = await worker.postToQueue({
+      payload: {
+        image: 'busybox',
+        command: ['/bin/sh', '-c', 'echo testString > /tmp/test-cache/test.log'],
+        features: {
+          dockerSave: true
+        },
+        maxRunTime: 5 * 60,
+        cache: {
+          'test-cache': '/tmp/test-cache/'
+        }
+      }
+    });
+
+    assert(result.run.state === 'completed', 'task should be successful');
+    assert(result.run.reasonResolved === 'completed',
+                 'task should be successful');
+
+    let taskId = result.taskId;
+    let runId = result.runId;
+
+    let url = `https://queue.taskcluster.net/v1/task/${taskId}/runs/${runId}/artifacts/public/cache/test-cache.tar.gz`;
+
+    //superagent means no unzipping required
+    let res = await request.get(url).end();
+    let tarStream = tar.extract('/tmp/cacheload');
+    res.pipe(tarStream);
+    await waitForEvent(res, 'end');
+    //so the tar actually finishes extracting; tarStream doesn't have an end event
+    await base.testing.sleep(1000); 
+
+    let testStr = await fs.readFile('/tmp/cacheload/test.log', {encoding: 'utf-8'});
+    assert(testStr == 'testString\n');
+
+    //cleanup temp folder
+    await fs.unlink('/tmp/cacheload/test.log');
+    await fs.rmdir('/tmp/cacheload');
   });
 });
