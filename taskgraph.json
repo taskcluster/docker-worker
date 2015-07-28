@@ -103,7 +103,6 @@
               "loopbackVideo": true
             }
           },
-          "env": "docker-worker:features:interactive,docker-exec-websocket-server:*,docker-worker:test:interactive-test,runTask,docker-worker:lib:shared_file_lock"
         },
         "extra": {
         },
