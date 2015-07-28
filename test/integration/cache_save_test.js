@@ -39,7 +39,7 @@ suite('use docker-save', () => {
         },
         maxRunTime: 5 * 60,
         cache: {
-          'test-cache': '/tmp/test-cache'
+          'test-cache': '/tmp/test-cache/'
         }
       }
     });
@@ -51,14 +51,14 @@ suite('use docker-save', () => {
     let taskId = result.taskId;
     let runId = result.runId;
 
-    let url = `https://queue.taskcluster.net/v1/task/${taskId}/runs/${runId}/artifacts/public/test-cache.tgz`;
+    let url = `https://queue.taskcluster.net/v1/task/${taskId}/runs/${runId}/artifacts/public/cache/test-cache.tar.gz`;
 
     //superagent means no unzipping required
     let res = await request.get(url).end();
     let tarStream = tar.extract('/tmp/cacheload');
     res.pipe(tarStream);
     await waitForEvent(res, 'end');
-    //so the tar actually finishes extracting; it doesn't have an end event
+    //so the tar actually finishes extracting; tarStream doesn't have an end event
     await base.testing.sleep(1000); 
 
     let testStr = await fs.readFile('/tmp/cacheload/test.log', {encoding: 'utf-8'});

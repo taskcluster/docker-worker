@@ -45,7 +45,7 @@ suite('use docker-save', () => {
     let taskId = result.taskId;
     let runId = result.runId;
 
-    let url = `https://queue.taskcluster.net/v1/task/${taskId}/runs/${runId}/artifacts/public/dockerImage.tar`;
+    let url = `https://queue.taskcluster.net/v1/task/${taskId}/runs/${runId}/artifacts/public/dockerImage.tar.gz`;
 
     //superagent means no unzipping required
     let res = await request.get(url).end();
