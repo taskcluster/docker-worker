@@ -82,7 +82,7 @@ suite('use docker exec websocket server', () => {
     debug('posting to queue');
     worker.postToQueue(task, taskId).catch((err) => {debug(err); debug('Error');});
     debug('posted to queue');
-    
+
     let passed = false;
 
     let url = await getArtifact(worker.queue, taskId);
@@ -240,7 +240,7 @@ suite('use docker exec websocket server', () => {
     };
     debug('posting to queue');
     worker.postToQueue(task, taskId);
-    
+
     let passed = false;
 
     let url = await getArtifact(worker.queue, taskId);
@@ -264,7 +264,7 @@ suite('use docker exec websocket server', () => {
       for(let i = 0; i < message.length; i++) {
         if(message[i] !== buf[pointer++])
           throw new Error('byte at messages ' + i + ' which is ' + message[i]
-            + ' of message total len ' + message.length + 
+            + ' of message total len ' + message.length +
             '\ndoes not match bufs ' + pointer - 1);
       }
       if (pointer === TEST_BUF_SIZE) {
