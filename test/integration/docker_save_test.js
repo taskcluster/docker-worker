@@ -46,12 +46,14 @@ suite('use docker-save', () => {
     let taskId = result.taskId;
     let runId = result.runId;
 
-    let url = `https://queue.taskcluster.net/v1/task/${taskId}/runs/${runId}/artifacts/public/dockerImage.tar.gz`;
+    let url = `https://queue.taskcluster.net/v1/task/${taskId}/runs/${runId}/artifacts/public/dockerImage.tar`;
 
-    //superagent means no unzipping required
+    //superagent means no zlib required
     let res = await request.get(url).end();
     res.pipe(fs.createWriteStream('/tmp/dockerload.tar'));
     await waitForEvent(res, 'end');
+    //make sure it finishes unzipping
+    await base.testing.sleep(1000);
 
     let docker = new Docker(dockerOpts());
     let imageName = 'task/' + taskId + '/' + runId + ':latest';
@@ -104,9 +106,9 @@ suite('use docker-save', () => {
     let taskId = result.taskId;
     let runId = result.runId;
 
-    let url = `https://queue.taskcluster.net/v1/task/${taskId}/runs/${runId}/artifacts/public/cache/test-cache.tar.gz`;
+    let url = `https://queue.taskcluster.net/v1/task/${taskId}/runs/${runId}/artifacts/public/cache/test-cache.tar`;
 
-    //superagent means no unzipping required
+    //superagent means no zlib required
     let res = await request.get(url).end();
     let tarStream = tar.extract('/tmp/cacheload');
     res.pipe(tarStream);
