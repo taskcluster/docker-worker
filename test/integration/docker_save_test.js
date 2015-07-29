@@ -86,6 +86,7 @@ suite('use docker-save', () => {
 
   test('run cacheSave, then check contents', async () => {
     let result = await worker.postToQueue({
+      scopes: ['docker-worker:cache:test-cache'],
       payload: {
         image: 'busybox',
         command: ['/bin/sh', '-c', 'echo testString > /tmp/test-cache/test.log'],

@@ -67,7 +67,6 @@ export default class TestWorker extends EventEmitter {
         deadline: deadline,
         workerType: this.workerType,
         provisionerId: PROVISIONER_ID,
-        scopes: ['docker-worker:cache:test-cache'],
         metadata: {
           description: 'jonas damn you',
           owner: 'unkown@localhost.local',
