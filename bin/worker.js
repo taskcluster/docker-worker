@@ -240,7 +240,7 @@ async function main () {
   }
 
   // Build the listener and connect to the queue.
-  var taskListener = new TaskListener(runtime);
+  var taskListener = new TaskListener(host, runtime);
   runtime.gc.taskListener = taskListener;
   shutdownManager.observe(taskListener);
 

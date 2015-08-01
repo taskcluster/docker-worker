@@ -127,7 +127,11 @@ module.exports = {
 
   taskQueue: {
     // Task queue will be polled on a frequent interval for new pending tasks
-    pollInterval: 30 * 1000,
+    pollInterval: 5 * 1000,
+    // Task queue will be polled slower near the end of a billing cycle by this many times
+    pollIntervalMultiplier: 12,
+    // Task polling will slow down in the last 1/x of a billing cycle
+    slowdownDivisor: 3,
     // If signed url for queue expires within now()+expiration, refresh queues
     expiration: 5 * 60 * 1000,
     // Number of times to retry requests to the task queue
