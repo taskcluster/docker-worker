@@ -78,7 +78,7 @@ suite('use docker-save', () => {
         0x74,0x65,0x73,0x74,0x53,0x74,0x72,0x69,0x6e,0x67,0x0a))); //testString\n
       finished = true;
     });
-    await base.testing.sleep(5000);
+    await base.testing.sleep(7000);
     assert(finished, 'did not receive any data back');
     await Promise.all([container.remove(), fs.unlink('/tmp/dockerload.tar')]);
     await docker.getImage(imageName).remove();
