@@ -219,7 +219,7 @@ async function main () {
   config.gc.addManager(config.volumeCache);
 
   var runtime = new Runtime(config);
-  
+
   runtime.host = host;
 
   // Instantiate PrivateKey object for decrypting secure data
