@@ -219,6 +219,8 @@ async function main () {
   config.gc.addManager(config.volumeCache);
 
   var runtime = new Runtime(config);
+  
+  runtime.host = host;
 
   // Instantiate PrivateKey object for decrypting secure data
   // (currently encrypted environment variables)
@@ -240,7 +242,7 @@ async function main () {
   }
 
   // Build the listener and connect to the queue.
-  var taskListener = new TaskListener(host, runtime);
+  var taskListener = new TaskListener(runtime);
   runtime.gc.taskListener = taskListener;
   shutdownManager.observe(taskListener);
 
