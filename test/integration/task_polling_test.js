@@ -45,7 +45,7 @@ suite('Task Polling', () => {
 
     await waitForEvent(worker, 'created task');
     let claimedTask = false;
-    worker.on('claim task', () => claimTask = true);
+    worker.on('claim task', () => claimedTask = true);
     let count = 0;
     // Wait for a few polling cycles and ensure a task hasn't been claimed and
     // proper alert has been logged

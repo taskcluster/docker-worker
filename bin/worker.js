@@ -220,7 +220,7 @@ async function main () {
 
   var runtime = new Runtime(config);
 
-  runtime.host = host;
+  runtime.hostManager = host;
 
   // Instantiate PrivateKey object for decrypting secure data
   // (currently encrypted environment variables)
