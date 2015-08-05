@@ -112,7 +112,7 @@ suite('Task Polling', () => {
     await new Promise((accept, reject) => {
       worker.on('polling', data => {
         console.log(data.message);
-        if(data.message === 'polling interval sped up')
+        if(data.message === 'polling interval adjusted' && data.oldInterval > data.newInterval)
           accept();
       });
       setTimeout(reject, 10000);
@@ -131,7 +131,7 @@ suite('Task Polling', () => {
     await new Promise((accept, reject) => {
       worker.on('polling', data => {
         console.log(data.message);
-        if(data.message === 'polling interval slowed down')
+        if(data.message === 'polling interval adjusted' && data.oldInterval < data.newInterval)
           accept();
       });
       setTimeout(reject, 10000);
