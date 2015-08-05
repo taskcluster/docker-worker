@@ -56,7 +56,7 @@ suite('use docker-save', () => {
     await base.testing.sleep(1000);
 
     let docker = new Docker(dockerOpts());
-    let imageName = 'task/' + taskId + '/' + runId + ':latest';
+    let imageName = 'task-' + taskId + '-' + runId + ':latest';
     await docker.loadImage('/tmp/dockerload.tar');
     let opts = {
       AttachStdin: true,
