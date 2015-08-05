@@ -38,6 +38,8 @@ module.exports = {
     diskspaceThreshold: 1 * 1000000000,
   },
 
+  dockerVolume: '/tmp',
+
   dockerWorkerPrivateKey: '/worker/test/docker-worker-priv.pem',
 
   interactive: {

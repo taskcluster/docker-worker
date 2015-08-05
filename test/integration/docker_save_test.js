@@ -6,6 +6,7 @@ import DockerWorker from '../dockerworker';
 import fs from 'mz/fs';
 import https from 'https';
 import request from 'superagent-promise';
+import * as settings from '../settings';
 import tar from 'tar-fs';
 import TestWorker from '../testworker';
 import waitForEvent from '../../lib/wait_for_event';
@@ -16,6 +17,11 @@ let debug = Debug('docker-worker:test:docker-save-test');
 suite('use docker-save', () => {
   let worker;
   setup(async () => {
+    // settings.configure({
+    //   garbageCollection: {
+    //     interval: 60 * 60 * 1000
+    //   }
+    // });
     worker = new TestWorker(DockerWorker);
     await worker.launch();
   });
@@ -48,16 +54,19 @@ suite('use docker-save', () => {
 
     let url = `https://queue.taskcluster.net/v1/task/${taskId}/runs/${runId}/artifacts/public/dockerImage.tar`;
 
+    debug('before download');
     //superagent means no zlib required
     let res = await request.get(url).end();
     res.pipe(fs.createWriteStream('/tmp/dockerload.tar'));
     await waitForEvent(res, 'end');
     //make sure it finishes unzipping
-    await base.testing.sleep(1000);
+    await base.testing.sleep(2000);
+    debug('downloaded')
 
     let docker = new Docker(dockerOpts());
     let imageName = 'task-' + taskId + '-' + runId + ':latest';
     await docker.loadImage('/tmp/dockerload.tar');
+    debug('image loaded')
     let opts = {
       AttachStdin: true,
       AttachStdout: true,
@@ -71,15 +80,20 @@ suite('use docker-save', () => {
     };
     let container = await docker.createContainer(opts);
     await container.start();
+    debug('container started')
     let stream = await container.attach(streamOpts);
-    let finished = false;
-    stream.on('data', (data) => {
-      assert(data.compare(new Buffer(0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x0b, //header
-        0x74,0x65,0x73,0x74,0x53,0x74,0x72,0x69,0x6e,0x67,0x0a))); //testString\n
-      finished = true;
+
+    await new Promise((accept, reject) => {
+      stream.on('data', (data) => {
+        assert(data.compare(new Buffer(0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x0b, //header
+          0x74,0x65,0x73,0x74,0x53,0x74,0x72,0x69,0x6e,0x67,0x0a))); //testString\n
+        accept();
+      });
+      stream.on('error', reject);
+      // stream.on('end', () => {reject(new Error('stream ended too early'))});
+      setTimeout(reject, 15000, new Error('timed out waiting for docker container'));
     });
-    await base.testing.sleep(5000);
-    assert(finished, 'did not receive any data back');
+    await base.testing.sleep(100);
     await Promise.all([container.remove(), fs.unlink('/tmp/dockerload.tar')]);
     await docker.getImage(imageName).remove();
   });
