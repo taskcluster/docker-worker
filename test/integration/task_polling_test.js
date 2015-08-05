@@ -1,9 +1,10 @@
-import waitForEvent from '../../lib/wait_for_event';
-import * as settings from '../settings';
+import base from 'taskcluster-base';
 import cmd from './helper/cmd';
-import slugid from 'slugid';
 import DockerWorker from '../dockerworker';
+import * as settings from '../settings';
+import slugid from 'slugid';
 import TestWorker from '../testworker';
+import waitForEvent from '../../lib/wait_for_event';
 
 suite('Task Polling', () => {
 
@@ -95,6 +96,45 @@ suite('Task Polling', () => {
     results.forEach((taskRes) => {
       assert.equal(taskRes.run.state, 'completed');
       assert.equal(taskRes.run.reasonResolved, 'completed');
+    });
+  });
+
+  test('task polling at normal speed', async () => {
+    settings.billingCycleUptime(30);
+    settings.billingCycleInterval(40);
+
+    worker = new TestWorker(DockerWorker);
+    await worker.launch();
+    //make sure the polling timer is accurate
+    await base.testing.sleep(6000);
+
+    settings.billingCycleUptime(0);
+    await new Promise((accept, reject) => {
+      worker.on('polling', data => {
+        console.log(data.message);
+        if(data.message === 'polling interval sped up')
+          accept();
+      });
+      setTimeout(reject, 10000);
+    });
+  });
+
+  test('task polling slows down', async () => {
+    settings.billingCycleUptime(0);
+    settings.billingCycleInterval(40);
+    worker = new TestWorker(DockerWorker);
+    await worker.launch();
+    //make sure the polling timer is accurate
+    await base.testing.sleep(6000);
+
+    settings.billingCycleUptime(30);
+    await new Promise((accept, reject) => {
+      worker.on('polling', data => {
+        console.log(data.message);
+        if(data.message === 'polling interval slowed down')
+          accept();
+      });
+      setTimeout(reject, 10000);
     });
   });
 });
