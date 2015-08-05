@@ -17,11 +17,6 @@ let debug = Debug('docker-worker:test:docker-save-test');
 suite('use docker-save', () => {
   let worker;
   setup(async () => {
-    // settings.configure({
-    //   garbageCollection: {
-    //     interval: 60 * 60 * 1000
-    //   }
-    // });
     worker = new TestWorker(DockerWorker);
     await worker.launch();
   });
@@ -54,19 +49,16 @@ suite('use docker-save', () => {
 
     let url = `https://queue.taskcluster.net/v1/task/${taskId}/runs/${runId}/artifacts/public/dockerImage.tar`;
 
-    debug('before download');
     //superagent means no zlib required
     let res = await request.get(url).end();
     res.pipe(fs.createWriteStream('/tmp/dockerload.tar'));
     await waitForEvent(res, 'end');
     //make sure it finishes unzipping
     await base.testing.sleep(2000);
-    debug('downloaded')
 
     let docker = new Docker(dockerOpts());
     let imageName = 'task-' + taskId + '-' + runId + ':latest';
     await docker.loadImage('/tmp/dockerload.tar');
-    debug('image loaded')
     let opts = {
       AttachStdin: true,
       AttachStdout: true,
@@ -80,7 +72,6 @@ suite('use docker-save', () => {
     };
     let container = await docker.createContainer(opts);
     await container.start();
-    debug('container started')
     let stream = await container.attach(streamOpts);
 
     await new Promise((accept, reject) => {
