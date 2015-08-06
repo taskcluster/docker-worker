@@ -79,7 +79,7 @@ suite('live logging', () => {
   });
 
   test('live log expiration date', async () => {
-    let expiration = taskcluster.fromNowJSON('1 second');
+    let expiration = taskcluster.fromNowJSON('30 minutes');
     let result = await worker.postToQueue({
       expires: expiration,
       payload: {
@@ -92,6 +92,8 @@ suite('live logging', () => {
         maxRunTime: 3 * 60
       }
     });
+    assert.equal(result.run.state, 'completed', 'task should be successful');
+    assert.equal(result.run.reasonResolved, 'completed', 'task should be successful');
     assert(result.artifacts['public/logs/live.log'].expires === expiration,
       'expiration date of live log improperly set');
   });
