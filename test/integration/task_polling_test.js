@@ -109,14 +109,9 @@ suite('Task Polling', () => {
     await base.testing.sleep(6000);
 
     settings.billingCycleUptime(0);
-    await new Promise((accept, reject) => {
-      worker.on('polling', data => {
-        console.log(data.message);
-        if(data.message === 'polling interval adjusted' && data.oldInterval > data.newInterval)
-          accept();
-      });
-      setTimeout(reject, 10000);
-    });
+    let pollingMessage = await waitForEvent(worker, 'polling');
+    assert(pollingMessage.message ===  'polling interval adjusted' &&
+      pollingMessage.oldInterval > pollingMessage.newInterval)
   });
 
   test('task polling slows down', async () => {
@@ -128,13 +123,8 @@ suite('Task Polling', () => {
     await base.testing.sleep(6000);
 
     settings.billingCycleUptime(30);
-    await new Promise((accept, reject) => {
-      worker.on('polling', data => {
-        console.log(data.message);
-        if(data.message === 'polling interval adjusted' && data.oldInterval < data.newInterval)
-          accept();
-      });
-      setTimeout(reject, 10000);
-    });
+    let pollingMessage = await waitForEvent(worker, 'polling');
+        assert(pollingMessage.message ===  'polling interval adjusted' &&
+          pollingMessage.oldInterval < pollingMessage.newInterval)
   });
 });
