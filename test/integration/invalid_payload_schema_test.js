@@ -15,6 +15,6 @@ suite('Invalid payload schema', function() {
 
     assert.equal(result.run.state, 'exception', 'invalid schema should fail');
     assert.equal(result.run.reasonResolved, 'malformed-payload', 'invalid schema should fail');
-    assert.ok(result.log.indexOf('schema errors' !== -1));
+    assert.ok(result.log.indexOf('schema errors') !== -1);
   }));
 });
