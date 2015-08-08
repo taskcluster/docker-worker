@@ -6,10 +6,9 @@ suite('Invalid payload schema', function() {
     var result = yield testworker({
       payload: {
         image: 'taskcluster/test-ubuntu',
-        // No command is an invalid schema.
-        command: [],
         features: { bufferLog: true },
-        maxRunTime: 5 * 60
+        // maxRunTime should be a number.
+        maxRunTime: 'hello'
       }
     });
 

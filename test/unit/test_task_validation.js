@@ -9,11 +9,10 @@ suite('Task validation', function() {
       payload: {
         image: 'taskcluster/test-ubuntu',
         command: ["echo", "5"],
-        features: { bufferLog: true },
         maxRunTime: 5 * 60
       }
     }
-    
+
     let errors = await validateTask(task);
     assert(errors === null, 'Valid payload considered invalid.');
   });
@@ -22,14 +21,24 @@ suite('Task validation', function() {
     let task = {
       payload: {
         image: 'taskcluster/test-ubuntu',
-        // No command is an invalid schema.
-        command: [],
-        features: { bufferLog: true },
+        // No maxRunTime is an invalid schema.
+      }
+    }
+
+    let errors = await validateTask(task);
+    assert(!_.isEmpty(errors), 'Invalid payload considered valid.');
+  });
+
+  test('accept missing command', async function () {
+    let task = {
+      payload: {
+        image: 'taskcluster/test-ubuntu',
+        // No command provided should be ok.
         maxRunTime: 5 * 60
       }
     }
-    
+
     let errors = await validateTask(task);
-    assert(!_.isEmpty(errors), 'Invalid payload considered valid.');
+    assert(errors === null, 'Valid payload considered invalid.');
   });
 });
