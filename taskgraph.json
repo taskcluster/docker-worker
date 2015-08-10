@@ -60,6 +60,7 @@
             "npm install && ./build.sh && ./test/docker-worker-test --this-chunk 2 --total-chunks 5"
           ],
           "image": "taskcluster/worker-ci:0.0.3",
+          "features": { "interactive": true },
           "maxRunTime": 3600,
           "capabilities": {
             "privileged": true,
