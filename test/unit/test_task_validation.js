@@ -18,7 +18,6 @@ suite('Task validation', async function() {
     };
 
     let errors = this.validator.check(payload, PAYLOAD_SCHEMA);
-    console.log(errors);
     assert(errors === null, 'Valid payload considered invalid.');
   });
 
