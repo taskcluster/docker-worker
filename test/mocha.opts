@@ -1,6 +1,6 @@
 --ui tdd
 --require test/helper
---timeout 240s
+--timeout 480s
 --reporter spec
 --compilers js:babel/register
 --harmony

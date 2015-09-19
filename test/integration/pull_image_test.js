@@ -6,13 +6,12 @@ suite('pull image', function() {
   var dockerUtils = require('dockerode-process/utils');
   var cmd = require('./helper/cmd');
 
-  var IMAGE = 'ubuntu:12.04';
-
-  test('ensure image can be pulled', co(function* () {
-    yield dockerUtils.removeImageIfExists(docker, IMAGE);
+  test('ensure docker image can be pulled', co(function* () {
+    let image = 'gliderlabs/alpine:latest';
+    yield dockerUtils.removeImageIfExists(docker, image);
     var result = yield testworker({
       payload: {
-        image: IMAGE,
+        image: image,
         command: cmd('ls'),
         maxRunTime: 5 * 60
       }
@@ -21,6 +20,26 @@ suite('pull image', function() {
     assert.equal(result.run.state, 'completed', 'task should be successful');
     assert.equal(result.run.reasonResolved, 'completed', 'task should be successful');
   }));
+
+  test('ensure indexed image can be pulled', async () => {
+    let image = {
+      namespace: 'public.garndt.garbage.test-image.v1',
+      path: 'public/image.tar'
+    };
+
+    //await dockerUtils.removeImageIfExists(docker, image);
+    let result = await testworker({
+      payload: {
+        image: image,
+        command: cmd('ls'),
+        maxRunTime: 5 * 60
+      }
+    });
+
+    console.log(result.log);
+    assert.equal(result.run.state, 'completed', 'task should be successful');
+    assert.equal(result.run.reasonResolved, 'completed', 'task should be successful');
+  });
 
   test('Task marked as failed if image cannot be pulled', co(function* () {
     var result = yield testworker({
