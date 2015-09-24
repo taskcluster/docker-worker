@@ -64,8 +64,32 @@ suite('Image Manager', () => {
     let imageId = await im.ensureImage(image, process.stdout, []);
 
     assert.ok(imageId, 'No image id was returned');
+  });
 
+  test('temporary files removed after loading indexed public image', async () => {
+    let image = {
+      namespace: 'public.garndt.garbage.test-image.v1',
+      path: 'public/image.tar'
+    };
 
+    let index = new Index();
+    let {taskId} = await index.findTask(image.namespace);
+    let hashedName = createHash('md5')
+                      .update(`${taskId}${image.path}`)
+                      .digest('hex');
+
+    await dockerUtils.removeImageIfExists(docker, hashedName);
+
+    let runtime = {
+      docker: docker,
+      dockerConfig: DOCKER_CONFIG,
+      dockerVolume: '/tmp'
+    };
+
+    let im = new ImageManager(runtime);
+    let imageId = await im.ensureImage(image, process.stdout, []);
+
+    assert.ok(imageId, 'No image id was returned');
   });
 
   test('task not present for indexed image', async () => {
@@ -109,7 +133,6 @@ suite('Image Manager', () => {
       let imageId = await im.ensureImage(image, process.stdout, []);
       assert.ok(false, 'Exception should have been thrown');
     } catch(e) {
-      console.log(e);
       assert.ok(
         e.message.includes('Could not download image artifact'),
         'Error message did not appear indicating an artifact could not be found'
