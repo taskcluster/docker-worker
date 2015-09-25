@@ -85,7 +85,7 @@ suite('Spot Node Termination', () => {
     // is just untagged.  When pull image happens, the layers are there so there is
     // nothign to downloading causing the node termination notice to not happen
     // until after the task has started usually.
-    let image = 'ubuntu:12.10'
+    let image = 'ubuntu:12.10';
     await dockerUtils.removeImageIfExists(docker, image);
     let task = {
       payload: {
@@ -99,7 +99,7 @@ suite('Spot Node Termination', () => {
     let taskId = slugid.v4();
     worker = new TestWorker(DockerWorker);
     worker.on('pull image', (msg) => {
-      if (msg.image === image) { settings.nodeTermination(); }
+      if (msg.image.name === image) { settings.nodeTermination(); }
     });
     let launch = await worker.launch();
     let result = await worker.postToQueue(task, taskId);
