@@ -1,6 +1,6 @@
 suite('pull image', function() {
+  var assert = require('assert');
   var co = require('co');
-  var request = require('superagent-promise');
   var testworker = require('../post_task');
   var docker = require('../../lib/docker')();
   var dockerUtils = require('dockerode-process/utils');
@@ -31,12 +31,13 @@ suite('pull image', function() {
     let result = await testworker({
       payload: {
         image: image,
-        command: cmd('ls'),
+        command: cmd('ls /bin'),
         maxRunTime: 5 * 60
       }
     });
 
     console.log(result.log);
+    assert.ok(result.log.includes('busybox'), 'Does not appear to be the correct image with busybox');
     assert.equal(result.run.state, 'completed', 'task should be successful');
     assert.equal(result.run.reasonResolved, 'completed', 'task should be successful');
   });

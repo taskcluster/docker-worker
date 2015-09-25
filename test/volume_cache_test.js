@@ -1,7 +1,7 @@
 suite('volume cache test', function () {
   var VolumeCache = require('../lib/volume_cache');
   var GarbageCollector = require('../lib/gc');
-  var createLogger = require('../lib/log');
+  var createLogger = require('../lib/log').createLogger;
   var debug = require('debug')('volumeCacheTest');
   var devnull = require('dev-null');
   var docker = require('../lib/docker')();

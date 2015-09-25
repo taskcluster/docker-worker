@@ -9,7 +9,7 @@ suite('Capacity', function() {
   var DockerWorker = require('../dockerworker');
   var TestWorker = require('../testworker');
   var ImageManager = require('../../lib/docker/image_manager');
-  var logger = require('../../lib/log');
+  var logger = require('../../lib/log').createLogger;
 
   const CAPACITY = 10;
   const IMAGE = 'taskcluster/test-ubuntu:latest';

@@ -98,7 +98,7 @@ suite('Spot Node Termination', () => {
     };
     let taskId = slugid.v4();
     worker = new TestWorker(DockerWorker);
-    worker.on('pull image', (msg) => {
+    worker.on('ensure image', (msg) => {
       if (msg.image.name === image) { settings.nodeTermination(); }
     });
     let launch = await worker.launch();

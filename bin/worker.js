@@ -4,7 +4,7 @@ var os = require('os');
 var program = require('commander');
 var taskcluster = require('taskcluster-client');
 var base = require('taskcluster-base');
-var createLogger = require('../lib/log');
+var createLogger = require('../lib/log').createLogger;
 var debug = require('debug')('docker-worker:bin:worker');
 var _ = require('lodash');
 

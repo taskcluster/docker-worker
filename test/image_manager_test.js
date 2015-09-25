@@ -5,7 +5,7 @@ import Docker from '../lib/docker';
 import { Index } from 'taskcluster-client';
 import { createHash } from 'crypto';
 import slugid from 'slugid';
-import createLogger from '../lib/log';
+import { createLogger } from '../lib/log';
 
 let docker = Docker();
 

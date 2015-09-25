@@ -7,7 +7,7 @@ suite('garbage collection tests', function () {
   var docker = require('../lib/docker')();
   var GarbageCollector = require('../lib/gc');
   var ImageManager = require('../lib/docker/image_manager');
-  var logger = require('../lib/log');
+  var logger = require('../lib/log').createLogger;
   var VolumeCache = require('../lib/volume_cache');
   var waitForEvent = require('../lib/wait_for_event');
   var path = require('path');
