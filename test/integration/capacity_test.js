@@ -9,6 +9,7 @@ suite('Capacity', function() {
   var DockerWorker = require('../dockerworker');
   var TestWorker = require('../testworker');
   var ImageManager = require('../../lib/docker/image_manager');
+  var logger = require('../../lib/log');
 
   const CAPACITY = 10;
   const IMAGE = 'taskcluster/test-ubuntu:latest';
@@ -20,7 +21,8 @@ suite('Capacity', function() {
       maxAttempts: 5,
       delayFactor: 15 * 1000,
       randomizationFactor: 0.25
-    }
+    },
+    log: logger()
   });
 
   var worker;

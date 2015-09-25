@@ -5,6 +5,7 @@ import Docker from '../lib/docker';
 import { Index } from 'taskcluster-client';
 import { createHash } from 'crypto';
 import slugid from 'slugid';
+import createLogger from '../lib/log';
 
 let docker = Docker();
 
@@ -30,7 +31,8 @@ suite('Image Manager', () => {
     await dockerUtils.removeImageIfExists(docker, image);
     let runtime = {
       docker: docker,
-      dockerConfig: DOCKER_CONFIG
+      dockerConfig: DOCKER_CONFIG,
+      log: createLogger()
     };
 
     let im = new ImageManager(runtime);
@@ -57,7 +59,8 @@ suite('Image Manager', () => {
     let runtime = {
       docker: docker,
       dockerConfig: DOCKER_CONFIG,
-      dockerVolume: '/tmp'
+      dockerVolume: '/tmp',
+      log: createLogger()
     };
 
     let im = new ImageManager(runtime);
@@ -83,7 +86,8 @@ suite('Image Manager', () => {
     let runtime = {
       docker: docker,
       dockerConfig: DOCKER_CONFIG,
-      dockerVolume: '/tmp'
+      dockerVolume: '/tmp',
+      log: createLogger()
     };
 
     let im = new ImageManager(runtime);
@@ -101,7 +105,8 @@ suite('Image Manager', () => {
     let runtime = {
       docker: docker,
       dockerConfig: DOCKER_CONFIG,
-      dockerVolume: '/tmp'
+      dockerVolume: '/tmp',
+      log: createLogger()
     };
 
     let im = new ImageManager(runtime);
@@ -125,7 +130,8 @@ suite('Image Manager', () => {
     let runtime = {
       docker: docker,
       dockerConfig: DOCKER_CONFIG,
-      dockerVolume: '/tmp'
+      dockerVolume: '/tmp',
+      log: createLogger()
     };
 
     let im = new ImageManager(runtime);
