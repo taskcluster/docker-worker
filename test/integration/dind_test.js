@@ -35,6 +35,7 @@ suite('use dind-service', () => {
       }
     });
 
+    console.log(result.log);
     assert.equal(result.run.state, 'completed', 'task should be successful');
     assert.equal(result.run.reasonResolved, 'completed',
                  'task should be successful');
@@ -49,7 +50,6 @@ suite('use dind-service', () => {
         routes: "index.public.docker-worker-garbage.docker-images." + slugid.v4(),
         command: cmd(
           "mkdir artifacts",
-          "docker run -rm busybox:buildroot-2014.02 busybox --help",
           "docker save busybox:buildroot-2014.02 > /artifacts/image.tar"
         ),
         features: {

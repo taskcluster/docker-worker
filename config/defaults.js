@@ -74,7 +74,8 @@ module.exports = {
   taskclusterLogImage: 'taskcluster/livelog:v3',
   testdroidProxyImage: 'taskcluster/testdroid-proxy:0.0.6',
   balrogVPNProxyImage: 'taskclusterprivate/taskcluster-vpn-proxy:0.0.1',
-  dindImage: 'gregarndt/dind-service:latest',
+  dindImage: 'taskcluster/dind-service:v1.6',
+  //dindImage: 'gregarndt/dind-service:latest',
 
   alivenessCheckInterval: 30000, // 30 seconds
 

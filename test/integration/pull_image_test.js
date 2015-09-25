@@ -5,6 +5,8 @@ suite('pull image', function() {
   var docker = require('../../lib/docker')();
   var dockerUtils = require('dockerode-process/utils');
   var cmd = require('./helper/cmd');
+  var slugid = require('slugid');
+  var expires = require('./helper/expires');
 
   test('ensure docker image can be pulled', co(function* () {
     let image = 'gliderlabs/alpine:latest';
@@ -21,14 +23,45 @@ suite('pull image', function() {
     assert.equal(result.run.reasonResolved, 'completed', 'task should be successful');
   }));
 
-  test('ensure indexed image can be pulled', async () => {
+  test('ensure public indexed image can be pulled', async () => {
+    let namespace = `garbage.docker-worker-tests.docker-images.${slugid.v4()}`;
+    let result = await testworker({
+      payload: {
+        image: 'taskcluster/dind-test:v1',
+        routes: `index.${namespace}`,
+        command: cmd(
+          'mkdir artifacts',
+          'docker pull gliderlabs/alpine:latest',
+          'docker save gliderlabs/alpine:latest > /artifacts/image.tar'
+        ),
+        features: {
+          dind: true
+        },
+        maxRunTime: 5 * 60,
+        artifacts: {
+          'public/image.tar': {
+            type: 'file',
+            expires: expires(),
+            path: '/artifacts/image.tar'
+          }
+        }
+      }
+    });
+
+    try {
+      assert.equal(result.run.state, 'completed', 'Task to create indexed image failed.');
+    } catch(e) {
+      console.log(result.log);
+      throw e;
+    }
+
     let image = {
-      namespace: 'public.garndt.garbage.test-image.v1',
+      namespace: namespace,
       path: 'public/image.tar'
     };
 
     //await dockerUtils.removeImageIfExists(docker, image);
-    let result = await testworker({
+    result = await testworker({
       payload: {
         image: image,
         command: cmd('ls /bin'),
