@@ -26,8 +26,7 @@ suite('Docker custom private registry', () => {
   suiteSetup(async () => {
     registryProxy = new Registry(docker);
     await registryProxy.start();
-    registryImageName = registryProxy.imageName(REPO_IMAGE_NAME);
-    await registryProxy.loadImageWithTag(IMAGE_NAME, 'testuser');
+    registryImageName = await registryProxy.loadImageWithTag(IMAGE_NAME, CREDENTIALS);
   });
 
   suiteTeardown(async () => {
@@ -46,7 +45,7 @@ suite('Docker custom private registry', () => {
     settings.cleanup();
     try {
       let image = await docker.getImage(registryImageName);
-      await image.remove();
+      await image.remove({force: true});
     } catch(e) {
       // 404's are ok if the test failed to pull the image
       if (e.statusCode !== 404) {
@@ -70,7 +69,7 @@ suite('Docker custom private registry', () => {
         maxRunTime: 60 * 60
       }
     });
-
+    console.log(result.log);
     assert.equal(result.run.state, 'completed', 'auth download works');
     assert.equal(result.run.reasonResolved, 'completed', 'auth download works');
     assert.ok(result.log.includes(registryImageName), 'correct image name');

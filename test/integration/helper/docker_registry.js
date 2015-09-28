@@ -1,7 +1,10 @@
 import devnull from 'dev-null';
 import dockerUtils from 'dockerode-process/utils';
-import waitForEvent from '../../../lib/wait_for_event';
+import path from 'path';
 import slugid from 'slugid';
+
+import waitForEvent from '../../../lib/wait_for_event';
+import sleep from '../../../lib/util/sleep';
 
 // Registry proxy image...
 const DOCKER_IMAGE = 'registry:2';
@@ -12,13 +15,18 @@ export default class Registry {
   }
 
   async start() {
-    let docker = this.docker;
-    var stream = dockerUtils.pullImageIfMissing(docker, DOCKER_IMAGE);
+    var stream = dockerUtils.pullImageIfMissing(this.docker, DOCKER_IMAGE);
     // Ensure the test proxy actually exists...
     stream.pipe(devnull());
     await waitForEvent(stream, 'end');
 
-    var createContainer = {
+    await this.createContainer();
+    await this.startContainer();
+  }
+
+  async createContainer() {
+    let baseDir = path.join(__dirname, '..', '..', 'fixtures');
+    let createContainer = {
       AttachStdin: false,
       AttachStdout: true,
       AttachStderr: true,
@@ -26,11 +34,11 @@ export default class Registry {
       OpenStdin: false,
       StdinOnce: false,
       Env: [
-        'REGISTRY_HTTP_TLS_CERTIFICATE=/certs/ssl_cert.crt',
-        'REGISTRY_HTTP_TLS_KEY=/certs/ssl_cert.key',
+        'REGISTRY_HTTP_TLS_CERTIFICATE=/fixtures/ssl_cert.crt',
+        'REGISTRY_HTTP_TLS_KEY=/fixtures/ssl_cert.key',
         'REGISTRY_AUTH=htpasswd',
         'REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm',
-        'REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd',
+        'REGISTRY_AUTH_HTPASSWD_PATH=/fixtures/auth/htpasswd',
         'REGISTRY_HTTP_SECRET=' + slugid.nice()
       ],
       Image: DOCKER_IMAGE,
@@ -42,8 +50,7 @@ export default class Registry {
       VolumesFrom: [],
       HostConfig: {
         Binds: [
-          '/worker/test/fixtures/:/certs',
-          '/worker/test/fixtures/auth:/auth'
+          `${baseDir}:/fixtures`
         ],
         PortBindings: {
           '5000/tcp': [{Hostport: '0'}]
@@ -51,13 +58,29 @@ export default class Registry {
       }
     };
 
-    var container = await docker.createContainer(createContainer);
-    this.container = docker.getContainer(container.id);
+    var container = await this.docker.createContainer(createContainer);
+    this.containerId = container.id;
+    this.container = this.docker.getContainer(container.id);
+  }
 
+  async removeContainer() {
+    try {
+      console.log('removing container');
+      await this.container.stop();
+      await this.container.remove();
+      console.log('container removed');
+    } catch(e) {
+      console.log('Could not stop registry container. ', e.message);
+    }
+
+    this.container = undefined;
+  }
+
+  async startContainer() {
     await this.container.start({});
 
-    var portConfig = (await docker.listContainers()).filter(function(item) {
-      return item.Id === container.id;
+    let portConfig = (await this.docker.listContainers()).filter((item) => {
+      return item.Id === this.containerId;
     })[0];
 
     if (!portConfig) {
@@ -68,7 +91,10 @@ export default class Registry {
     // worker in a docker container on the target system... This is a big
     // assumption that happens to be true in the tests at least.
     this.domain = 'localhost:' + portConfig.Ports[0].PublicPort;
-    this.url = 'http://' + this.domain + '/';
+    // Wait for the registry to be fully initialized before continuing.  This is
+    // just some guesswork as to how long until there is a more reliable way
+    // of telling
+    await sleep(10000);
   }
 
   imageName(name) {
@@ -80,7 +106,7 @@ export default class Registry {
     await this.container.kill();
   }
 
-  async loadImageWithTag(imageName, user) {
+  async loadImageWithTag(imageName, credentials) {
     let docker = this.docker;
     var stream = dockerUtils.pullImageIfMissing(docker, imageName);
     // Ensure the test proxy actually exists...
@@ -88,9 +114,8 @@ export default class Registry {
     await waitForEvent(stream, 'end');
 
     let image = await docker.getImage(imageName);
-    // TODO
-    // does [name,tag] = split work
-    let newImageName = `${this.domain}/${user}/${imageName.split(':')[0]}`;
+
+    let newImageName = `${this.domain}/${credentials.username}/${imageName.split(':')[0]}`;
     let tag = imageName.split(':')[1];
     await image.tag({
       repo: newImageName,
@@ -102,12 +127,20 @@ export default class Registry {
 
     await newImage.push({
       authconfig: {
-        username: 'testuser',
-        password: 'testpassword'
+        username: credentials.username,
+        password: credentials.password,
+        email: 'test@test.com',
+        serveraddress: 'https://' + this.domain
       }
     });
 
+    // Some reason the push event returns right away even though push hasn't completed
+    // yet.  This is a safeguard (read: hack)
+    await sleep(20000);
+
     await newImage.remove();
     await image.remove();
+
+    return newImageName + ':' + tag;
   }
 }
