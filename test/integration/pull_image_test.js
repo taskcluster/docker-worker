@@ -24,11 +24,12 @@ suite('pull image', function() {
   }));
 
   test('ensure public indexed image can be pulled', async () => {
-    let namespace = `garbage.docker-worker-tests.docker-images.${slugid.v4()}`;
+    let namespace = `garbage.docker-worker-tests.docker-images.${slugid.nice()}`;
     let result = await testworker({
+      routes: [`index.${namespace}`],
+      scopes: [`index:insert-task:${namespace}`],
       payload: {
         image: 'taskcluster/dind-test:v1',
-        routes: `index.${namespace}`,
         command: cmd(
           'mkdir artifacts',
           'docker pull gliderlabs/alpine:latest',
@@ -56,11 +57,11 @@ suite('pull image', function() {
     }
 
     let image = {
+      type: 'indexed-image',
       namespace: namespace,
       path: 'public/image.tar'
     };
 
-    //await dockerUtils.removeImageIfExists(docker, image);
     result = await testworker({
       payload: {
         image: image,
@@ -69,7 +70,6 @@ suite('pull image', function() {
       }
     });
 
-    console.log(result.log);
     assert.ok(result.log.includes('busybox'), 'Does not appear to be the correct image with busybox');
     assert.equal(result.run.state, 'completed', 'task should be successful');
     assert.equal(result.run.reasonResolved, 'completed', 'task should be successful');

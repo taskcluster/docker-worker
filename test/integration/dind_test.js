@@ -35,7 +35,6 @@ suite('use dind-service', () => {
       }
     });
 
-    console.log(result.log);
     assert.equal(result.run.state, 'completed', 'task should be successful');
     assert.equal(result.run.reasonResolved, 'completed',
                  'task should be successful');
@@ -47,9 +46,10 @@ suite('use dind-service', () => {
     let result = await worker.postToQueue({
       payload: {
         image: 'taskcluster/dind-test:v1',
-        routes: "index.public.docker-worker-garbage.docker-images." + slugid.v4(),
+        routes: "index.garbage.docker-worker-tests.docker-images." + slugid.v4(),
         command: cmd(
           "mkdir artifacts",
+          "docker pull busybox:buildroot-2014.02",
           "docker save busybox:buildroot-2014.02 > /artifacts/image.tar"
         ),
         features: {
@@ -66,7 +66,6 @@ suite('use dind-service', () => {
       }
     });
 
-    console.log(result.log);
     assert.equal(result.run.state, 'completed', 'task should be successful');
     assert.equal(result.run.reasonResolved, 'completed',
                  'task should be successful');

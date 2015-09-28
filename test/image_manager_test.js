@@ -44,6 +44,7 @@ suite('Image Manager', () => {
 
   test('download indexed public image', async () => {
     let image = {
+      type: 'indexed-image',
       namespace: 'public.garndt.garbage.test-image.v1',
       path: 'public/image.tar'
     };
@@ -71,6 +72,7 @@ suite('Image Manager', () => {
 
   test('temporary files removed after loading indexed public image', async () => {
     let image = {
+      type: 'indexed-image',
       namespace: 'public.garndt.garbage.test-image.v1',
       path: 'public/image.tar'
     };
@@ -98,6 +100,7 @@ suite('Image Manager', () => {
 
   test('task not present for indexed image', async () => {
     let image = {
+      type: 'indexed-image',
       namespace: slugid.nice(),
       path: 'public/image.tar'
     };
@@ -123,6 +126,7 @@ suite('Image Manager', () => {
 
   test('artifact not present for indexed image', async () => {
     let image = {
+      type: 'indexed-image',
       namespace: 'public.garndt.garbage.test-image.v1',
       path: 'public/image1.tar'
     };
