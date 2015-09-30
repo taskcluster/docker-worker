@@ -12,7 +12,7 @@ let docker = Docker();
 const DOCKER_CONFIG = {
   defaultRegistry: 'registry.hub.docker.com',
   maxAttempts: 5,
-  delayFactor: 15 * 1000,
+  delayFactor: 1,
   randomizationFactor: 0.25
 };
 
@@ -144,8 +144,8 @@ suite('Image Manager', () => {
       assert.ok(false, 'Exception should have been thrown');
     } catch(e) {
       assert.ok(
-        e.message.includes('Could not download image artifact'),
-        'Error message did not appear indicating an artifact could not be found'
+        e.message.includes('Could not download artifact'),
+        `Error message did not appear indicating an artifact could not be found. ${e.message}`
       );
     }
   });
