@@ -150,7 +150,6 @@ async function main () {
   // Initialize the classes and objects with core functionality used by higher
   // level docker-worker components.
   config.docker = require('../lib/docker')();
-  //config.docker = new Docker();
 
   // Wrapped stats helper to support generators, etc...
   config.stats = new Stats(config);

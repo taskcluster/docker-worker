@@ -2,10 +2,11 @@ import assert from 'assert';
 import dockerUtils from 'dockerode-process/utils';
 import ImageManager from '../lib/docker/image_manager';
 import Docker from '../lib/docker';
-import { Index } from 'taskcluster-client';
-import { createHash } from 'crypto';
+import {Index} from 'taskcluster-client';
+import {createHash} from 'crypto';
 import slugid from 'slugid';
-import { createLogger } from '../lib/log';
+import {createLogger} from '../lib/log';
+import {NAMESPACE} from './fixtures/indexed_image_artifacts';
 
 let docker = Docker();
 
@@ -17,15 +18,6 @@ const DOCKER_CONFIG = {
 };
 
 suite('Image Manager', () => {
-  test('requires docker instance', async () => {
-    try {
-      let im = ImageManager();
-      assert(false, 'Image manager should require docker instance');
-    } catch(e) {
-      return;
-    }
-  });
-
   test('download docker image from registry', async () => {
     let image = 'gliderlabs/alpine:latest';
     await dockerUtils.removeImageIfExists(docker, image);
@@ -45,7 +37,7 @@ suite('Image Manager', () => {
   test('download indexed public image', async () => {
     let image = {
       type: 'indexed-image',
-      namespace: 'public.garndt.garbage.test-image.v1',
+      namespace: NAMESPACE,
       path: 'public/image.tar'
     };
 
@@ -73,7 +65,7 @@ suite('Image Manager', () => {
   test('temporary files removed after loading indexed public image', async () => {
     let image = {
       type: 'indexed-image',
-      namespace: 'public.garndt.garbage.test-image.v1',
+      namespace: NAMESPACE,
       path: 'public/image.tar'
     };
 
@@ -127,7 +119,7 @@ suite('Image Manager', () => {
   test('artifact not present for indexed image', async () => {
     let image = {
       type: 'indexed-image',
-      namespace: 'public.garndt.garbage.test-image.v1',
+      namespace: NAMESPACE,
       path: 'public/image1.tar'
     };
 
