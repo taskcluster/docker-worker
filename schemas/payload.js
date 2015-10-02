@@ -83,6 +83,22 @@ module.exports = {
             }
           },
           "required": ["type", "namespace", "path"]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["task-image"]
+            },
+            "taskId": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            }
+          },
+          "required": ["type", "taskId", "path"]
         }
       ]
     },

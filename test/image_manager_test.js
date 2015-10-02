@@ -6,7 +6,7 @@ import {Index} from 'taskcluster-client';
 import {createHash} from 'crypto';
 import slugid from 'slugid';
 import {createLogger} from '../lib/log';
-import {NAMESPACE} from './fixtures/indexed_image_artifacts';
+import {NAMESPACE, TASK_ID} from './fixtures/image_artifacts';
 
 let docker = Docker();
 
@@ -32,6 +32,32 @@ suite('Image Manager', () => {
     let imageId2 = await im.ensureImage(image, process.stdout);
 
     assert.equal(imageId1, imageId2, 'Image IDs for the same image should be the same');
+  });
+
+  test('download public image from task', async () => {
+    let image = {
+      type: 'task-image',
+      taskId: TASK_ID,
+      path: 'public/image.tar'
+    };
+
+    let hashedName = createHash('md5')
+                      .update(`${TASK_ID}${image.path}`)
+                      .digest('hex');
+
+    await dockerUtils.removeImageIfExists(docker, hashedName);
+
+    let runtime = {
+      docker: docker,
+      dockerConfig: DOCKER_CONFIG,
+      dockerVolume: '/tmp',
+      log: createLogger()
+    };
+
+    let im = new ImageManager(runtime);
+    let imageId = await im.ensureImage(image, process.stdout, []);
+
+    assert.ok(imageId, 'No image id was returned');
   });
 
   test('download indexed public image', async () => {
@@ -171,7 +197,7 @@ suite('Image Manager', () => {
     } catch(e) {
       assert.ok(
         e.message.includes('Could not find a task associated'),
-        'Error message did not appear indicating a task could not be found'
+        `Error message did not appear indicating a task could not be found.`
       );
     }
   });
@@ -198,6 +224,31 @@ suite('Image Manager', () => {
       assert.ok(
         e.message.includes('Could not download artifact'),
         `Error message did not appear indicating an artifact could not be found. ${e.message}`
+      );
+    }
+  });
+
+  test('failure when using unrecognied image type', async () => {
+    let image = {
+      type: 'garbage-image',
+      path: 'public/image1.tar'
+    };
+
+    let runtime = {
+      docker: docker,
+      dockerConfig: DOCKER_CONFIG,
+      dockerVolume: '/tmp',
+      log: createLogger()
+    };
+
+    let im = new ImageManager(runtime);
+    try {
+      await im.ensureImage(image, process.stdout, []);
+      assert.ok(false, 'Exception should have been thrown');
+    } catch(e) {
+      assert.ok(
+        e.message.includes('Unrecognized image type'),
+        `Error message did not appear indicating unrecognized image type was used. ${e.message}`
       );
     }
   });
