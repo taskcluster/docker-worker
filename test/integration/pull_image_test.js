@@ -44,7 +44,48 @@ suite('pull image', function() {
     assert.equal(result.run.reasonResolved, 'completed', 'task should be successful');
   });
 
-  test('Task marked as failed if image cannot be pulled', co(function* () {
+  test('ensure private indexed image can be pulled', async () => {
+    let image = {
+      type: 'indexed-image',
+      namespace: NAMESPACE,
+      path: 'private/docker-worker-tests/image.tar'
+    };
+
+    let result = await testworker({
+      scopes: ['queue:get-artifact:private/docker-worker-tests/image.tar'],
+      payload: {
+        image: image,
+        command: cmd('ls /bin'),
+        maxRunTime: 5 * 60
+      }
+    });
+
+    assert.ok(result.log.includes('busybox'), 'Does not appear to be the correct image with busybox');
+    assert.equal(result.run.state, 'completed', 'task should be successful');
+    assert.equal(result.run.reasonResolved, 'completed', 'task should be successful');
+  });
+
+  test('task marked as failed if private image is specified without proper scopes', async () => {
+    let image = {
+      type: 'indexed-image',
+      namespace: NAMESPACE,
+      path: 'private/docker-worker-tests/image.tar'
+    };
+
+    let result = await testworker({
+      payload: {
+        image: image,
+        command: cmd('ls /bin'),
+        maxRunTime: 5 * 60
+      }
+    });
+
+    assert.ok(result.log.includes('Not authorized to use'), 'Not Authorized error message did not appear in logs');
+    assert.equal(result.run.state, 'failed', 'task should have failed');
+    assert.equal(result.run.reasonResolved, 'failed', 'task should have failed');
+  });
+
+  test('Task marked as failed if non-existent image is specified', co(function* () {
     var result = yield testworker({
       payload: {
         image: 'ubuntu:99.99',

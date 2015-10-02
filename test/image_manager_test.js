@@ -62,6 +62,66 @@ suite('Image Manager', () => {
     assert.ok(imageId, 'No image id was returned');
   });
 
+  test('private indexed image cannot be used without proper scopes', async () => {
+    let image = {
+      type: 'indexed-image',
+      namespace: NAMESPACE,
+      path: 'private/docker-worker-tests/image.tar'
+    };
+
+    let index = new Index();
+    let {taskId} = await index.findTask(image.namespace);
+    let hashedName = createHash('md5')
+                      .update(`${taskId}${image.path}`)
+                      .digest('hex');
+
+    await dockerUtils.removeImageIfExists(docker, hashedName);
+
+    let runtime = {
+      docker: docker,
+      dockerConfig: DOCKER_CONFIG,
+      dockerVolume: '/tmp',
+      log: createLogger()
+    };
+
+    let im = new ImageManager(runtime);
+    try {
+      await im.ensureImage(image, process.stdout, []);
+      assert.ok(false, 'Images should not be used when proper scopes are not provided');
+    } catch(e) {
+      return;
+    }
+  });
+
+  test('private indexed image can be used', async () => {
+    let image = {
+      type: 'indexed-image',
+      namespace: NAMESPACE,
+      path: 'private/docker-worker-tests/image.tar'
+    };
+
+    let scopes = ['queue:get-artifact:private/docker-worker-tests/image.tar'];
+
+    let index = new Index();
+    let {taskId} = await index.findTask(image.namespace);
+    let hashedName = createHash('md5')
+                      .update(`${taskId}${image.path}`)
+                      .digest('hex');
+
+    await dockerUtils.removeImageIfExists(docker, hashedName);
+
+    let runtime = {
+      docker: docker,
+      dockerConfig: DOCKER_CONFIG,
+      dockerVolume: '/tmp',
+      log: createLogger()
+    };
+
+    let im = new ImageManager(runtime);
+    let imageId = await im.ensureImage(image, process.stdout, scopes);
+
+    assert.ok(imageId, 'Image should have been loaded');
+  });
   test('temporary files removed after loading indexed public image', async () => {
     let image = {
       type: 'indexed-image',
