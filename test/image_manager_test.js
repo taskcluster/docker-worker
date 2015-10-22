@@ -55,9 +55,11 @@ suite('Image Manager', () => {
     };
 
     let im = new ImageManager(runtime);
-    let imageId = await im.ensureImage(image, process.stdout, []);
+    let imageId1 = await im.ensureImage(image, process.stdout, []);
+    let imageId2 = await im.ensureImage(image, process.stdout);
 
-    assert.ok(imageId, 'No image id was returned');
+    assert.ok(imageId1, 'No image id was returned');
+    assert.equal(imageId1, imageId2, 'Image IDs for the same image should be the same');
   });
 
   test('download indexed public image', async () => {
