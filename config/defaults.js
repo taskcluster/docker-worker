@@ -43,7 +43,7 @@ module.exports = {
 
   features: {
     relengAPIProxy: {
-      image: 'taskcluster/relengapi-proxy:2.0.0',
+      image: 'taskcluster/relengapi-proxy:2.0.1',
       token: process.env.RELENG_API_TOKEN
     }
   },
