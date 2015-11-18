@@ -47,6 +47,7 @@
     "promise": "^7.0.3",
     "proxy": "^0.2.3",
     "readdirrsync": "0.0.3",
+    "request": "^2.65.0",
     "rimraf": "^2.2.8",
     "slugid": "^1.1.0",
     "stateless-dns-server": "^0.1.0",
