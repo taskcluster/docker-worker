@@ -73,17 +73,32 @@ for the docker worker in particular these are important:
 
 ## Running tests
 
-The `./test/test.sh` script is used to run individual tests which are
-suffixed with `_test.js` for example: `./test/test.sh test/integration/live_log_test.js`.
+There are a few components that must be configured for the tests to work properly (e.g. docker, kernel
+modules, and other packages).  To ease the setup, a vagrant file is provided in this repo that can setup
+an environment very similar to the one docker-worker runs in production.
 
-```sh
-# from the top level
+#### Setting up vagrant
 
-./build.sh
-npm test
-```
+1. Install [Vagrant](https://www.vagrantup.com/)
+2. Within the root of the repo, run `vagrant up`
 
-This will build the docker image for the tasks and run the entire suite.
+*** Note: If TASKCLUSTER_ACCESS_TOKEN, TASKCLUSTER_CLIENT_ID, PULSE_USERNAME, PULSE_PASSWORD are configured within the virtual environment if available locally when building ***
+
+#### Logging into virtual machine and configuring environment
+
+1. `vagrant ssh`
+2. The tests require TASKCLUSTER_ACCESS_TOKEN, TASKCLUSTER_CLIENT_ID, PULSE_USERNAME, PULSE_PASSWORD to be setup within the environment.  If they were not available locally when building, add them to the virtual machine now.
+3. `cd /vagrant` # Your local checkout of the docker-worker repo is made available under the '/vagrant' directory
+4. `./build.sh` # Builds some of the test images that are required
+5. `npm install` # Installs all the necessary node modules
+
+#### Running Tests
+
+1. Either all the tests can be run, but running `npm test` or `./test/test.sh`, however, under most circumstances one only wants to run a single test suite
+2. For individual test files, run `./node_modules/mocha/bin/mocha --bail test/<file>`
+3. For running tests within a test file, add "--grep <phrase>" when running the above command to capture just the individual test name.
+
+*** Note: Sometimes things don't go as planned and tests will hang until they timeout.  To get more insight into what went wrong, set "DEBUG=*" when running the tests to get more detailed output. ***
 
 ### Common problems
 
