@@ -79,7 +79,8 @@ an environment very similar to the one docker-worker runs in production.
 
 #### Setting up vagrant
 
-1. Install [Vagrant](https://www.vagrantup.com/)
+1. Install virtualbox
+2. Install [Vagrant](https://www.vagrantup.com/)
 2. Within the root of the repo, run `vagrant up`
 
 *** Note: If TASKCLUSTER_ACCESS_TOKEN, TASKCLUSTER_CLIENT_ID, PULSE_USERNAME, PULSE_PASSWORD are configured within the virtual environment if available locally when building ***
@@ -115,7 +116,7 @@ list](/deploy/checklist.md)
 
   - [packer](www.packer.io)
   - make
-  - node 0.12 or greater
+  - node 0.12.x
   - credentials for required services (i.e. AWS)
 
 
