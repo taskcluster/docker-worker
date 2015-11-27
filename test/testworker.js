@@ -156,13 +156,13 @@ export default class TestWorker extends EventEmitter {
   /**
   Fetch all the common stats used by the tests.
   */
-  async fetchTaskStats(taskId, runId) {
+  async fetchTaskStats(taskId, runId, artifactPath) {
     debug('fetch task stats');
     // Just about every single test needs status of the task...
     var status = await this.queue.status(taskId);
     // Live logging of the task...
     var log = await getArtifact(
-      { taskId: taskId, runId: runId }, 'public/logs/live.log'
+      { taskId: taskId, runId: runId }, artifactPath
     );
 
     // Generally useful for most of the tests...
@@ -231,7 +231,9 @@ export default class TestWorker extends EventEmitter {
     return await Promise.all(graph.tasks.map(async (task) => {
       // Note: that we assume runId 0 here which is fine locally since we know
       // the number of runs but not safe is we wanted to test reruns.
-      return await this.fetchTaskStats(task.taskId, 0);
+      var LocalLiveLog = require('../lib/features/local_live_log');
+      var artifactPath = LocalLiveLog.getArtifactPathFromTask(task);
+      return await this.fetchTaskStats(task.taskId, 0, artifactPath);
     }));
   }
 
@@ -271,8 +273,10 @@ export default class TestWorker extends EventEmitter {
     // Fetch the final result json.
     var status = taskStatus.status;
     var runId = status.runs.pop().runId;
+    var LocalLiveLog = require('../lib/features/local_live_log');
+    var artifactPath = LocalLiveLog.getArtifactPathFromTask(task);
 
     // Return uniform stats on the worker run (fetching common useful things).
-    return await this.fetchTaskStats(taskId, runId);
+    return await this.fetchTaskStats(taskId, runId, artifactPath);
   }
 }

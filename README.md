@@ -16,7 +16,7 @@
 
 # Docker Worker
 
-Docker task host for linux.
+Docker task host for Linux.
 
 Each task is evaluated in an isolated docker container.
 Docker has a bunch of awesome utilities for making this work well...
