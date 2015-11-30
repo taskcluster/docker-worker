@@ -79,7 +79,7 @@ an environment very similar to the one docker-worker runs in production.
 
 #### Setting up vagrant
 
-1. Install virtualbox
+1. Install [VirtualBox](https://www.virtualbox.org/)
 2. Install [Vagrant](https://www.vagrantup.com/)
 2. Within the root of the repo, run `vagrant up`
 
