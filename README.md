@@ -35,7 +35,7 @@ are for hacking on the worker itself.
 
 ## Requirements
 
-  - Node 0.12x or greater
+  - Node 0.12.x
   - Docker
   - Packer (to build ami)
 
