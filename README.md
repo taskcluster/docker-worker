@@ -95,6 +95,19 @@ an environment very similar to the one docker-worker runs in production.
 
 #### Running Tests
 
+The following set of scopes are needed for running the test suites:
+
+* queue:create-task:no-provisioning-nope/dummy-type-*
+* queue:poll-task-urls
+* queue:claim-task
+* queue:resolve-task
+* queue:create-artifact:public/*
+* queue:get-artifact:private/docker-worker-tests/*
+* queue:cancel-task
+* assume:worker-type:no-provisioning-nope/dummy-type-*
+* assume:scheduler-id:docker-worker-tests/*
+* assume:worker-id:random-local-worker/dummy-worker-*
+
 1. Either all the tests can be run, but running `npm test` or `./test/test.sh`, however, under most circumstances one only wants to run a single test suite
 2. For individual test files, run `./node_modules/mocha/bin/mocha --bail test/<file>`
 3. For running tests within a test file, add "--grep <phrase>" when running the above command to capture just the individual test name.
