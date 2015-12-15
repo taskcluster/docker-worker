@@ -1,4 +1,4 @@
-suite('test Reclaimer', function() {
+suite('Reclaimer', function() {
   var assert = require('assert');
   var Reclaimer = require('../lib/task').Reclaimer;
   var fakeRuntime, fakeTask;
@@ -76,7 +76,7 @@ suite('test Reclaimer', function() {
     assert.equal(taskAction, null);
   });
 
-  test("reclaim that fails with a 409 cancels the task", async function() {
+  test("primary reclaim that fails with a 409 cancels the task", async function() {
     var claim = makeClaim('fakeTid', 0, soon);
     reclaimer = new Reclaimer(fakeRuntime, fakeTask, claim, claim);
 
@@ -91,7 +91,7 @@ suite('test Reclaimer', function() {
     assert.equal(taskAction.action, 'cancel');
   });
 
-  test("reclaim that fails with a 401 aborts the task", async function() {
+  test("primary reclaim that fails with a 401 aborts the task", async function() {
     var claim = makeClaim('fakeTid', 0, soon);
     reclaimer = new Reclaimer(fakeRuntime, fakeTask, claim, claim);
 
@@ -104,6 +104,24 @@ suite('test Reclaimer', function() {
     await reclaimer.reclaimTask();
     assert.deepEqual(reclaims, []);
     assert.equal(taskAction.action, 'abort');
+  });
+
+  test("non-primary reclaim that fails has no effect except to stop reclaims",
+       async function() {
+    var claim = makeClaim('fakeTid', 0, soon);
+    var secondClaim = makeClaim('fakeTid', 0, soon);
+    reclaimer = new Reclaimer(fakeRuntime, fakeTask, claim, secondClaim);
+
+    fakeRuntime.queue.reclaimTask = async function(taskId, runId) {
+      var err = new Error("uhoh");
+      err.statusCode = 409;
+      throw err;
+    };
+
+    await reclaimer.reclaimTask();
+    assert.deepEqual(reclaims, []);
+    assert.equal(taskAction, null);
+    assert.equal(reclaimer.stopped, true);
   });
 
   // the scheduled reclaims are adequately tested in integration tests
