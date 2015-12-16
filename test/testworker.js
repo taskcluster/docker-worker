@@ -260,6 +260,10 @@ export default class TestWorker extends EventEmitter {
   async postToQueue(task, specifiedTaskId) {
     let taskId = specifiedTaskId ? specifiedTaskId : slugid.v4();
 
+    // You might reuse the same task before posting it to the queue, so it might
+    // have an already existing taskId.
+    delete task['taskId'];
+
     // Create task and listen for worker to report that the task is resolved.
     // Can no longer rely on pulse messages to indicate that a task is resolved.
     // Tasks resolved by worker shutdown do not publish to task-exception and
