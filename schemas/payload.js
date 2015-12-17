@@ -216,7 +216,7 @@ module.exports = {
     "coalescer": {
       "type": "object",
       "title": "Coalescer information",
-      "desceription": "Information about the coalescer service that should be used to coalesce multiple tasks into a single run.  The worker determines the task's coalescing keys based on task routes with the given prefix, the suffix being the coalescing key.  Each task key is then appeneded to the coalescer URL, which is expected to return a JSON list of taskIds which may be coalesced with this one.  The tasks in the list should be sorted so that tasks earlier in the list supersede (\"should be performed instead of\") tasks later in the list.",
+      "description": "Information about the coalescer service that should be used to coalesce multiple tasks into a single run.  The worker determines the task's coalescing keys based on task routes with the given prefix, the suffix being the coalescing key.  Each task key is then appended to the coalescer URL, which is expected to return a JSON list of taskIds which may be coalesced with this one.  The tasks in the list should be sorted so that tasks earlier in the list supersede (\"should be performed instead of\") tasks later in the list.",
       "properties": {
         "url": {
           "title": "URL of the coalescer service; the coalescing key will be appended to this URL",
