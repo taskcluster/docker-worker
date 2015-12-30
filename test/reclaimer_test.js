@@ -109,7 +109,7 @@ suite('Reclaimer', function() {
   test("non-primary reclaim that fails has no effect except to stop reclaims",
        async function() {
     var claim = makeClaim('fakeTid', 0, soon);
-    var secondClaim = makeClaim('fakeTid', 0, soon);
+    var secondClaim = makeClaim('fakeTid2', 0, soon);
     reclaimer = new Reclaimer(fakeRuntime, fakeTask, claim, secondClaim);
 
     fakeRuntime.queue.reclaimTask = async function(taskId, runId) {
