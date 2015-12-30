@@ -110,15 +110,19 @@ suite('TaskListener.coalesceClaim', function() {
     var claim = makeClaim('fakeTask', 0, task);
     var claims = await listener.coalesceClaim(claim);
     var claimedTasks = claims.map(c => [c.status.taskId, c.runId]);
-    assert.deepEqual(claimedTasks, [['cTask1', 0], ['fakeTask', 0], ['cTask2', 0]]);
+    assert.deepEqual(claimedTasks, [['cTask1', 0], ['cTask2', 0], ['fakeTask', 0]]);
   });
 
-  test("when the coalescer does not return the primary task, just yield the original claim",
+  test("when the coalescer does not return the primary task, claim the new tasks anyway, but return the original claim",
        async function() {
-    nock(COALESCER_URL) .get("/a").reply(200, {'a': ['cTask1', 'cTask2', 'cTask3']});
+    nock(COALESCER_URL) .get("/a").reply(200, {'a': ['cTask1', 'cTask2']});
+    claimTaskResponses['cTask1'] = {status: {taskId: 'cTask1'}, runId: 0}
+    claimTaskResponses['cTask2'] = {status: {taskId: 'cTask2'}, runId: 0}
     var task = makeTask({url: COALESCER_URL, routePrefix: "coalesce.v1"}, ['coalesce.v1.a']);
     var claim = makeClaim('fakeTask', 0, task);
-    assert.deepEqual(await listener.coalesceClaim(claim), [claim]);
+    var claims = await listener.coalesceClaim(claim);
+    var claimedTasks = claims.map(c => [c.status.taskId, c.runId]);
+    assert.deepEqual(claimedTasks, [['cTask1', 0], ['cTask2', 0], ['fakeTask', 0]]);
   });
 
   test("when the coalescer times out, just yield the original claim",
