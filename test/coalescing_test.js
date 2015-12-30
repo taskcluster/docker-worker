@@ -97,13 +97,13 @@ suite('TaskListener.coalesceClaim', function() {
        async function() {
     var task = makeTask({url: COALESCER_URL, routePrefix: "coalesce.v1"}, ['coalesce.v1.a']);
     var claim = makeClaim('fakeTask', 1, task);
-    nock(COALESCER_URL) .get("/a").reply(200, []);
+    nock(COALESCER_URL) .get("/a").reply(200, {'a': []});
     assert.deepEqual(await listener.coalesceClaim(claim), [claim]);
   });
 
   test("coalescing a claim the coalescer knows about claims those tasks too, in order",
        async function() {
-    nock(COALESCER_URL) .get("/a").reply(200, ['cTask1', 'fakeTask', 'cTask2']);
+    nock(COALESCER_URL) .get("/a").reply(200, {'a': ['cTask1', 'fakeTask', 'cTask2']});
     claimTaskResponses['cTask1'] = {status: {taskId: 'cTask1'}, runId: 0}
     claimTaskResponses['cTask2'] = {status: {taskId: 'cTask2'}, runId: 0}
     var task = makeTask({url: COALESCER_URL, routePrefix: "coalesce.v1"}, ['coalesce.v1.a']);
@@ -115,7 +115,7 @@ suite('TaskListener.coalesceClaim', function() {
 
   test("when the coalescer does not return the primary task, just yield the original claim",
        async function() {
-    nock(COALESCER_URL) .get("/a").reply(200, ['cTask1', 'cTask2', 'cTask3']);
+    nock(COALESCER_URL) .get("/a").reply(200, {'a': ['cTask1', 'cTask2', 'cTask3']});
     var task = makeTask({url: COALESCER_URL, routePrefix: "coalesce.v1"}, ['coalesce.v1.a']);
     var claim = makeClaim('fakeTask', 0, task);
     assert.deepEqual(await listener.coalesceClaim(claim), [claim]);
@@ -124,7 +124,7 @@ suite('TaskListener.coalesceClaim', function() {
   test("when the coalescer times out, just yield the original claim",
        async function() {
     listener.coalescerTimeout = 100;
-    nock(COALESCER_URL) .get("/a").delay(400).reply(200, []);
+    nock(COALESCER_URL) .get("/a").delay(400).reply(200, {'a': []});
     var task = makeTask({url: COALESCER_URL, routePrefix: "coalesce.v1"}, ['coalesce.v1.a']);
     var claim = makeClaim('fakeTask', 0, task);
     assert.deepEqual(await listener.coalesceClaim(claim), [claim]);
@@ -132,7 +132,7 @@ suite('TaskListener.coalesceClaim', function() {
 
   test("an error in claiming the secondary claim just omits it",
        async function() {
-    nock(COALESCER_URL) .get("/a").reply(200, ['cTask1', 'fakeTask', 'cTask2']);
+    nock(COALESCER_URL) .get("/a").reply(200, {'a': ['cTask1', 'fakeTask', 'cTask2']});
     claimTaskResponses['cTask1'] = {status: {taskId: 'cTask1'}, runId: 0}
     var task = makeTask({url: COALESCER_URL, routePrefix: "coalesce.v1"}, ['coalesce.v1.a']);
     var claim = makeClaim('fakeTask', 0, task);
