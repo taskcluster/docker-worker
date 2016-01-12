@@ -12,23 +12,31 @@ suite('Reclaimer', function() {
     reclaims = [];
     taskAction = null;
 
+    var fakeReclaimTask = async function(taskId, runId) {
+      reclaims.push({taskId, runId});
+      var newTakenUntil = new Date();
+      newTakenUntil.setMinutes(soon.getMinutes() + 1);
+      return makeClaim(taskId, runId, newTakenUntil);
+    };
+
     fakeRuntime = {
       task: {
         // soon is in 1 minute, so this reclaimDivisor means reclaim every 6s
         reclaimDivisor: 10,
       },
       queue: {
-        reclaimTask: async function(taskId, runId) {
-          reclaims.push({taskId, runId});
-          var newTakenUntil = new Date();
-          newTakenUntil.setMinutes(soon.getMinutes() + 1);
-          return makeClaim(taskId, runId, newTakenUntil);
-        },
+        reclaimTask: fakeReclaimTask
       },
       log: fakeLog,
     };
 
     fakeTask = {
+      queue: {
+        reclaimTask: fakeReclaimTask
+      },
+      createQueue: function(credentials, runtime) {
+        return fakeTask.queue;
+      },
       cancel: function(exception, message) {
         taskAction = {action: 'cancel', exception, message};
       },
@@ -80,11 +88,14 @@ suite('Reclaimer', function() {
     var claim = makeClaim('fakeTid', 0, soon);
     reclaimer = new Reclaimer(fakeRuntime, fakeTask, claim, claim);
 
-    fakeRuntime.queue.reclaimTask = async function(taskId, runId) {
+    var failReclaimTask = async function(taskId, runId) {
       var err = new Error("uhoh");
       err.statusCode = 409;
       throw err;
     };
+
+    fakeRuntime.queue.reclaimTask = failReclaimTask;
+    fakeTask.queue.reclaimTask = failReclaimTask;
 
     await reclaimer.reclaimTask();
     assert.deepEqual(reclaims, []);
@@ -95,11 +106,14 @@ suite('Reclaimer', function() {
     var claim = makeClaim('fakeTid', 0, soon);
     reclaimer = new Reclaimer(fakeRuntime, fakeTask, claim, claim);
 
-    fakeRuntime.queue.reclaimTask = async function(taskId, runId) {
+    var failReclaimTask = async function(taskId, runId) {
       var err = new Error("uhoh");
       err.statusCode = 401;
       throw err;
     };
+
+    fakeRuntime.queue.reclaimTask = failReclaimTask;
+    fakeTask.queue.reclaimTask = failReclaimTask;
 
     await reclaimer.reclaimTask();
     assert.deepEqual(reclaims, []);
@@ -112,11 +126,14 @@ suite('Reclaimer', function() {
     var secondClaim = makeClaim('fakeTid2', 0, soon);
     reclaimer = new Reclaimer(fakeRuntime, fakeTask, claim, secondClaim);
 
-    fakeRuntime.queue.reclaimTask = async function(taskId, runId) {
+    var failReclaimTask = async function(taskId, runId) {
       var err = new Error("uhoh");
       err.statusCode = 409;
       throw err;
     };
+
+    fakeRuntime.queue.reclaimTask = failReclaimTask;
+    fakeTask.queue.reclaimTask = failReclaimTask;
 
     await reclaimer.reclaimTask();
     assert.deepEqual(reclaims, []);
