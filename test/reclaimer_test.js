@@ -7,6 +7,7 @@ suite('Reclaimer', function() {
   var soon;
   var reclaimer;
   var fakeLog = require('debug')('fakeRuntime.log');
+  var EventEmitter = require('events');
 
   setup(function() {
     reclaims = [];
@@ -17,6 +18,24 @@ suite('Reclaimer', function() {
       var newTakenUntil = new Date();
       newTakenUntil.setMinutes(soon.getMinutes() + 1);
       return makeClaim(taskId, runId, newTakenUntil);
+    };
+
+    class FakeTask extends EventEmitter {
+      constructor() {
+        this.queue = { reclaimTask: fakeReclaimTask };
+      }
+
+      createQueue(credentials, runtime) {
+        return this.queue;
+      }
+
+      cancel(exception, message) {
+        taskAction = {action: 'cancel', exception, message};
+      }
+
+      abort(reason) {
+        taskAction = {action: 'abort', reason};
+      }
     };
 
     fakeRuntime = {
@@ -30,20 +49,7 @@ suite('Reclaimer', function() {
       log: fakeLog,
     };
 
-    fakeTask = {
-      queue: {
-        reclaimTask: fakeReclaimTask
-      },
-      createQueue: function(credentials, runtime) {
-        return fakeTask.queue;
-      },
-      cancel: function(exception, message) {
-        taskAction = {action: 'cancel', exception, message};
-      },
-      abort: function(reason) {
-        taskAction = {action: 'abort', reason};
-      },
-    };
+    fakeTask = new FakeTask();
 
     soon = new Date();
     soon.setMinutes(soon.getMinutes() + 1);
@@ -72,6 +78,24 @@ suite('Reclaimer', function() {
     await reclaimer.reclaimTask();
     assert.deepEqual(reclaims, [{taskId: 'fakeTid', runId: 0}]);
     assert.equal(taskAction, null);
+  });
+
+  test('credentials update event emitted', async function() {
+    let claim = makeClaim('fakeTid', 0, soon);
+    reclaimer = new Reclaimer(fakeRuntime, fakeTask, claim, claim);
+
+    let updated = false;
+    fakeTask.on('credentials', credentials => {
+      updated = true;
+    });
+
+    await reclaimer.reclaimTask();
+    assert.equal(taskAction, null);
+
+    // Wait a tick to make sure the event is processed
+    await new Promise((accept) => process.nextTick(() => accept()));
+
+    assert.ok(updated);
   });
 
   test("reclaim after stop does nothing", async function() {
