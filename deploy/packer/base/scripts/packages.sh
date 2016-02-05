@@ -2,6 +2,8 @@
 
 set -e -x
 
+DOCKER_VERSION=1.10.0-0~trusty
+
 lsb_release -a
 
 # add docker group and add current user to it
@@ -14,8 +16,9 @@ sudo apt-get update -y
   apt-get install apt-transport-https
 }
 
-sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9
-sudo sh -c "echo deb https://get.docker.io/ubuntu docker main\
+# Add docker gpg key and update sources
+sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+sudo sh -c "echo deb https://apt.dockerproject.org/repo ubuntu-trusty main\
 > /etc/apt/sources.list.d/docker.list"
 
 ## Update to pick up new registries
@@ -24,7 +27,7 @@ sudo apt-get update -y
 ## Install all the packages
 sudo apt-get install -y \
     unattended-upgrades \
-    lxc-docker-1.6.1 \
+    docker-engine=$DOCKER_VERSION \
     btrfs-tools \
     lvm2 \
     curl \

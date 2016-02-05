@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     curl \
     ca-certificates \
-    docker-engine=1.9.1-0~trusty \
+    docker-engine=1.10.0-0~trusty \
     git \
     iptables \
     lxc \
