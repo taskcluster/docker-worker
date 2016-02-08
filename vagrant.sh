@@ -1,29 +1,33 @@
-#! /bin/bash -vex
+#! /bin/bash
+
+set -e -v -x
 
 sudo ln -s /vagrant /worker
 
 NODE_VERSION=v0.12.4
 DOCKER_VERSION=1.6.1
 
-# Install node
+NODE_VERSION=v0.12.4
+DOCKER_VERSION=1.10.1-0~trusty
+
 cd /usr/local/ && \
   curl https://nodejs.org/dist/$NODE_VERSION/node-$NODE_VERSION-linux-x64.tar.gz | tar -xz --strip-components 1 && \
   node -v
 
 sudo apt-get install apt-transport-https
 
-sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9
-sudo sh -c "echo deb https://get.docker.io/ubuntu docker main\
-> /etc/apt/sources.list.d/docker.list"
+# Add key for docker apt repository
+sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D && \
+    echo "deb https://apt.dockerproject.org/repo ubuntu-trusty main" > /etc/apt/sources.list.d/docker.list
 
-sudo apt-get update -y
-sudo apt-get install -y \
-    lxc \
-    lxc-docker-$DOCKER_VERSION \
+sudo apt-get update
+sudo apt-get install -y --no-install-recommends \
     build-essential \
-    jq
+    docker-engine=$DOCKER_VERSION \
+    jq \
+    lxc \
 
-# Add vagrant user to the docker group
+# add docker group and add current user to it
 sudo usermod -a -G docker vagrant
 
 # Install Video loopback devices
