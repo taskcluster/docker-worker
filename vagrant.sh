@@ -8,7 +8,7 @@ NODE_VERSION=v0.12.4
 DOCKER_VERSION=1.6.1
 
 NODE_VERSION=v0.12.4
-DOCKER_VERSION=1.10.1-0~trusty
+DOCKER_VERSION=1.10.0-0~trusty
 
 cd /usr/local/ && \
   curl https://nodejs.org/dist/$NODE_VERSION/node-$NODE_VERSION-linux-x64.tar.gz | tar -xz --strip-components 1 && \
