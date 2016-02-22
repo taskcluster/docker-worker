@@ -1,8 +1,8 @@
 #! /bin/bash
 
-set -e -x
+set -e -v
 
-DOCKER_VERSION=1.10.0-0~trusty
+DOCKER_VERSION=1.10.1-0~trusty
 
 lsb_release -a
 
