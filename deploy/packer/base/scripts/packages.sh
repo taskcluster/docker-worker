@@ -3,7 +3,7 @@
 set -e -v
 
 DOCKER_VERSION=1.10.1-0~trusty
-# Kernels <= 3.13.0.77 and >= 3.13.0.71 have an AUFS bug which can cause docker
+# Kernels < 3.13.0.77 and > 3.13.0.71 have an AUFS bug which can cause docker
 # containers to not exit properly because of zombie processes that can't be reaped.
 KERNEL_VERSION=3.13.0-79-generic
 
