@@ -2,7 +2,7 @@ FROM ubuntu:14.04
 
 ENV NODE_VERSION 0.12.4
 ENV NPM_VERSION 2.10.1
-ENV DOCKER_VERSION 1.10.0-0~trusty
+ENV DOCKER_VERSION 1.10.1-0~trusty
 
 RUN apt-get install -y apt-transport-https
 
