@@ -4,8 +4,8 @@
   "variables": {
     "npmPackage":          "",
     "templateContents":    "",
-    "hvmSourceAMI":        "ami-cecb29ae",
-    "pvSourceAMI":         "ami-3cc4265c",
+    "hvmSourceAMI":        "ami-cd05e7ad",
+    "pvSourceAMI":         "ami-0d0ae86d",
     "fsType":              "",
     "workerRevision":      ""
   },
@@ -72,14 +72,6 @@
         "Revision":         "{{user `workerRevision`}}",
         "Base_AMI":         "{{user `pvSourceAMI`}}"
       }
-    }
-  ],
-
-  "post-processors": [
-    {
-      "type": "vagrant",
-      "output": "app.box",
-      "keep_input_artifact": true
     }
   ]
 }
