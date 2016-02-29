@@ -48,8 +48,6 @@ root            (hd0)
 kernel          /boot/vmlinuz-${KERNEL_VER} root=LABEL=cloudimg-rootfs ro console=hvc0
 initrd          /boot/initrd.img-${KERNEL_VER}
 
-
-## Update to pick up new registries
 title           Ubuntu 14.04.2 LTS, kernel ${KERNEL_VER} (recovery mode)
 root            (hd0)
 kernel          /boot/vmlinuz-${KERNEL_VER} root=LABEL=cloudimg-rootfs ro  single
@@ -97,7 +95,7 @@ sudo dkms build -m v4l2loopback -v $V4L2LOOPBACK_VERSION -k ${KERNEL_VER}
 
 echo "v4l2loopback" | sudo tee --append /etc/modules
 
-cat <<EOF | sudo tee /etc/modprobe.d/test-modules.conf >&2
+cat <<EOF | sudo tee --append /etc/modprobe.d/test-modules.conf >&2
 options v4l2loopback devices=100
 EOF
 
@@ -105,6 +103,6 @@ EOF
 # Install Audio loopback devices
 echo "snd-aloop" | sudo tee --append /etc/modules
 
-cat <<EOF | sudo tee /etc/modprobe.d/test-modules.conf >&2
+cat <<EOF | sudo tee --append /etc/modprobe.d/test-modules.conf >&2
 options snd-aloop enable=1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 index=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29
 EOF
