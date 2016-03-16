@@ -26,7 +26,12 @@ suite('garbage collection tests', function () {
       delayFactor: 15 * 1000,
       randomizationFactor: 0.25
     },
-    log: logger()
+    log: logger(),
+    stats: {
+      timeGen: async function (series, fn) {
+        return await fn;
+      }
+    }
   });
 
   function* getImageId(docker, imageName) {

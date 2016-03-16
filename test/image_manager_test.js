@@ -24,7 +24,12 @@ suite('Image Manager', () => {
     let runtime = {
       docker: docker,
       dockerConfig: DOCKER_CONFIG,
-      log: createLogger()
+      log: createLogger(),
+      stats: {
+        timeGen: async function (series, fn) {
+          return await fn;
+        }
+      }
     };
 
     let im = new ImageManager(runtime);
@@ -51,7 +56,12 @@ suite('Image Manager', () => {
       docker: docker,
       dockerConfig: DOCKER_CONFIG,
       dockerVolume: '/tmp',
-      log: createLogger()
+      log: createLogger(),
+      stats: {
+        timeGen: async function (series, fn) {
+          return await fn;
+        }
+      }
     };
 
     let im = new ImageManager(runtime);
@@ -81,7 +91,12 @@ suite('Image Manager', () => {
       docker: docker,
       dockerConfig: DOCKER_CONFIG,
       dockerVolume: '/tmp',
-      log: createLogger()
+      log: createLogger(),
+      stats: {
+        timeGen: async function (series, fn) {
+          return await fn;
+        }
+      }
     };
 
     let im = new ImageManager(runtime);
@@ -109,7 +124,12 @@ suite('Image Manager', () => {
       docker: docker,
       dockerConfig: DOCKER_CONFIG,
       dockerVolume: '/tmp',
-      log: createLogger()
+      log: createLogger(),
+      stats: {
+        timeGen: async function (series, fn) {
+          return await fn;
+        }
+      }
     };
 
     let im = new ImageManager(runtime);
@@ -142,7 +162,12 @@ suite('Image Manager', () => {
       docker: docker,
       dockerConfig: DOCKER_CONFIG,
       dockerVolume: '/tmp',
-      log: createLogger()
+      log: createLogger(),
+      stats: {
+        timeGen: async function (series, fn) {
+          return await fn;
+        }
+      }
     };
 
     let im = new ImageManager(runtime);
@@ -169,7 +194,12 @@ suite('Image Manager', () => {
       docker: docker,
       dockerConfig: DOCKER_CONFIG,
       dockerVolume: '/tmp',
-      log: createLogger()
+      log: createLogger(),
+      stats: {
+        timeGen: async function (series, fn) {
+          return await fn;
+        }
+      }
     };
 
     let im = new ImageManager(runtime);
@@ -189,7 +219,12 @@ suite('Image Manager', () => {
       docker: docker,
       dockerConfig: DOCKER_CONFIG,
       dockerVolume: '/tmp',
-      log: createLogger()
+      log: createLogger(),
+      stats: {
+        timeGen: async function (series, fn) {
+          return await fn;
+        }
+      }
     };
 
     let im = new ImageManager(runtime);
@@ -215,7 +250,12 @@ suite('Image Manager', () => {
       docker: docker,
       dockerConfig: DOCKER_CONFIG,
       dockerVolume: '/tmp',
-      log: createLogger()
+      log: createLogger(),
+      stats: {
+        timeGen: async function (series, fn) {
+          return await fn;
+        }
+      }
     };
 
     let im = new ImageManager(runtime);
@@ -240,7 +280,12 @@ suite('Image Manager', () => {
       docker: docker,
       dockerConfig: DOCKER_CONFIG,
       dockerVolume: '/tmp',
-      log: createLogger()
+      log: createLogger(),
+      stats: {
+        timeGen: async function (series, fn) {
+          return await fn;
+        }
+      }
     };
 
     let im = new ImageManager(runtime);
