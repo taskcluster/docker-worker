@@ -17,6 +17,11 @@ const DOCKER_CONFIG = {
   randomizationFactor: 0.25
 };
 
+async function timeGen(series, fn) {
+  assert(typeof fn.then === 'function', 'Function does not appear to be a promise');
+  return await fn;
+}
+
 suite('Image Manager', () => {
   test('download docker image from registry', async () => {
     let image = 'gliderlabs/alpine:latest';
@@ -26,9 +31,7 @@ suite('Image Manager', () => {
       dockerConfig: DOCKER_CONFIG,
       log: createLogger(),
       stats: {
-        timeGen: async function (series, fn) {
-          return await fn;
-        }
+        timeGen: timeGen
       }
     };
 
@@ -58,9 +61,7 @@ suite('Image Manager', () => {
       dockerVolume: '/tmp',
       log: createLogger(),
       stats: {
-        timeGen: async function (series, fn) {
-          return await fn;
-        }
+        timeGen: timeGen
       }
     };
 
@@ -93,9 +94,7 @@ suite('Image Manager', () => {
       dockerVolume: '/tmp',
       log: createLogger(),
       stats: {
-        timeGen: async function (series, fn) {
-          return await fn;
-        }
+        timeGen: timeGen
       }
     };
 
@@ -126,9 +125,7 @@ suite('Image Manager', () => {
       dockerVolume: '/tmp',
       log: createLogger(),
       stats: {
-        timeGen: async function (series, fn) {
-          return await fn;
-        }
+        timeGen: timeGen
       }
     };
 
@@ -164,9 +161,7 @@ suite('Image Manager', () => {
       dockerVolume: '/tmp',
       log: createLogger(),
       stats: {
-        timeGen: async function (series, fn) {
-          return await fn;
-        }
+        timeGen: timeGen
       }
     };
 
@@ -196,9 +191,7 @@ suite('Image Manager', () => {
       dockerVolume: '/tmp',
       log: createLogger(),
       stats: {
-        timeGen: async function (series, fn) {
-          return await fn;
-        }
+        timeGen: timeGen
       }
     };
 
@@ -221,9 +214,7 @@ suite('Image Manager', () => {
       dockerVolume: '/tmp',
       log: createLogger(),
       stats: {
-        timeGen: async function (series, fn) {
-          return await fn;
-        }
+        timeGen: timeGen
       }
     };
 
@@ -252,9 +243,7 @@ suite('Image Manager', () => {
       dockerVolume: '/tmp',
       log: createLogger(),
       stats: {
-        timeGen: async function (series, fn) {
-          return await fn;
-        }
+        timeGen: timeGen
       }
     };
 
@@ -282,9 +271,7 @@ suite('Image Manager', () => {
       dockerVolume: '/tmp',
       log: createLogger(),
       stats: {
-        timeGen: async function (series, fn) {
-          return await fn;
-        }
+        timeGen: timeGen
       }
     };
 
