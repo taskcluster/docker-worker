@@ -175,7 +175,8 @@ async function main () {
   let monitor = await base.monitor({
     project: 'docker-worker',
     credentials: config.taskcluster,
-    mock: profile === 'test'
+    mock: profile === 'test',
+    reportUsage: false
   });
 
   config.monitor = monitor.prefix(
