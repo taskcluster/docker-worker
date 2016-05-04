@@ -117,7 +117,7 @@ o('--worker-node-type <worker-node-type>', 'override the worker node type');
 program.parse(process.argv);
 
 // Main.
-async function main () {
+async () => {
   var profile = program.args[0];
 
   if (!profile) {
@@ -300,10 +300,4 @@ async function main () {
       taskListener.once('idle', halt);
     });
   }
-}
-
-main().catch((err) => {
-  // Top level uncaught fatal errors!
-  console.error(err.stack);
-  throw err; // nothing to do so show a message and crash
-});
+}();
