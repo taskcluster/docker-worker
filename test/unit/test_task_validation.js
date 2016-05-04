@@ -8,7 +8,6 @@ import { PAYLOAD_SCHEMA } from '../../lib/task.js';
 suite('Task validation', async function() {
   before(async function() {
     this.validator = await base.validator({
-      folder: path.join(__dirname, '..', '..', 'schemas'),
       prefix: 'docker-worker/v1/'
     });
   });

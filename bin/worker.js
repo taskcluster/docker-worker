@@ -192,7 +192,6 @@ async function main () {
   });
 
   config.validator = await base.validator({
-    folder: path.join(__dirname, '..', 'schemas'),
     prefix: config.schema.path
   });
 
