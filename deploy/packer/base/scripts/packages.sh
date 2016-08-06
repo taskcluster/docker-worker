@@ -79,7 +79,9 @@ sudo apt-get install -y \
     jq \
     rsyslog-gnutls \
     openvpn \
-    lxc
+    lxc \
+    # Used to create some entropy on the system for generating gpg keys
+    rngd
 
 ## Clear mounts created in base image so fstab is empty in other builds...
 sudo sh -c 'echo "" > /etc/fstab'
