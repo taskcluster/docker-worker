@@ -14,7 +14,7 @@ suite('certificate of trust', () => {
       payload: {
         image: 'taskcluster/test-ubuntu',
         features: {
-          certificateOfTrust: true
+          generateCertificate: true
         },
         command: cmd(
           'mkdir /artifacts/',
