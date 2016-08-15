@@ -80,5 +80,7 @@ suite('certificate of trust', () => {
 
     assert.equal(data.extra.privateIpAddress, '169.254.1.1');
     assert.equal(data.extra.publicIpAddress, '127.0.0.1');
+    assert.equal(data.extra.instanceId, 'test-worker-instance');
+    assert.equal(data.extra.instanceType, 'r3-superlarge');
   });
 });
