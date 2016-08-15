@@ -77,5 +77,8 @@ suite('certificate of trust', () => {
     for (let artifact of data.artifacts) {
       assert.equal(expectedHashes[artifact.name], artifact.hash);
     }
+
+    assert.equal(data.extra.privateIpAddress, '169.254.1.1');
+    assert.equal(data.extra.publicIpAddress, '127.0.0.1');
   });
 });
