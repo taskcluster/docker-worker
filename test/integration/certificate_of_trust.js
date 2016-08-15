@@ -68,9 +68,9 @@ suite('certificate of trust', () => {
     logHash.update(result.log);
 
     let expectedHashes = {
-      'public/xfoo': 'cebff86446aff2b1039749f09ef2922f9ad4f35ea2576a84e206708d8e8bf7b4',
-      'public/bar': '7d865e959b2466918c9863afca942d0fb89d7c9ac0c99bafc3749504ded97730',
-      'public/logs/certified.log': logHash.digest('hex')
+      'public/xfoo': 'sha256:cebff86446aff2b1039749f09ef2922f9ad4f35ea2576a84e206708d8e8bf7b4',
+      'public/bar': 'sha256:7d865e959b2466918c9863afca942d0fb89d7c9ac0c99bafc3749504ded97730',
+      'public/logs/certified.log': `sha256:${logHash.digest('hex')}`
     };
 
     let data = JSON.parse(verified.data);
