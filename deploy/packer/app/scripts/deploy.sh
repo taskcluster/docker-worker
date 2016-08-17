@@ -53,7 +53,7 @@ sudo depmod
 
 
 # Generate enough entropy to allow for gpg key generation
-rngd -r /dev/urandom
+sudo rngd -r /dev/urandom
 
 # Generate gpg key
 cat >gen_key_conf <<EOF
@@ -66,9 +66,13 @@ cat >gen_key_conf <<EOF
   %echo Done generating key
 EOF
 
-gpg --batch --gen-key gen_key_conf
+echo "Generating public signing key"
+sudo gpg --batch --gen-key gen_key_conf
 rm gen_key_conf
 
-gpg -a --export-secret-keys > /etc/gpg_signing_key.key
 echo "Exporting public signing key"
-gpg -a --export
+sudo gpg -a --export-secret-keys > docker-worker-gpg-signing-key.key
+sudo mv docker-worker-gpg-signing-key.key /etc
+
+echo "Public signing key"
+sudo gpg -a --export

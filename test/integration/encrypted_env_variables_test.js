@@ -58,7 +58,6 @@ suite('encrypted private env variables', function() {
         var result = new Buffer(unarmoredEncryptedData.data, 'binary').toString('base64');
         return result;
       }).catch(function(error) {
-        console.log(error.stack);
         throw('Unable to encrypt data: ' + error);
       });
     }));

@@ -80,8 +80,7 @@ sudo apt-get install -y \
     rsyslog-gnutls \
     openvpn \
     lxc \
-    # Used to create some entropy on the system for generating gpg keys
-    rngd
+    rng-tools
 
 ## Clear mounts created in base image so fstab is empty in other builds...
 sudo sh -c 'echo "" > /etc/fstab'
