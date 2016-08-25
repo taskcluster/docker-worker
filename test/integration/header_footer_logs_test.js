@@ -53,6 +53,7 @@ suite('Header/Footer logs', () => {
       tcLogs[2].includes(`Worker Group: ${result.run.workerGroup}`),
       `Log header does not include worker group. Log Line: ${tcLogs[2]}`
     );
+    assert.ok(
       tcLogs[3].includes('Worker Node Type: test-worker'),
       `Log header does not include worker node type. Log Line: ${tcLogs[3]}`
     );
