@@ -5,5 +5,8 @@ export const NAMESPACE = 'garbage.docker-worker-tests.docker-images.P3nOQmLVSzGa
 
 export const TASK_ID = 'Nj-YlJwFSMez_eqh2fBI3g';
 
-// Task which has an image.tar compressed using lz4
+// LZ4 compressed image
 export const LZ4_TASK_ID = 'Bs7M5ZpLRy-Wz_WdwjJrNw';
+
+// Zstandard compressed impage
+export const ZSTD_TASK_ID = 'NbX_D1kMQ26AG0MV-elObg';
