@@ -28,10 +28,10 @@ suite('retry intermittent tasks', () => {
       }
     });
 
-    assert(result.run.state === 'pending', 'new pending run should be created');
-    assert(result.run.reasonCreated === 'task-retry', 'run should have been created becaus eof task retry');
-    assert(result.status.runs.length === 2);
-    assert(result.status.runs[0].reasonResolved === 'intermittent-task');
+    assert.equal(result.run.state, 'pending', 'new pending run should be created');
+    assert.equal(result.run.reasonCreated, 'task-retry', 'run should have been created because of task retry');
+    assert.equal(result.status.runs.length, 2);
+    assert.equal(result.status.runs[0].reasonResolved, 'intermittent-task');
   });
 
   test('failed task is not retried', async () => {
@@ -46,9 +46,9 @@ suite('retry intermittent tasks', () => {
       }
     });
 
-    assert(result.run.state === 'failed', 'task should fail');
-    assert(result.run.reasonResolved === 'failed', 'task should fail');
-    assert(result.status.runs.length === 1);
+    assert.equal(result.run.state, 'failed', 'task should fail');
+    assert.equal(result.run.reasonResolved, 'failed', 'task should fail');
+    assert.equal(result.status.runs.length, 1);
   });
 
   test('successful task is not retried', async () => {
@@ -63,8 +63,8 @@ suite('retry intermittent tasks', () => {
       }
     });
 
-    assert(result.run.state === 'completed', 'task should not fail or be retried');
-    assert(result.run.reasonResolved === 'completed', 'task should not or be retried');
-    assert(result.status.runs.length === 1);
+    assert.equal(result.run.state, 'completed', 'task should not fail or be retried');
+    assert.equal(result.run.reasonResolved, 'completed', 'task should not or be retried');
+    assert.equal(result.status.runs.length, 1);
   });
 });
