@@ -89,7 +89,7 @@ suite('Capacity', function() {
 
     // Wait for the first claim to start timing.  This weeds out any issues with
     // waiting for the task queue to be polled
-    yield waitForEvent(worker, 'claim task');
+    yield waitForEvent(worker, 'claimed task');
     var start = Date.now();
 
     var results = yield tasks;
