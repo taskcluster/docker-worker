@@ -47,12 +47,7 @@ suite('Capacity', function() {
         diskspaceThreshold: 1
       },
       taskQueue: {
-        // Make the poll very high so that once tasks start, it will not
-        // poll again to interupt the event loop
-        pollInterval: 30 * 1000,
-        expiration: 5 * 60 * 1000,
-        maxRetries: 5,
-        requestRetryInterval: 2 * 1000
+        pollInterval: 1000
       }
     });
 
