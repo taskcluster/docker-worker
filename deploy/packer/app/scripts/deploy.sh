@@ -27,6 +27,8 @@ cd $target
 tar xzf $docker_worker_source -C $target --strip-components=1
 sudo chown -R $USER:$USER /home/ubuntu/docker_worker
 
+sudo npm install -g babel-cli
+
 retry_count=0
 max_retries=5
 until [ $retry_count -gt $max_retries ]; do
@@ -42,15 +44,12 @@ if [ $retry_count -ge $max_retries ]; then
 fi
 
 npm rebuild
-sudo npm install -g babel@4.7.16
 
 # Initialize video and sound loopback modules
 sudo modprobe v4l2loopback
 sudo modprobe snd-aloop
 # Create dependency file
 sudo depmod
-
-
 
 # Generate enough entropy to allow for gpg key generation
 sudo rngd -r /dev/urandom

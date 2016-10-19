@@ -1,23 +1,24 @@
-suite('volume cache tests', function () {
-  var settings = require('../settings');
-  var co = require('co');
-  var cmd = require('./helper/cmd');
-  var fs = require('fs');
-  var rmrf = require('rimraf');
-  var path = require('path');
-  var testworker = require('../post_task');
-  var DockerWorker = require('../dockerworker');
-  var TestWorker = require('../testworker');
-  var waitForEvent = require('../../lib/wait_for_event');
-  var taskcluster = require('taskcluster-client');
-  var slugid = require('slugid');
+import assert from 'assert';
+import * as settings from '../settings';
+import cmd from './helper/cmd';
+import fs from 'fs';
+import rmrf from 'rimraf';
+import path from 'path';
+import testworker from '../post_task';
+import DockerWorker from '../dockerworker';
+import TestWorker from '../testworker';
+import waitForEvent from '../../build/lib/wait_for_event';
+import taskcluster from 'taskcluster-client';
+import slugid from 'slugid';
+
+suite('volume cache tests', () => {
 
   var localCacheDir = path.join(__dirname, '..', 'tmp');
-  var volumeCacheDir = path.join('/', 'worker', 'test', 'tmp');
+  var volumeCacheDir = path.join('/', 'worker', '.test', 'tmp');
 
   var purgeCache;
 
-  setup(function () {
+  setup(() => {
     purgeCache = new taskcluster.PurgeCache({
       credentials: {
         clientId: process.env.TASKCLUSTER_CLIENT_ID,
@@ -26,7 +27,7 @@ suite('volume cache tests', function () {
     });
   });
 
-  teardown(function () {
+  teardown(() => {
     settings.cleanup();
 
     if (fs.existsSync(localCacheDir)) {
@@ -34,7 +35,7 @@ suite('volume cache tests', function () {
     }
   });
 
-  test('mount cached volume in docker worker', co(function* () {
+  test('mount cached volume in docker worker', async () => {
     var cacheName = 'docker-worker-garbage-caches-tmp-obj-dir-' + Date.now().toString();
     var neededScope = 'docker-worker:cache:' + cacheName;
     var fullCacheDir = path.join(localCacheDir, cacheName);
@@ -62,7 +63,7 @@ suite('volume cache tests', function () {
 
     task.payload.cache[cacheName] = '/tmp-obj-dir';
 
-    var result = yield testworker(task);
+    var result = await testworker(task);
 
     // Get task specific results
     assert.equal(result.run.state, 'completed');
@@ -72,8 +73,9 @@ suite('volume cache tests', function () {
 
     var objDir = fs.readdirSync(fullCacheDir);
     assert.ok(fs.existsSync(path.join(fullCacheDir, objDir[0], 'foo.txt')));
-  }));
+  });
 
+<<<<<<< d30207e5d3a163872ce82704b7d3fee2c06a2e71
   test('mount cached volume in docker worker using role', co(function* () {
     // This is the same as the regular success case but instead it uses roles
     // instead of an explicit scope for the cache
@@ -117,6 +119,10 @@ suite('volume cache tests', function () {
 
   test('mounted cached volumes are not reused between tasks', co(function* () {
     var cacheName = 'docker-worker-garbage-caches-tmp-obj-dir-' + Date.now().toString();
+=======
+  test('mounted cached volumes are not reused between tasks', async () => {
+    var cacheName = 'tmp-obj-dir-' + Date.now().toString();
+>>>>>>> Modernize node environment
     var neededScope = 'docker-worker:cache:' + cacheName;
 
     settings.configure({
@@ -127,7 +133,7 @@ suite('volume cache tests', function () {
     });
 
     var worker = new TestWorker(DockerWorker);
-    yield worker.launch();
+    await worker.launch();
 
     var tasks = [];
 
@@ -155,18 +161,23 @@ suite('volume cache tests', function () {
       tasks.push(worker.postToQueue(task));
     }
 
-    var results = yield tasks;
-    yield worker.terminate();
+    var results = await Promise.all(tasks);
+    await worker.terminate();
 
     assert.ok(results.length === 2);
     assert.ok(results[0].log.indexOf('file0.txt') !== -1);
     assert.ok(results[0].log.indexOf('file1.txt') === -1);
     assert.ok(results[1].log.indexOf('file1.txt') !== -1);
     assert.ok(results[1].log.indexOf('file0.txt') === -1);
-  }));
+  });
 
+<<<<<<< d30207e5d3a163872ce82704b7d3fee2c06a2e71
   test('cached volumes can be reused between tasks', co(function* () {
     var cacheName = 'docker-worker-garbage-caches-tmp-obj-dir-' + Date.now().toString();
+=======
+  test('cached volumes can be reused between tasks', async () => {
+    var cacheName = 'tmp-obj-dir-' + Date.now().toString();
+>>>>>>> Modernize node environment
     var fullCacheDir = path.join(localCacheDir, cacheName);
     var neededScope = 'docker-worker:cache:' + cacheName;
 
@@ -186,7 +197,7 @@ suite('volume cache tests', function () {
     });
 
     var worker = new TestWorker(DockerWorker);
-    yield worker.launch();
+    await worker.launch();
 
     var task = {
       payload: {
@@ -206,26 +217,32 @@ suite('volume cache tests', function () {
 
     task.payload.cache[cacheName] = '/tmp-obj-dir';
 
-    var result1 = yield [
+    var result1 = await Promise.all([
       worker.postToQueue(task),
       waitForEvent(worker, 'cache volume release')
-    ];
+    ]);
     result1 = result1[0];
 
     task.payload.command = cmd('cat /tmp-obj-dir/foo.txt');
     task.payload.features.localLiveLog = true;
 
-    var result2 = yield worker.postToQueue(task);
-    yield worker.terminate();
+    var result2 = await worker.postToQueue(task);
+    await worker.terminate();
 
     assert.equal(result2.run.state, 'completed');
     assert.equal(result2.run.reasonResolved, 'completed');
     assert.ok(result2.log.indexOf('This is a shared file') !== -1);
-  }));
+  });
 
+<<<<<<< d30207e5d3a163872ce82704b7d3fee2c06a2e71
   test('mount multiple cached volumes in docker worker', co(function* () {
     var cacheName1 = 'docker-worker-garbage-caches-tmp-obj-dir-' + Date.now().toString();
     var cacheName2 = 'docker-worker-garbage-caches-tmp-obj-dir-' + (Date.now()+1).toString();
+=======
+  test('mount multiple cached volumes in docker worker', async () => {
+    var cacheName1 = 'tmp-obj-dir-' + Date.now().toString();
+    var cacheName2 = 'tmp-obj-dir-' + (Date.now()+1).toString();
+>>>>>>> Modernize node environment
 
     var neededScopes = [];
     neededScopes.push('docker-worker:cache:' + cacheName1);
@@ -260,7 +277,7 @@ suite('volume cache tests', function () {
     task.payload.cache[cacheName1] = '/tmp-obj-dir1';
     task.payload.cache[cacheName2] = '/tmp-obj-dir2';
 
-    var result = yield testworker(task);
+    var result = await testworker(task);
 
     // Get task specific results
     assert.equal(result.run.state, 'completed');
@@ -271,12 +288,18 @@ suite('volume cache tests', function () {
 
     objDir = fs.readdirSync(fullCache2Dir);
     assert.ok(fs.existsSync(path.join(fullCache2Dir, objDir[0], 'bar.txt')));
-  }));
+  });
 
   test('task unsuccesful when insufficient cache scope is provided',
+<<<<<<< d30207e5d3a163872ce82704b7d3fee2c06a2e71
     co(function* () {
       var cacheName = 'docker-worker-garbage-caches-tmp-obj-dir-' + Date.now().toString();
       var neededScope = 'docker-worker:cache:docker-worker-garbage-caches-1' + cacheName;
+=======
+    async () => {
+      var cacheName = 'tmp-obj-dir-' + Date.now().toString();
+      var neededScope = 'docker-worker:cache:1' + cacheName;
+>>>>>>> Modernize node environment
       var fullCacheDir = path.join(localCacheDir, cacheName);
 
       var task = {
@@ -293,7 +316,7 @@ suite('volume cache tests', function () {
 
       task.payload.cache[cacheName] = '/tmp-obj-dir';
 
-      var result = yield testworker(task);
+      var result = await testworker(task);
 
       // Get task specific results
       assert.equal(result.run.state, 'failed',
@@ -310,12 +333,17 @@ suite('volume cache tests', function () {
         'Volume cache created cached volume directory when it should not ' +
         'have.'
       );
-    })
+    }
   );
 
   test('task unsuccesful when invalid cache name is requested',
+<<<<<<< d30207e5d3a163872ce82704b7d3fee2c06a2e71
     co(function* () {
       var cacheName = 'docker-worker-garbage-caches-tmp-obj-dir::-' + Date.now().toString();
+=======
+    async () => {
+      var cacheName = 'tmp-obj-dir::-' + Date.now().toString();
+>>>>>>> Modernize node environment
       var neededScope = 'docker-worker:cache:' + cacheName;
       var fullCacheDir = path.join(localCacheDir, cacheName);
 
@@ -337,7 +365,7 @@ suite('volume cache tests', function () {
 
       task.payload.cache[cacheName] = '/tmp-obj-dir';
 
-      var result = yield testworker(task);
+      var result = await testworker(task);
 
       // Get task specific results
       assert.equal(result.run.state, 'failed',
@@ -354,11 +382,16 @@ suite('volume cache tests', function () {
         'Volume cache created cached volume directory when it should not ' +
         'have.'
       );
-    })
+    }
   );
 
+<<<<<<< d30207e5d3a163872ce82704b7d3fee2c06a2e71
   test('cached volumes of aborted tasks are released', co(function* () {
     var cacheName = 'docker-worker-garbage-caches-tmp-obj-dir-' + Date.now().toString();
+=======
+  test('cached volumes of aborted tasks are released', async () => {
+    var cacheName = 'tmp-obj-dir-' + Date.now().toString();
+>>>>>>> Modernize node environment
     var neededScope = 'docker-worker:cache:' + cacheName;
     var fullCacheDir = path.join(localCacheDir, cacheName);
     settings.configure({
@@ -394,20 +427,25 @@ suite('volume cache tests', function () {
     task.payload.cache[cacheName] = '/tmp-obj-dir';
 
     var worker = new TestWorker(DockerWorker);
-    yield worker.launch();
+    await worker.launch();
 
     worker.postToQueue(task);
-    yield waitForEvent(worker, 'task max runtime timeout');
-    var releasedVolume = yield waitForEvent(worker, 'cache volume release');
+    await waitForEvent(worker, 'task max runtime timeout');
+    var releasedVolume = await waitForEvent(worker, 'cache volume release');
     assert.ok(
       releasedVolume.key.indexOf(cacheName) !== -1,
       'Cached volume was not released'
     );
-    yield worker.terminate();
-  }));
+    await worker.terminate();
+  });
 
+<<<<<<< d30207e5d3a163872ce82704b7d3fee2c06a2e71
   test('purge cache after run task', co(function* () {
     var cacheName = 'docker-worker-garbage-caches-tmp-obj-dir-' + Date.now().toString();
+=======
+  test('purge cache after run task', async () => {
+    var cacheName = 'tmp-obj-dir-' + Date.now().toString();
+>>>>>>> Modernize node environment
     var neededScope = 'docker-worker:cache:' + cacheName;
     var fullCacheDir = path.join(localCacheDir, cacheName);
     settings.configure({
@@ -438,28 +476,33 @@ suite('volume cache tests', function () {
     task.payload.cache[cacheName] = '/tmp-obj-dir';
 
     let worker = new TestWorker(DockerWorker);
-    yield worker.launch();
-    let result = yield worker.postToQueue(task);
+    await worker.launch();
+    let result = await worker.postToQueue(task);
 
     assert.equal(result.run.state, 'completed');
     assert.equal(result.run.reasonResolved, 'completed');
 
-    yield [
+    await Promise.all([
       purgeCache.purgeCache(
         worker.provisionerId,
         worker.workerType, {
           cacheName: cacheName
       }),
       waitForEvent(worker, 'cache volume removed')
-    ]
+    ]);
 
-      yield worker.terminate()
+    await worker.terminate();
 
     assert.equal(fs.readdirSync(fullCacheDir).length, 0);
-  }));
+  });
 
+<<<<<<< d30207e5d3a163872ce82704b7d3fee2c06a2e71
   test('purge cache during run task', co(function* () {
     var cacheName = 'docker-worker-garbage-caches-tmp-obj-dir-' + Date.now().toString();
+=======
+  test('purge cache during run task', async () => {
+    var cacheName = 'tmp-obj-dir-' + Date.now().toString();
+>>>>>>> Modernize node environment
     var neededScope = 'docker-worker:cache:' + cacheName;
     var fullCacheDir = path.join(localCacheDir, cacheName);
     settings.configure({
@@ -492,28 +535,28 @@ suite('volume cache tests', function () {
     let worker = new TestWorker(DockerWorker);
 
     var task_ran = false;
-    worker.on('task run', co(function* () {
-      yield [
+    worker.on('task run', async () => {
+      await Promise.all([
         purgeCache.purgeCache(
           worker.provisionerId,
           worker.workerType, {
             cacheName: cacheName
         }),
         waitForEvent(worker, 'cache volume removed')
-      ];
+      ]);
 
       task_ran = true;
-    }));
+    });
 
-    yield worker.launch();
-    let result = yield worker.postToQueue(task);
+    await worker.launch();
+    let result = await worker.postToQueue(task);
 
     assert.equal(result.run.state, 'completed');
     assert.equal(result.run.reasonResolved, 'completed');
 
-    yield worker.terminate();
+    await worker.terminate();
 
     assert.ok(task_ran);
     assert.equal(fs.readdirSync(fullCacheDir).length, 0);
-  }));
+  });
 });

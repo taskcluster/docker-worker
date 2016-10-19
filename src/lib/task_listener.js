@@ -3,17 +3,18 @@ Primary interface which handles listening for messages and initializing the
 execution of tasks.
 */
 
-var QUEUE_PREFIX = 'worker/v1/';
 
+import TaskQueue from './queueservice';
+import DeviceManager from './devices/device_manager';
 var debug = require('debug')('docker-worker:task-listener');
 var taskcluster = require('taskcluster-client');
 
 var { Task } = require('./task');
 var request = require('superagent-promise');
 var EventEmitter = require('events').EventEmitter;
-var TaskQueue = require('./queueservice');
 var exceedsDiskspaceThreshold = require('./util/capacity').exceedsDiskspaceThreshold;
-var DeviceManager = require('./devices/device_manager.js');
+
+const QUEUE_PREFIX = 'worker/v1/';
 
 /**
 @param {Configuration} config for worker.
@@ -47,10 +48,10 @@ export default class TaskListener extends EventEmitter {
     // If node will be shutdown, stop consuming events.
     if (this.runtime.shutdownManager) {
       this.runtime.shutdownManager.once(
-        'nodeTermination', () => {
+        'nodeTermination', (() => {
           debug('nodeterm');
           this.runtime.monitor.count('spotTermination');
-          async () => {
+          (async () => {
             await this.pause();
             for(let state of this.runningTasks) {
               try {
@@ -61,8 +62,8 @@ export default class TaskListener extends EventEmitter {
               }
               this.cleanupRunningState(state);
             }
-          }();
-        }.bind(this)
+          })();
+        }).bind(this)
       );
     }
   }
@@ -194,8 +195,8 @@ export default class TaskListener extends EventEmitter {
   }
 
   scheduleTaskPoll(nextPoll=this.taskPollInterval) {
-    this.pollTimeoutId = setTimeout(() => {
-      async () => {
+    this.pollTimeoutId = setTimeout((() => {
+      (async () => {
         clearTimeout(this.pollTimeoutId);
 
         try {
@@ -236,8 +237,8 @@ export default class TaskListener extends EventEmitter {
           }
         }
         this.scheduleTaskPoll();
-      }();
-    }.bind(this), nextPoll);
+      })();
+    }).bind(this), nextPoll);
   }
 
   async connect() {

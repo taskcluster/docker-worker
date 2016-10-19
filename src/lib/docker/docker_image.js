@@ -18,7 +18,7 @@ const RETRY_CONFIG = {
   randomizationFactor: 0.25
 };
 
-export default class DockerImage {
+module.exports = class DockerImage {
   constructor(runtime, imageDetails, stream, task, scopes=[]) {
     this.runtime = runtime;
     this.imageName = imageDetails.name;

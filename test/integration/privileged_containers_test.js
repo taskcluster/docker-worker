@@ -1,3 +1,4 @@
+import assert from 'assert';
 import * as settings from '../settings';
 import DockerWorker from '../dockerworker';
 import TestWorker from '../testworker';
@@ -117,10 +118,19 @@ suite('Privileged containers', () => {
       }
     });
 
-    assert.ok(
-      result.log.indexOf('cannot mount block device cgroup read-only') !== -1,
-      `Mount denied message did not appear in the log. Message: ${result.log}`
-    );
+    try {
+      assert.ok(
+        result.log.includes('cannot mount block device cgroup read-only'),
+        `Mount denied message did not appear in the log. Message: ${result.log}`
+      );
+    } catch(e) {
+      // Depending on environment where this is run, sometimes it could be the above
+      // message or "mount: permission denied"
+      assert.ok(
+        result.log.includes("mount: permission denied"),
+        `Mount denied message did not appear in the log. Message: ${result.log}`
+      );
+    }
     assert.equal(result.run.state, 'failed', 'task should not be successful');
     assert.equal(result.run.reasonResolved, 'failed', 'task should not be successful');
   });

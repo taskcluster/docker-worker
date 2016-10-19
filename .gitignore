@@ -8,3 +8,5 @@
 /deploy.json
 docker-worker.conf.json
 *.box
+build
+.test
