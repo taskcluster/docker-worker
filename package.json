@@ -10,7 +10,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "npm run build && ./.test/test.sh $(find test -name '*_test.js') --harmony --reporter spec",
+    "test": "npm run build && ./.test/test.sh $(find test -name '*_test.js') --reporter spec",
     "build": "babel src -d build -s --copy-files && babel test -d .test -s --copy-files"
   },
   "repository": {

@@ -97,7 +97,7 @@ suite('Capacity', () => {
     var end = (Date.now() - start) / 1000;
 
     assert.equal(results.length, CAPACITY, `all ${CAPACITY} tasks must have completed`);
-    results.forEach(function (taskRes) {
+    results.forEach((taskRes) => {
       assert.equal(taskRes.run.state, 'completed');
       assert.equal(taskRes.run.reasonResolved, 'completed');
     });

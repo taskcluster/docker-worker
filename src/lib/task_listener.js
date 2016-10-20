@@ -44,24 +44,19 @@ export default class TaskListener extends EventEmitter {
   listenForShutdowns() {
     // If node will be shutdown, stop consuming events.
     if (this.runtime.shutdownManager) {
-      this.runtime.shutdownManager.once(
-        'nodeTermination', (() => {
-          debug('nodeterm');
-          this.runtime.monitor.count('spotTermination');
-          (async () => {
-            await this.pause();
-            for(let state of this.runningTasks) {
-              try {
-                state.handler.abort('worker-shutdown');
-              }
-              catch (e) {
-                debug('Caught error, but node is being terminated so continue on.');
-              }
-              this.cleanupRunningState(state);
-            }
-          })();
-        }).bind(this)
-      );
+      this.runtime.shutdownManager.once('nodeTermination', async () => {
+        debug('nodeterm');
+        this.runtime.monitor.count('spotTermination');
+        await this.pause();
+        for (let state of this.runningTasks) {
+          try {
+            state.handler.abort('worker-shutdown');
+          } catch (e) {
+            debug('Caught error, but node is being terminated so continue on.');
+          }
+          this.cleanupRunningState(state);
+        }
+      });
     }
   }
 
@@ -192,50 +187,47 @@ export default class TaskListener extends EventEmitter {
   }
 
   scheduleTaskPoll(nextPoll=this.taskPollInterval) {
-    this.pollTimeoutId = setTimeout((() => {
-      (async () => {
-        clearTimeout(this.pollTimeoutId);
+    this.pollTimeoutId = setTimeout(async () => {
+      clearTimeout(this.pollTimeoutId);
 
-        try {
-          await this.getTasks();
-        }
-        catch (e) {
-          this.runtime.log('[alert-operator] task retrieval error', {
-              message: e.toString(),
-              err: e,
-              stack: e.stack
+      try {
+        await this.getTasks();
+      } catch (e) {
+        this.runtime.log('[alert-operator] task retrieval error', {
+            message: e.toString(),
+            err: e,
+            stack: e.stack
+        });
+      }
+      let stats = {
+        uptime: this.host.billingCycleUptime(),
+        interval: this.runtime.billingCycleInterval
+      };
+      let remainder = stats.interval - (stats.uptime % stats.interval);
+      if (remainder * this.runtime.taskQueue.slowdownDivisor < stats.interval) {
+        //slow down the polling because it's nearing the end of the billing cycle
+        if (this.taskPollInterval === this.runtime.taskQueue.pollInterval) {
+          this.taskPollInterval = this.runtime.taskQueue.pollInterval * this.runtime.taskQueue.pollIntervalMultiplier;
+
+          this.runtime.log('polling', {
+            message: 'polling interval adjusted',
+            oldInterval: this.runtime.taskQueue.pollInterval,
+            newInterval: this.runtime.taskQueue.pollInterval * this.runtime.taskQueue.pollIntervalMultiplier
           });
         }
-        let stats = {
-          uptime: this.host.billingCycleUptime(),
-          interval: this.runtime.billingCycleInterval
-        };
-        let remainder = stats.interval - (stats.uptime % stats.interval);
-        if (remainder * this.runtime.taskQueue.slowdownDivisor < stats.interval) {
-          //slow down the polling because it's nearing the end of the billing cycle
-          if (this.taskPollInterval === this.runtime.taskQueue.pollInterval) {
-            this.taskPollInterval = this.runtime.taskQueue.pollInterval * this.runtime.taskQueue.pollIntervalMultiplier;
+      } else {
+        //speed it up
+        if (this.taskPollInterval !== this.runtime.taskQueue.pollInterval) {
+          this.taskPollInterval = this.runtime.taskQueue.pollInterval;
 
-            this.runtime.log('polling', {
-              message: 'polling interval adjusted',
-              oldInterval: this.runtime.taskQueue.pollInterval,
-              newInterval: this.runtime.taskQueue.pollInterval * this.runtime.taskQueue.pollIntervalMultiplier
-            });
-          }
-        } else {
-          //speed it up
-          if (this.taskPollInterval !== this.runtime.taskQueue.pollInterval) {
-            this.taskPollInterval = this.runtime.taskQueue.pollInterval;
-
-            this.runtime.log('polling', { message: 'polling interval adjusted',
-              oldInterval: this.runtime.taskQueue.pollInterval * this.runtime.taskQueue.pollIntervalMultiplier,
-              newInterval: this.runtime.taskQueue.pollInterval
-            });
-          }
+          this.runtime.log('polling', { message: 'polling interval adjusted',
+            oldInterval: this.runtime.taskQueue.pollInterval * this.runtime.taskQueue.pollIntervalMultiplier,
+            newInterval: this.runtime.taskQueue.pollInterval
+          });
         }
-        this.scheduleTaskPoll();
-      })();
-    }).bind(this), nextPoll);
+      }
+      this.scheduleTaskPoll();
+    }, nextPoll);
   }
 
   async connect() {

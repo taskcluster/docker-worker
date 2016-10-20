@@ -29,7 +29,7 @@ suite('TaskListener.applySuperseding', function() {
         pollInterval: 1
       },
       workerTypeMonitor: {
-        prefix: () => { return; }
+        prefix: () => { }
       },
       deviceManagement: {enabled: false},
       queue: {

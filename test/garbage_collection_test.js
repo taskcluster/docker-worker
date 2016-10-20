@@ -2,7 +2,6 @@ import ImageManager from '../build/lib/docker/image_manager';
 import sleep from '../build/lib/util/sleep';
 import VolumeCache from '../build/lib/volume_cache';
 import assert from 'assert';
-import co from 'co';
 import Debug from 'debug';
 import fs from 'fs';
 import devnull from 'dev-null';

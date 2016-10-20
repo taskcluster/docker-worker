@@ -1,4 +1,3 @@
-import co from 'co';
 import waitForEvent from '../../build/lib/wait_for_event';
 import * as settings from '../settings';
 import cmd from './helper/cmd';

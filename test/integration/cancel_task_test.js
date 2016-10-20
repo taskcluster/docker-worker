@@ -33,8 +33,8 @@ suite('Cancel Task', () => {
     let taskId = slugid.v4();
     let worker = new TestWorker(DockerWorker);
     let canceledTask;
-    worker.on('task run', async () => { await queue.cancelTask(taskId); });
-    worker.on('cancel task', () => { canceledTask = true; });
+    worker.on('task run', async () => await queue.cancelTask(taskId));
+    worker.on('cancel task', () => canceledTask = true);
     await worker.launch();
     let result = await worker.postToQueue(task, taskId);
     await worker.terminate();

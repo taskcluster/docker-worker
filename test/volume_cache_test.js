@@ -8,7 +8,6 @@ import waitForEvent from '../build/lib/wait_for_event';
 import fs from 'fs';
 import path from 'path';
 import rmrf from 'rimraf';
-import co from 'co';
 import cmd from './integration/helper/cmd';
 import monitoring from 'taskcluster-lib-monitor';
 

@@ -75,8 +75,7 @@ suite('volume cache tests', () => {
     assert.ok(fs.existsSync(path.join(fullCacheDir, objDir[0], 'foo.txt')));
   });
 
-<<<<<<< d30207e5d3a163872ce82704b7d3fee2c06a2e71
-  test('mount cached volume in docker worker using role', co(function* () {
+  test('mount cached volume in docker worker using role', async () => {
     // This is the same as the regular success case but instead it uses roles
     // instead of an explicit scope for the cache
     var cacheName = 'docker-worker-garbage-caches-tmp-obj-dir-' + Date.now().toString();
@@ -105,7 +104,7 @@ suite('volume cache tests', () => {
 
     task.payload.cache[cacheName] = '/tmp-obj-dir';
 
-    var result = yield testworker(task);
+    var result = await testworker(task);
 
     // Get task specific results
     assert.equal(result.run.state, 'completed');
@@ -115,14 +114,10 @@ suite('volume cache tests', () => {
 
     var objDir = fs.readdirSync(fullCacheDir);
     assert.ok(fs.existsSync(path.join(fullCacheDir, objDir[0], 'foo.txt')));
-  }));
+  });
 
-  test('mounted cached volumes are not reused between tasks', co(function* () {
-    var cacheName = 'docker-worker-garbage-caches-tmp-obj-dir-' + Date.now().toString();
-=======
   test('mounted cached volumes are not reused between tasks', async () => {
-    var cacheName = 'tmp-obj-dir-' + Date.now().toString();
->>>>>>> Modernize node environment
+    var cacheName = 'docker-worker-garbage-caches-tmp-obj-dir-' + Date.now().toString();
     var neededScope = 'docker-worker:cache:' + cacheName;
 
     settings.configure({
@@ -171,13 +166,8 @@ suite('volume cache tests', () => {
     assert.ok(results[1].log.indexOf('file0.txt') === -1);
   });
 
-<<<<<<< d30207e5d3a163872ce82704b7d3fee2c06a2e71
-  test('cached volumes can be reused between tasks', co(function* () {
-    var cacheName = 'docker-worker-garbage-caches-tmp-obj-dir-' + Date.now().toString();
-=======
   test('cached volumes can be reused between tasks', async () => {
-    var cacheName = 'tmp-obj-dir-' + Date.now().toString();
->>>>>>> Modernize node environment
+    var cacheName = 'docker-worker-garbage-caches-tmp-obj-dir-' + Date.now().toString();
     var fullCacheDir = path.join(localCacheDir, cacheName);
     var neededScope = 'docker-worker:cache:' + cacheName;
 
@@ -234,15 +224,9 @@ suite('volume cache tests', () => {
     assert.ok(result2.log.indexOf('This is a shared file') !== -1);
   });
 
-<<<<<<< d30207e5d3a163872ce82704b7d3fee2c06a2e71
-  test('mount multiple cached volumes in docker worker', co(function* () {
+  test('mount multiple cached volumes in docker worker', async () => {
     var cacheName1 = 'docker-worker-garbage-caches-tmp-obj-dir-' + Date.now().toString();
     var cacheName2 = 'docker-worker-garbage-caches-tmp-obj-dir-' + (Date.now()+1).toString();
-=======
-  test('mount multiple cached volumes in docker worker', async () => {
-    var cacheName1 = 'tmp-obj-dir-' + Date.now().toString();
-    var cacheName2 = 'tmp-obj-dir-' + (Date.now()+1).toString();
->>>>>>> Modernize node environment
 
     var neededScopes = [];
     neededScopes.push('docker-worker:cache:' + cacheName1);
@@ -291,15 +275,9 @@ suite('volume cache tests', () => {
   });
 
   test('task unsuccesful when insufficient cache scope is provided',
-<<<<<<< d30207e5d3a163872ce82704b7d3fee2c06a2e71
-    co(function* () {
+    async () => {
       var cacheName = 'docker-worker-garbage-caches-tmp-obj-dir-' + Date.now().toString();
       var neededScope = 'docker-worker:cache:docker-worker-garbage-caches-1' + cacheName;
-=======
-    async () => {
-      var cacheName = 'tmp-obj-dir-' + Date.now().toString();
-      var neededScope = 'docker-worker:cache:1' + cacheName;
->>>>>>> Modernize node environment
       var fullCacheDir = path.join(localCacheDir, cacheName);
 
       var task = {
@@ -337,13 +315,8 @@ suite('volume cache tests', () => {
   );
 
   test('task unsuccesful when invalid cache name is requested',
-<<<<<<< d30207e5d3a163872ce82704b7d3fee2c06a2e71
-    co(function* () {
-      var cacheName = 'docker-worker-garbage-caches-tmp-obj-dir::-' + Date.now().toString();
-=======
     async () => {
-      var cacheName = 'tmp-obj-dir::-' + Date.now().toString();
->>>>>>> Modernize node environment
+      var cacheName = 'docker-worker-garbage-caches-tmp-obj-dir::-' + Date.now().toString();
       var neededScope = 'docker-worker:cache:' + cacheName;
       var fullCacheDir = path.join(localCacheDir, cacheName);
 
@@ -385,13 +358,8 @@ suite('volume cache tests', () => {
     }
   );
 
-<<<<<<< d30207e5d3a163872ce82704b7d3fee2c06a2e71
-  test('cached volumes of aborted tasks are released', co(function* () {
-    var cacheName = 'docker-worker-garbage-caches-tmp-obj-dir-' + Date.now().toString();
-=======
   test('cached volumes of aborted tasks are released', async () => {
-    var cacheName = 'tmp-obj-dir-' + Date.now().toString();
->>>>>>> Modernize node environment
+    var cacheName = 'docker-worker-garbage-caches-tmp-obj-dir-' + Date.now().toString();
     var neededScope = 'docker-worker:cache:' + cacheName;
     var fullCacheDir = path.join(localCacheDir, cacheName);
     settings.configure({
@@ -439,13 +407,8 @@ suite('volume cache tests', () => {
     await worker.terminate();
   });
 
-<<<<<<< d30207e5d3a163872ce82704b7d3fee2c06a2e71
-  test('purge cache after run task', co(function* () {
-    var cacheName = 'docker-worker-garbage-caches-tmp-obj-dir-' + Date.now().toString();
-=======
   test('purge cache after run task', async () => {
-    var cacheName = 'tmp-obj-dir-' + Date.now().toString();
->>>>>>> Modernize node environment
+    var cacheName = 'docker-worker-garbage-caches-tmp-obj-dir-' + Date.now().toString();
     var neededScope = 'docker-worker:cache:' + cacheName;
     var fullCacheDir = path.join(localCacheDir, cacheName);
     settings.configure({
@@ -496,13 +459,8 @@ suite('volume cache tests', () => {
     assert.equal(fs.readdirSync(fullCacheDir).length, 0);
   });
 
-<<<<<<< d30207e5d3a163872ce82704b7d3fee2c06a2e71
-  test('purge cache during run task', co(function* () {
-    var cacheName = 'docker-worker-garbage-caches-tmp-obj-dir-' + Date.now().toString();
-=======
   test('purge cache during run task', async () => {
-    var cacheName = 'tmp-obj-dir-' + Date.now().toString();
->>>>>>> Modernize node environment
+    var cacheName = 'docker-worker-garbage-caches-tmp-obj-dir-' + Date.now().toString();
     var neededScope = 'docker-worker:cache:' + cacheName;
     var fullCacheDir = path.join(localCacheDir, cacheName);
     settings.configure({

@@ -195,12 +195,7 @@ export class Reclaimer {
     // Figure out when we need to make the next claim...
     this.clearClaimTimeout();
 
-    this.claimTimeoutId =
-      setTimeout(function() {
-        (async () => {
-          await this.reclaimTask();
-        })()
-      }.bind(this), nextClaim);
+    this.claimTimeoutId = setTimeout(async () => await this.reclaimTask(), nextClaim);
   }
 
   /**

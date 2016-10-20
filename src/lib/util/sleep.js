@@ -1,5 +1,1 @@
-async function sleep(duration) {
-  return new Promise(accept => setTimeout(accept, duration));
-}
-
-module.exports = sleep;
+export default async (duration) => new Promise(accept => setTimeout(accept, duration));
