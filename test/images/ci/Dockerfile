@@ -1,6 +1,6 @@
 FROM ubuntu:14.04
 
-ENV NODE_VERSION 6.9.0
+ENV NODE_VERSION 6.9.1
 ENV DOCKER_VERSION 1.10.1-0~trusty
 
 RUN apt-get install -y apt-transport-https
