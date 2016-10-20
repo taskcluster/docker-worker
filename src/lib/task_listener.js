@@ -2,19 +2,16 @@
 Primary interface which handles listening for messages and initializing the
 execution of tasks.
 */
-
-
 import TaskQueue from './queueservice';
 import DeviceManager from './devices/device_manager';
-var debug = require('debug')('docker-worker:task-listener');
-var taskcluster = require('taskcluster-client');
+import Debug from 'debug';
+import taskcluster from 'taskcluster-client';
+import request from 'superagent-promise';
+import { Task} from './task';
+import { EventEmitter } from 'events';
+import { exceedsDiskspaceThreshold } from './util/capacity';
 
-var { Task } = require('./task');
-var request = require('superagent-promise');
-var EventEmitter = require('events').EventEmitter;
-var exceedsDiskspaceThreshold = require('./util/capacity').exceedsDiskspaceThreshold;
-
-const QUEUE_PREFIX = 'worker/v1/';
+const debug = Debug('docker-worker:task-listener');
 
 /**
 @param {Configuration} config for worker.
