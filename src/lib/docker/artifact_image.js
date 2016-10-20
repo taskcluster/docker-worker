@@ -59,7 +59,7 @@ async function decompressZstdFile(inputFile) {
 /*
  * Image manager for task artifact images.
  */
-module.exports = class ArtifactImage {
+export default class ArtifactImage {
   /*
    * @param {Object}  runtime       - Runtime object
    * @param {Object}  imageDetails  - Type, namespace, and path object
