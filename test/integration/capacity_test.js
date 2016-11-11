@@ -90,7 +90,7 @@ suite('Capacity', () => {
 
     // Wait for the first claim to start timing.  This weeds out any issues with
     // waiting for the task queue to be polled
-    await waitForEvent(worker, 'claimed task');
+    await waitForEvent(worker, 'claim task');
     var start = Date.now();
 
     var results = await Promise.all(tasks);
