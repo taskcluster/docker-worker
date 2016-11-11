@@ -26,7 +26,11 @@ suite('TaskListener.applySuperseding', function() {
       workerType: 'wkrt',
       provisionerId: 'provid',
       taskQueue: {
-        pollInterval: 1
+        pollInterval: 1,
+        expiration: 30000
+      },
+      task: {
+        dequeueCount: 5
       },
       workerTypeMonitor: {
         prefix: () => { }
