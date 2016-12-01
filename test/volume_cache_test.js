@@ -206,7 +206,7 @@ suite('volume cache test', function () {
     yield cache.release(instance1.key);
 
     // should remove only instance1
-    cache.purge(cacheName);
+    cache.purge(cacheName, new Date());
 
     var instance3 = yield cache.get(cacheName);
     assert.ok(instance3.key !== instance1.key);
@@ -214,7 +214,7 @@ suite('volume cache test', function () {
     yield cache.release(instance2);
     yield cache.release(instance3);
 
-    cache.purge(cacheName);
+    cache.purge(cacheName, new Date());
 
     var instance4 = yield cache.get(cacheName);
 
@@ -222,7 +222,7 @@ suite('volume cache test', function () {
     assert.ok(instance4.key !== instance2.key);
 
     instance1 = yield cache.get(cacheName);
-    cache.purge(cacheName);
+    cache.purge(cacheName, new Date());
     yield cache.release(instance1.key);
 
     // Cannot return a volume marked for purge
