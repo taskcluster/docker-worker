@@ -21,7 +21,7 @@
         ],
         "payload": {
           "command": [
-            "npm install && ./build.sh && ./test/docker-worker-test --this-chunk 1 --total-chunks 5"
+            "npm install && npm run build && ./build.sh && ./.test/docker-worker-test --this-chunk 1 --total-chunks 5"
           ],
           "image": "taskcluster/worker-ci:0.2.0",
           "maxRunTime": 3600,
@@ -58,7 +58,7 @@
         ],
         "payload": {
           "command": [
-            "npm install && ./build.sh && ./test/docker-worker-test --this-chunk 2 --total-chunks 5"
+            "npm install && npm run build && ./build.sh && ./.test/docker-worker-test --this-chunk 2 --total-chunks 5"
           ],
           "image": "taskcluster/worker-ci:0.2.0",
           "maxRunTime": 3600,
@@ -95,7 +95,7 @@
         ],
         "payload": {
           "command": [
-            "npm install && ./build.sh && ./test/docker-worker-test --this-chunk 3 --total-chunks 5"
+            "npm install && npm run build && ./build.sh && ./.test/docker-worker-test --this-chunk 3 --total-chunks 5"
           ],
           "image": "taskcluster/worker-ci:0.2.0",
           "maxRunTime": 3600,
@@ -132,7 +132,7 @@
         ],
         "payload": {
           "command": [
-            "npm install && ./build.sh && ./test/docker-worker-test --this-chunk 4 --total-chunks 5"
+            "npm install && npm run build && ./build.sh && ./.test/docker-worker-test --this-chunk 4 --total-chunks 5"
           ],
           "image": "taskcluster/worker-ci:0.2.0",
           "maxRunTime": 3600,
@@ -169,44 +169,7 @@
         ],
         "payload": {
           "command": [
-            "npm install && ./build.sh && ./test/docker-worker-test --this-chunk 5 --total-chunks 5"
-          ],
-          "image": "taskcluster/worker-ci:0.2.0",
-          "maxRunTime": 3600,
-          "capabilities": {
-            "privileged": true,
-            "devices": {
-              "loopbackAudio": true,
-              "loopbackVideo": true
-            }
-          },
-          "env": {
-            "WORKER_CI": "1"
-          }
-        },
-        "extra": {
-        },
-        "schedulerId": "task-graph-scheduler"
-      }
-    },
-    {
-      "task": {
-        "metadata": {
-          "name": "Docker-worker tests - all",
-          "description": "Runs entire docker-worker test suite",
-          "source": "https://github.com/taskcluster/docker-worker",
-          "owner": "mozilla@mozilla.org"
-        },
-        "workerType": "worker-ci-test",
-        "provisionerId": "aws-provisioner-v1",
-        "scopes": [
-          "docker-worker:capability:privileged",
-          "docker-worker:capability:device:loopbackAudio",
-          "docker-worker:capability:device:loopbackVideo"
-        ],
-        "payload": {
-          "command": [
-            "npm install && ./build.sh && ./test/docker-worker-test"
+            "npm install && npm run build && ./build.sh && ./.test/docker-worker-test --this-chunk 5 --total-chunks 5"
           ],
           "image": "taskcluster/worker-ci:0.2.0",
           "maxRunTime": 3600,
