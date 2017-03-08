@@ -211,13 +211,8 @@ suite('volume cache test', function () {
     // should remove only instance1
     cache.purge(cacheName, futurePurgeDate);
 
-<<<<<<< HEAD
-    var instance3 = yield cache.get(cacheName);
-    assert.notEqual(instance3.key !== instance1.key);
-=======
     var instance3 = await cache.get(cacheName);
-    assert.ok(instance3.key !== instance1.key);
->>>>>>> 0abfdf8735bbee084b09835dfe6244734782c737
+    assert.notEqual(instance3.key !== instance1.key);
 
     await cache.release(instance2);
     await cache.release(instance3);
@@ -229,15 +224,9 @@ suite('volume cache test', function () {
     assert.notEqual(instance4.key !== instance3.key);
     assert.ok(instance4.key !== instance2.key);
 
-<<<<<<< HEAD
-    instance1 = yield cache.get(cacheName);
-    cache.purge(cacheName, futurePurgeDate);
-    yield cache.release(instance1.key);
-=======
     instance1 = await cache.get(cacheName);
-    cache.purge(cacheName);
+    cache.purge(cacheName, futurePurgeDate);
     await cache.release(instance1.key);
->>>>>>> 0abfdf8735bbee084b09835dfe6244734782c737
 
     // Cannot return a volume marked for purge
     instance2 = await cache.get(cacheName);
