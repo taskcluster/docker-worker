@@ -72,6 +72,9 @@ cd /usr/local/ && \
   curl https://nodejs.org/dist/$NODE_VERSION/node-$NODE_VERSION-linux-x64.tar.gz | tar -xz --strip-components 1 && \
   node -v
 
+# Install some necessary node packages
+npm install -g yarn
+
 # Install Video loopback devices
 sudo apt-get install -y \
     v4l2loopback-utils \

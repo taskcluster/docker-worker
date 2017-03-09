@@ -27,12 +27,12 @@ cd $target
 tar xzf $docker_worker_source -C $target --strip-components=1
 sudo chown -R $USER:$USER /home/ubuntu/docker_worker
 
-sudo npm install -g babel-cli
+sudo npm install -g babel-cli yarn
 
 retry_count=0
 max_retries=5
 until [ $retry_count -gt $max_retries ]; do
-    npm install --production && break
+    yarn install && break
     retry_count=$(($retry_count + 1))
     sleep 5
 done

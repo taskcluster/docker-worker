@@ -31,7 +31,7 @@ packer_config() {
 
 cmd_app() {
   # Package up the node app.
-  local npm_package=$(npm pack)
+  local npm_package=$(yarn pack)
   local git_rev=$(git rev-parse --verify HEAD)
 
   # Configure the deployment if needed...
