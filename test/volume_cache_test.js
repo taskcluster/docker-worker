@@ -156,7 +156,7 @@ suite('volume cache test', function () {
     var stream = await container.attach({stream: true, stdout: true, stderr: true});
     stream.pipe(process.stdout);
 
-    yield container.start({});
+    await container.start({});
     gc.removeContainer(create.id);
     gc.sweep();
     var removedContainerId = await waitForEvent(gc, 'gc:container:removed');
