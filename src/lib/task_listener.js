@@ -190,8 +190,6 @@ export default class TaskListener extends EventEmitter {
 
   scheduleTaskPoll(nextPoll=this.taskPollInterval) {
     this.pollTimeoutId = setTimeout(async () => {
-      clearTimeout(this.pollTimeoutId);
-
       try {
         await this.getTasks();
       } catch (e) {
