@@ -7,7 +7,7 @@ import DeviceManager from './devices/device_manager';
 import Debug from 'debug';
 import taskcluster from 'taskcluster-client';
 import request from 'superagent-promise';
-import { Task} from './task';
+import { Task } from './task';
 import { EventEmitter } from 'events';
 import { exceedsDiskspaceThreshold } from './util/capacity';
 
