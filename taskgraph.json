@@ -21,7 +21,7 @@
         ],
         "payload": {
           "command": [
-            "yarn && yarn build && ./build.sh && ./.test/docker-worker-test --this-chunk 1 --total-chunks 5"
+            "yarn install --frozen-lockfile && yarn build && ./build.sh && ./.test/docker-worker-test --this-chunk 1 --total-chunks 5"
           ],
           "image": "taskcluster/worker-ci:0.3.1",
           "maxRunTime": 3600,
@@ -58,7 +58,7 @@
         ],
         "payload": {
           "command": [
-            "yarn && yarn build && ./build.sh && ./.test/docker-worker-test --this-chunk 2 --total-chunks 5"
+            "yarn install --frozen-lockfile && yarn build && ./build.sh && ./.test/docker-worker-test --this-chunk 2 --total-chunks 5"
           ],
           "image": "taskcluster/worker-ci:0.3.1",
           "maxRunTime": 3600,
@@ -95,7 +95,7 @@
         ],
         "payload": {
           "command": [
-            "yarn && yarn build && ./build.sh && ./.test/docker-worker-test --this-chunk 3 --total-chunks 5"
+            "yarn install --frozen-lockfile && yarn build && ./build.sh && ./.test/docker-worker-test --this-chunk 3 --total-chunks 5"
           ],
           "image": "taskcluster/worker-ci:0.3.1",
           "maxRunTime": 3600,
@@ -132,7 +132,7 @@
         ],
         "payload": {
           "command": [
-            "yarn && yarn build && ./build.sh && ./.test/docker-worker-test --this-chunk 4 --total-chunks 5"
+            "yarn install --frozen-lockfile && yarn build && ./build.sh && ./.test/docker-worker-test --this-chunk 4 --total-chunks 5"
           ],
           "image": "taskcluster/worker-ci:0.3.1",
           "maxRunTime": 3600,
@@ -169,7 +169,7 @@
         ],
         "payload": {
           "command": [
-            "yarn && yarn build && ./build.sh && ./.test/docker-worker-test --this-chunk 5 --total-chunks 5"
+            "yarn install --frozen-lockfile && yarn build && ./build.sh && ./.test/docker-worker-test --this-chunk 5 --total-chunks 5"
           ],
           "image": "taskcluster/worker-ci:0.3.1",
           "maxRunTime": 3600,

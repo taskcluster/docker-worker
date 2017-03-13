@@ -32,7 +32,7 @@ sudo npm install -g babel-cli yarn
 retry_count=0
 max_retries=5
 until [ $retry_count -gt $max_retries ]; do
-    yarn install && break
+    yarn install --frozen-lockfile && break
     retry_count=$(($retry_count + 1))
     sleep 5
 done
