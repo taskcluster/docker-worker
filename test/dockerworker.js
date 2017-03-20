@@ -56,9 +56,6 @@ export default class DockerWorker {
     stream.pipe(devnull());
     await waitForEvent(stream, 'end');
 
-    // Path to babel in the docker container...
-    var babel = '/worker/node_modules/.bin/babel-node';
-
     var createConfig = {
       name: this.workerId,
       Image: IMAGE,

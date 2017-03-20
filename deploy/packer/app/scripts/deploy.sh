@@ -29,21 +29,8 @@ sudo chown -R $USER:$USER /home/ubuntu/docker_worker
 
 sudo npm install -g babel-cli yarn
 
-retry_count=0
-max_retries=5
-until [ $retry_count -gt $max_retries ]; do
-    yarn install --frozen-lockfile && break
-    retry_count=$(($retry_count + 1))
-    sleep 5
-done
-
-if [ $retry_count -ge $max_retries ]; then
-    echo ""
-    echo "Error installing docker-worker packages"
-    exit -1
-fi
-
-npm rebuild
+yarn install --frozen-lockfile
+yarn build
 
 # Initialize video and sound loopback modules
 sudo modprobe v4l2loopback
