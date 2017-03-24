@@ -4,7 +4,6 @@
 
 var debug = require('debug')('docker-worker:privateKey');
 var fs      = require('fs');
-var _       = require('lodash');
 var util = require('util');
 var uuid = require('uuid');
 var openpgp = require('openpgp');
@@ -43,7 +42,7 @@ function validateDecryptedData(taskPayload, decryptedData, taskId) {
                                 errorPrefix, logMsg, incidentId));
   }
 
-  if (_.includes(reservedKeys, decryptedData.name)) {
+  if (reservedKeys.includes(decryptedData.name)) {
       var debugMsg = 'the environment variable (' + decryptedData.name + ') ' +
                      'conflicts with a reserved environment variable';
       var logMsg = 'an environment variable conflicts with an existing environment variable';
@@ -95,7 +94,7 @@ PrivateKey.prototype = {
 
     // For each encrypted variable, create a promise and wait for all
     // promises to complete
-    return Promise.all(_.map(taskPayload.encryptedEnv, function(encryptedVar) {
+    return Promise.all(taskPayload.encryptedEnv.map(function(encryptedVar) {
       var encryptedVarBuf = new Buffer(encryptedVar, 'base64');
       var armoredEncryptedVar =
         openpgp.armor.encode(openpgp.enums.armor.message, encryptedVarBuf);
