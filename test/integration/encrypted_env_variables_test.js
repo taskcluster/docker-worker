@@ -3,7 +3,6 @@ import devnull from 'dev-null';
 import Docker from '../../build/lib/docker';
 import dockerUtils from 'dockerode-process/utils';
 import fs from 'fs';
-import _  from 'lodash';
 import * as openpgp from 'openpgp';
 import testworker from '../post_task';
 import * as settings from '../settings';

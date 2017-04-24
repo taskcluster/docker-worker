@@ -94,7 +94,12 @@ PrivateKey.prototype = {
 
     // For each encrypted variable, create a promise and wait for all
     // promises to complete
-    return Promise.all(taskPayload.encryptedEnv.map(function(encryptedVar) {
+    return Promise.all(
+      if (!taskPayload && !taskPayload.encryptedEnv) {
+        Promise.reject();
+      }
+      
+      taskPayload.encryptedEnv.map(function(encryptedVar) {
       var encryptedVarBuf = new Buffer(encryptedVar, 'base64');
       var armoredEncryptedVar =
         openpgp.armor.encode(openpgp.enums.armor.message, encryptedVarBuf);

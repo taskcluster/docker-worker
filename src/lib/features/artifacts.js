@@ -4,6 +4,7 @@ deals with the extract of both single and multiple artifacts from the docker
 container.
 */
 
+import _ from 'lodash';
 import mime from 'mime';
 import tarStream from 'tar-stream';
 import Debug from 'debug';
@@ -180,14 +181,14 @@ export default class Artifacts {
     if (typeof artifacts !== 'object') return;
 
     // Upload all the artifacts in parallel.
-    await Promise.all(artifacts.map((value, key) => {
+    await Promise.all(_.map(artifacts, (value, key) => {
       return this.uploadArtifact(taskHandler, key, value).catch((err) => {
         errors[key] = err;
       });
     }));
 
     if (Object.keys(errors).length) {
-      errors.map((value, key) => {
+      _.map(errors, (value, key) => {
         debug('Artifact upload %s failed, %s, as JSON: %j', key, value, value, value.stack);
       });
 
