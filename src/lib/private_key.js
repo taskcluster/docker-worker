@@ -4,6 +4,7 @@
 
 var debug = require('debug')('docker-worker:privateKey');
 var fs      = require('fs');
+var _       = require('lodash');
 var util = require('util');
 var uuid = require('uuid');
 var openpgp = require('openpgp');
@@ -94,12 +95,7 @@ PrivateKey.prototype = {
 
     // For each encrypted variable, create a promise and wait for all
     // promises to complete
-    return Promise.all(
-      if (!taskPayload && !taskPayload.encryptedEnv) {
-        Promise.reject();
-      }
-      
-      taskPayload.encryptedEnv.map(function(encryptedVar) {
+    return Promise.all(_.map(taskPayload.encryptedEnv, function(encryptedVar) {
       var encryptedVarBuf = new Buffer(encryptedVar, 'base64');
       var armoredEncryptedVar =
         openpgp.armor.encode(openpgp.enums.armor.message, encryptedVarBuf);
