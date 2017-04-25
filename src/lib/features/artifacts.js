@@ -188,7 +188,7 @@ export default class Artifacts {
     }));
 
     if (Object.keys(errors).length) {
-      Object.keys(_.map(errors, (value, key) => {
+      _.map(errors, (value, key) => {
         debug('Artifact upload %s failed, %s, as JSON: %j', key, value, value, value.stack);
       });
 
