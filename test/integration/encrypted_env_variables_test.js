@@ -37,7 +37,7 @@ suite('encrypted private env variables', () => {
 
   function getEncryptedEnvPayload(payloadData) {
 
-    return Promise.all(_.map(payloadData,(data) => {
+    return Promise.all(_.map(payloadData, (data) => {
 
      // Create message to encrypt
       var message = {
