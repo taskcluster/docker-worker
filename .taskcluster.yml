@@ -54,9 +54,10 @@ tasks:
       - 'docker-worker:capability:device:loopbackAudio'
       - 'docker-worker:capability:device:loopbackVideo'
       - 'secrets:get:repo:github.com/taskcluster/docker-worker:ci-creds'
+      - 'secrets:get:repo:github.com/taskcluster/docker-worker:pulse-creds'
     payload:
       image: >-
-        taskcluster/worker-ci@sha256:a2557ecff29012e327fb11307e7004facd37597b6c44215009073539db724fb6
+        taskcluster/worker-ci@sha256:87266692cbbeddaeb2751ff0cc69a72328841d252253e437e814105110ac6a91
       maxRunTime: 10800
       command:
         - >-
@@ -92,9 +93,10 @@ tasks:
       - 'docker-worker:capability:device:loopbackAudio'
       - 'docker-worker:capability:device:loopbackVideo'
       - 'secrets:get:repo:github.com/taskcluster/docker-worker:ci-creds'
+      - 'secrets:get:repo:github.com/taskcluster/docker-worker:pulse-creds'
     payload:
       image: >-
-        taskcluster/worker-ci@sha256:a2557ecff29012e327fb11307e7004facd37597b6c44215009073539db724fb6
+        taskcluster/worker-ci@sha256:87266692cbbeddaeb2751ff0cc69a72328841d252253e437e814105110ac6a91
       maxRunTime: 10800
       command:
         - >-
@@ -130,9 +132,10 @@ tasks:
       - 'docker-worker:capability:device:loopbackAudio'
       - 'docker-worker:capability:device:loopbackVideo'
       - 'secrets:get:repo:github.com/taskcluster/docker-worker:ci-creds'
+      - 'secrets:get:repo:github.com/taskcluster/docker-worker:pulse-creds'
     payload:
       image: >-
-        taskcluster/worker-ci@sha256:a2557ecff29012e327fb11307e7004facd37597b6c44215009073539db724fb6
+        taskcluster/worker-ci@sha256:87266692cbbeddaeb2751ff0cc69a72328841d252253e437e814105110ac6a91
       maxRunTime: 10800
       command:
         - >-
@@ -168,9 +171,10 @@ tasks:
       - 'docker-worker:capability:device:loopbackAudio'
       - 'docker-worker:capability:device:loopbackVideo'
       - 'secrets:get:repo:github.com/taskcluster/docker-worker:ci-creds'
+      - 'secrets:get:repo:github.com/taskcluster/docker-worker:pulse-creds'
     payload:
       image: >-
-        taskcluster/worker-ci@sha256:a2557ecff29012e327fb11307e7004facd37597b6c44215009073539db724fb6
+        taskcluster/worker-ci@sha256:87266692cbbeddaeb2751ff0cc69a72328841d252253e437e814105110ac6a91
       maxRunTime: 10800
       command:
         - >-
@@ -206,9 +210,10 @@ tasks:
       - 'docker-worker:capability:device:loopbackAudio'
       - 'docker-worker:capability:device:loopbackVideo'
       - 'secrets:get:repo:github.com/taskcluster/docker-worker:ci-creds'
+      - 'secrets:get:repo:github.com/taskcluster/docker-worker:pulse-creds'
     payload:
       image: >-
-        taskcluster/worker-ci@sha256:a2557ecff29012e327fb11307e7004facd37597b6c44215009073539db724fb6
+        taskcluster/worker-ci@sha256:87266692cbbeddaeb2751ff0cc69a72328841d252253e437e814105110ac6a91
       maxRunTime: 10800
       command:
         - >-
