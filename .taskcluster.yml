@@ -83,7 +83,9 @@ tasks:
         env: true
         events:
           - push
-          - pull_request.*
+          - pull_request.opened
+          - pull_request.synchronize
+          - pull_request.reopened
 
   - provisionerId: aws-provisioner-v1
     workerType: worker-ci-test
@@ -122,7 +124,9 @@ tasks:
         env: true
         events:
           - push
-          - pull_request.*
+          - pull_request.opened
+          - pull_request.synchronize
+          - pull_request.reopened
 
   - provisionerId: aws-provisioner-v1
     workerType: worker-ci-test
@@ -161,7 +165,9 @@ tasks:
         env: true
         events:
           - push
-          - pull_request.*
+          - pull_request.opened
+          - pull_request.synchronize
+          - pull_request.reopened
 
   - provisionerId: aws-provisioner-v1
     workerType: worker-ci-test
@@ -200,7 +206,9 @@ tasks:
         env: true
         events:
           - push
-          - pull_request.*
+          - pull_request.opened
+          - pull_request.synchronize
+          - pull_request.reopened
 
   - provisionerId: aws-provisioner-v1
     workerType: worker-ci-test
@@ -239,5 +247,7 @@ tasks:
         env: true
         events:
           - push
-          - pull_request.*
+          - pull_request.opened
+          - pull_request.synchronize
+          - pull_request.reopened
 
