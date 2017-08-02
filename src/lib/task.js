@@ -615,7 +615,6 @@ export class Task extends EventEmitter {
    */
 
   async resolveSuperseded(primaryTaskId, primaryRunId, addArtifacts, reason) {
-    let queue = this.queue;
     let supersedes = [];
     let log = this.runtime.log;
 
@@ -627,6 +626,7 @@ export class Task extends EventEmitter {
           return;
         }
 
+        let queue = this.createQueue(c.credentials);
         await queue.reportException(taskId, runId, {reason});
 
         if (addArtifacts) {
@@ -660,7 +660,7 @@ export class Task extends EventEmitter {
       let task = this.claim.task;
       let expiration = task.expires || taskcluster.fromNow(task.deadline, "1 year");
       let contentJson = JSON.stringify(supersedes)
-      await uploadToS3(queue, primaryTaskId, primaryRunId, contentJson,
+      await uploadToS3(this.queue, primaryTaskId, primaryRunId, contentJson,
                        "public/supersedes.json", expiration, {
         'content-type': 'application/json',
         'content-length': contentJson.length,
