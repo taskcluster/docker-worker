@@ -221,7 +221,7 @@ export class Reclaimer {
     this.log('reclaiming task');
 
     try {
-      let queue = this.task.createQueue(this.claim.credentials, this.runtime);
+      let queue = this.task.createQueue(this.claim.credentials);
       this.claim = await queue.reclaimTask(
                     this.claim.status.taskId, this.claim.runId);
       // reclaim does not return the task, so carry that forward from the previous
@@ -252,7 +252,7 @@ export class Reclaimer {
     }
 
     if (this.claim.status.taskId == this.primaryClaim.status.taskId) {
-      this.task.queue = this.task.createQueue(this.claim.credentials, this.runtime);
+      this.task.queue = this.task.createQueue(this.claim.credentials);
       this.task.emit('credentials', this.claim.credentials);
     }
 
@@ -290,7 +290,7 @@ export class Task extends EventEmitter {
     this.taskState = 'pending';
     this.options = options;
 
-    this.queue = this.createQueue(this.claim.credentials, runtime);
+    this.queue = this.createQueue(this.claim.credentials);
 
     // Primarly log of all actions for the task.
     this.stream = new PassThrough();
@@ -618,7 +618,7 @@ export class Task extends EventEmitter {
     let supersedes = [];
     let log = this.runtime.log;
 
-    await Promise.all(this.claims.map(async function(c){
+    await Promise.all(this.claims.map(async (c) => {
       let taskId = c.status.taskId;
       let runId = c.runId;
       if (taskId == primaryTaskId && runId == primaryRunId) {
@@ -1012,7 +1012,7 @@ export class Task extends EventEmitter {
 
   @return New queue.
   */
-  createQueue(credentials, runtime) {
+  createQueue(credentials) {
     return new taskcluster.Queue({
       credentials: credentials,
     });
