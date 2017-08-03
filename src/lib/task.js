@@ -619,13 +619,13 @@ export class Task extends EventEmitter {
     let log = this.runtime.log;
 
     await Promise.all(this.claims.map(async function(c){
-      try {
-        let taskId = c.status.taskId;
-        let runId = c.runId;
-        if (taskId == primaryTaskId && runId == primaryRunId) {
-          return;
-        }
+      let taskId = c.status.taskId;
+      let runId = c.runId;
+      if (taskId == primaryTaskId && runId == primaryRunId) {
+        return;
+      }
 
+      try {
         let queue = this.createQueue(c.credentials);
         await queue.reportException(taskId, runId, {reason});
 
