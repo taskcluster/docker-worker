@@ -30,8 +30,21 @@ packer_config() {
 }
 
 cmd_app() {
+  local docker_worker_tgz=/tmp/docker-worker-$$.tgz
   # Package up the node app.
-  tar --exclude='./node_modules' --exclude='./*.pub' --exclude='./build/' --exclude='./deploy' --exclude='.test' --exclude='.git' --exclude='.vagrant' --exclude='./.DS_Store' --exclude='./vagrant/' --exclude='app.box' -zcvf docker-worker.tgz .
+  tar \
+    --exclude='./node_modules' \
+    --exclude='./*.pub' \
+    --exclude='./build/' \
+    --exclude='./deploy' \
+    --exclude='.test' \
+    --exclude='.git' \
+    --exclude='.vagrant' \
+    --exclude='./.DS_Store' \
+    --exclude='./vagrant/' \
+    --exclude='app.box' \
+    -zcvf $docker_worker_tgz .
+  mv $docker_worker_tgz docker-worker.tgz
   local git_rev=$(git rev-parse --verify HEAD)
 
   # Configure the deployment if needed...
