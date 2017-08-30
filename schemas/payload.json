@@ -221,7 +221,7 @@
           }
         }
       }
-    }
+    },
     "artifacts": {
       "type": "object",
       "title": "Artifact map (name -> source)",
@@ -274,7 +274,7 @@
           "type": "boolean",
           "title": "Artifact uploads",
           "description": ""
-        }
+        },
         "dind": {
           "type": "boolean",
           "title": "Docker in Docker",
