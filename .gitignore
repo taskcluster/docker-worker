@@ -1,4 +1,6 @@
 /.vagrant
+docker-worker.key
+docker-worker.crt
 /packer_cache
 /docker-worker-*
 /.env
