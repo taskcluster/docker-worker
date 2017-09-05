@@ -81,6 +81,8 @@ then
   exit 1
 fi
 
+rm -f packer-artifacts.json
+
 case "$1" in
 "app")
   cmd_app ${@:2}
@@ -92,3 +94,20 @@ case "$1" in
   cmd_help
   ;;
 esac
+
+# extract only the AMI ids and store in a new json file
+if [ -f packer-artifacts.json ]; then
+  jq '
+    .builds[]
+    | {
+      (.name): [
+        .artifact_id
+        | split(",")
+        | .[]
+        | split(":")
+      ]
+      | flatten
+      | { (.[0]): .[1], (.[2]): .[3], (.[4]): .[5] }
+    }
+  ' packer-artifacts.json | jq -s add > docker-worker-amis.json
+fi

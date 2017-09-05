@@ -43,7 +43,7 @@
       "type":           "file",
       "direction":      "download",
       "source":          "/tmp/docker-worker.pub",
-      "destination":    "docker-worker-{{build_name}}-{{timestamp}}.pub"
+      "destination":    "docker-worker-{{build_name}}.pub"
     }
   ],
   "builders": [
@@ -78,6 +78,13 @@
         "Revision":         "{{user `workerRevision`}}",
         "Base_AMI":         "{{user `pvSourceAMI`}}"
       }
+    }
+  ],
+  "post-processors": [
+    {
+      "type": "manifest",
+      "output": "packer-artifacts.json",
+      "strip_path": true
     }
   ]
 }

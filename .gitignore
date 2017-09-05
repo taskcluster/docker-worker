@@ -16,3 +16,4 @@ docker-worker.tgz
 build
 .test
 yarn-error.log
+packer-artifacts.json
