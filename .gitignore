@@ -11,7 +11,6 @@ docker-worker.crt
 /deploy.json
 docker-worker.conf.json
 *.box
-docker-worker-*.pub
 docker-worker.tgz
 build
 .test
