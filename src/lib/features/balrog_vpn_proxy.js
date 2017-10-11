@@ -77,7 +77,7 @@ export default class BalrogVPNProxy {
         ExtraHosts: [
           // XXX: hack for now.  Problem in taskcluster-vpn-proxy where resolv.conf
           // isn't updated when vpn'ed in so name resolution does not work.
-          "aus4-admin.mozilla.org:52.26.16.60"
+          "aus4-admin.mozilla.org:52.26.16.60",
           "balrog-admin.stage.mozaws.net:52.71.237.144"
         ]
       }
