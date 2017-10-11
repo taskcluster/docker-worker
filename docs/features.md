@@ -58,6 +58,40 @@ References:
 * [taskcluster-vpn-proxy](https://github.com/taskcluster/taskcluster-vpn-proxy)
 * [docker-worker integration](https://github.com/taskcluster/docker-worker/blob/master/lib/balrog_vpn_proxy.js)
 
+#### Feature: `balrogStageVPNProxy`
+
+Required scopes: `docker-worker:feature:balrogStageVPNProxy`
+
+Some tasks have the need for communicating with staging balrog server over
+port 80 through a vpn tunnel. The balrog stage vpn proxy feature allows a task to
+direct requests to http://balrog which will proxy the request over a vpn connection
+to balrog stage. Unless you are working on Release Engineering systems, you probably
+don't want to use this.
+
+This is a restricted feature and taskcluster credentials of the submitter must
+contain scopes for `docker-worker:feature:balrogStageVPNProxy`.
+
+To enable, the task must contain the proper scope as well as be declared in
+the `features` object within the task payload.
+
+Example:
+
+```js
+{
+  "scopes": ["docker-worker:feature:balrogVPNProxy"],
+  "payload": {
+    "features": {
+      "balrogVPNProxy": true
+    }
+  }
+}
+```
+
+References:
+
+* [taskcluster-vpn-proxy](https://github.com/taskcluster/taskcluster-vpn-proxy)
+* [docker-worker integration](https://github.com/taskcluster/docker-worker/blob/master/lib/balrog_stage_vpn_proxy.js)
+
 #### Feature: `taskclusterProxy`
 
 The taskcluster proxy provides an easy and safe way to make authenticated

@@ -4,7 +4,7 @@ import { scopeMatch } from 'taskcluster-base/utils';
 import request from 'superagent-promise';
 import waitForPort from '../wait_for_port';
 
-let debug = Debug('taskcluster-docker-worker:features:balrogVPNProxy');
+let debug = Debug('taskcluster-docker-worker:features:balrogStageVPNProxy');
 
 // Prefix used in scope matching for docker-worker features
 const FEATURE_SCOPE_PREFIX = 'docker-worker:feature:';
@@ -19,7 +19,7 @@ const ALIAS = 'balrog';
 const INIT_TIMEOUT = 2000;
 
 // Address for Balrog update server
-const PROXY_ADDR = "https://aus4-admin.mozilla.org";
+const PROXY_ADDR = "https://balrog-admin.stage.mozaws.net/";
 
 // Delay in between retries for vpn to be connected
 const RETRY_DELAY = 1000;
@@ -31,9 +31,9 @@ async function sleep(duration) {
   return new Promise(accept => setTimeout(accept, duration));
 }
 
-export default class BalrogVPNProxy {
+export default class BalrogStageVPNProxy {
   constructor () {
-    this.featureName = 'balrogVPNProxy';
+    this.featureName = 'balrogStageVPNProxy';
     /**
     Docker container used in the linking process.
     */
@@ -77,7 +77,7 @@ export default class BalrogVPNProxy {
         ExtraHosts: [
           // XXX: hack for now.  Problem in taskcluster-vpn-proxy where resolv.conf
           // isn't updated when vpn'ed in so name resolution does not work.
-          "aus4-admin.mozilla.org:52.26.16.60"
+          "balrog-admin.stage.mozaws.net:52.71.237.144"
         ]
       }
     });
