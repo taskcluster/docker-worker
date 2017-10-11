@@ -56,7 +56,7 @@ Example:
 References:
 
 * [taskcluster-vpn-proxy](https://github.com/taskcluster/taskcluster-vpn-proxy)
-* [docker-worker integration](https://github.com/taskcluster/docker-worker/blob/master/lib/balrog_vpn_proxy.js)
+* [docker-worker integration](https://github.com/taskcluster/docker-worker/blob/master/src/lib/features/balrog_vpn_proxy.js)
 
 #### Feature: `balrogStageVPNProxy`
 
@@ -78,10 +78,10 @@ Example:
 
 ```js
 {
-  "scopes": ["docker-worker:feature:balrogVPNProxy"],
+  "scopes": ["docker-worker:feature:balrogStageVPNProxy"],
   "payload": {
     "features": {
-      "balrogVPNProxy": true
+      "balrogStageVPNProxy": true
     }
   }
 }
@@ -90,7 +90,7 @@ Example:
 References:
 
 * [taskcluster-vpn-proxy](https://github.com/taskcluster/taskcluster-vpn-proxy)
-* [docker-worker integration](https://github.com/taskcluster/docker-worker/blob/master/lib/balrog_stage_vpn_proxy.js)
+* [docker-worker integration](https://github.com/taskcluster/docker-worker/blob/master/src/lib/features/balrog_stage_vpn_proxy.js)
 
 #### Feature: `taskclusterProxy`
 
