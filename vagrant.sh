@@ -2,7 +2,7 @@
 
 set -e -v -x
 
-sudo ln -s /vagrant /worker
+sudo ln -sf /vagrant /worker
 
 NODE_VERSION=v8.6.0
 DOCKER_VERSION=1.12.6-0~ubuntu-trusty
@@ -15,7 +15,7 @@ V4L2LOOPBACK_VERSION=0.8.0
 lsb_release -a
 
 # add docker group and add current user to it
-sudo groupadd docker
+sudo groupadd -f docker
 sudo usermod -a -G docker vagrant
 
 sudo apt-get update -y
