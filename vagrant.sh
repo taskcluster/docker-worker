@@ -69,11 +69,11 @@ sudo apt-get install -y \
 
 # Install node
 cd /usr/local/ && \
-  curl https://nodejs.org/dist/$NODE_VERSION/node-$NODE_VERSION-linux-x64.tar.gz | tar -xz --strip-components 1 && \
+  curl https://nodejs.org/dist/$NODE_VERSION/node-$NODE_VERSION-linux-x64.tar.gz | sudo tar -xz --strip-components 1 && \
   node -v
 
 # Install some necessary node packages
-npm install -g yarn@1.0.2 babel-cli
+sudo npm install -g yarn@1.0.2 babel-cli
 
 # Install Video loopback devices
 sudo apt-get install -y \
@@ -82,20 +82,14 @@ sudo apt-get install -y \
     gstreamer0.10-plugins-good \
     gstreamer0.10-plugins-bad
 
-sh -c 'echo "v4l2loopback" >> /etc/modules'
+sudo sh -c 'echo "v4l2loopback" >> /etc/modules'
 
-cat << EOF > /etc/modprobe.d/test-modules.conf
-options v4l2loopback devices=100
-EOF
-
+sudo sh -c 'echo "options v4l2loopback devices=100" > /etc/modprobe.d/test-modules.conf'
 sudo modprobe v4l2loopback
 
 # Install Audio loopback devices
-sh -c 'echo "snd-aloop" >> /etc/modules'
-
-cat << EOF > /etc/modprobe.d/test-modules.conf
-options snd-aloop enable=1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 index=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29
-EOF
+sudo sh -c 'echo "snd-aloop" >> /etc/modules'
+sudo sh -c 'echo "options snd-aloop enable=1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 index=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29" > /etc/modprobe.d/test-modules.conf'
 sudo modprobe snd-aloop
 
 # Create dependency file
