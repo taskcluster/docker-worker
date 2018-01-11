@@ -77,8 +77,8 @@ defaults:
   # Shutdown configuration...
   shutdown:
     enabled: false
-    minimumCycleSeconds: null
-
+    # Shut down the worker after this many seconds of idle.
+    afterIdleSeconds: 300
   cache:
     volumeCachePath: '/mnt/var/cache/docker-worker'
 
