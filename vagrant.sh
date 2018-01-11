@@ -8,7 +8,7 @@ sudo ln -sf /vagrant /worker
 NODE_VERSION=v8.6.0
 DOCKER_VERSION=1.12.6-0~ubuntu-trusty
 KERNEL_VER=4.4.0-98-generic
-V4L2LOOPBACK_VERSION=0.8.0
+V4L2LOOPBACK_VERSION=0.10.0
 
 lsb_release -a
 
@@ -75,20 +75,28 @@ sudo npm install -g yarn@1.0.2 babel-cli
 
 # Install Video loopback devices
 sudo apt-get install -y \
-    v4l2loopback-utils \
-    gstreamer0.10-plugins-ugly \
+    gstreamer0.10-alsa \
+    gstreamer0.10-plugins-bad \
+    gstreamer0.10-plugins-base \
     gstreamer0.10-plugins-good \
-    gstreamer0.10-plugins-bad
+    gstreamer0.10-plugins-ugly \
+    gstreamer0.10-tools \
+
+cd /usr/src
+sudo rm -rf v4l2loopback-$V4L2LOOPBACK_VERSION
+sudo git clone --branch v$V4L2LOOPBACK_VERSION https://github.com/umlaeute/v4l2loopback.git v4l2loopback-$V4L2LOOPBACK_VERSION
+cd v4l2loopback-$V4L2LOOPBACK_VERSION
+sudo dkms install -m v4l2loopback -v $V4L2LOOPBACK_VERSION -k $KERNEL_VER
+sudo dkms build -m v4l2loopback -v $V4L2LOOPBACK_VERSION -k $KERNEL_VER
+
+# The kernel was likely updated above. So we can't `modprobe` here.
 
 sudo sh -c 'echo "v4l2loopback" >> /etc/modules'
-
-sudo sh -c 'echo "options v4l2loopback devices=100" > /etc/modprobe.d/test-modules.conf'
-sudo modprobe v4l2loopback
+sudo sh -c 'echo "options v4l2loopback devices=100" > /etc/modprobe.d/v4l2loopback.conf'
 
 # Install Audio loopback devices
 sudo sh -c 'echo "snd-aloop" >> /etc/modules'
-sudo sh -c 'echo "options snd-aloop enable=1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 index=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29" > /etc/modprobe.d/test-modules.conf'
-sudo modprobe snd-aloop
+sudo sh -c 'echo "options snd-aloop enable=1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 index=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29" > /etc/modprobe.d/snd-aloop.conf'
 
 # Create dependency file
-depmod
+sudo depmod
