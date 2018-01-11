@@ -11,6 +11,10 @@ fi
 
 sudo ln -sf /vagrant /worker
 
+# Force use of overlayfs because aufs (the default) is bad and not used
+# in production.
+sudo sh -c 'echo "DOCKER_OPTS=\"--storage-driver overlay2\"" > /etc/default/docker'
+
 # Keep in sync with deploy/packer/base/scripts/packages.sh.
 NODE_VERSION=v8.6.0
 
