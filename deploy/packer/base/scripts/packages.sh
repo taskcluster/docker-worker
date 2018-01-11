@@ -85,6 +85,8 @@ sudo apt-get install -y \
 # Clone and build Zstandard
 sudo git clone https://github.com/facebook/zstd /zstd
 cd /zstd
+# Corresponds to v1.3.3.
+sudo git checkout f3a8bd553a865c59f1bd6e1f68bf182cf75a8f00
 sudo make zstd
 sudo mv zstd /usr/bin
 cd /
