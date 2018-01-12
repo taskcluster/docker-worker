@@ -31,8 +31,11 @@ sudo apt-get install -y \
     linux-image-$KERNEL_VER \
     linux-headers-$KERNEL_VER \
     linux-image-extra-$KERNEL_VER \
-    linux-image-extra-virtual \
     dkms
+
+# Clean up old 3.13 kernel.
+sudo apt-get remove -y linux-image-extra-virtual
+sudo apt-get autoremove -y
 
 if [ -z "${VAGRANT_PROVISION}" ]; then
     # On paravirtualized instances, PV-GRUB looks at /boot/grub/menu.lst, which is different from the
