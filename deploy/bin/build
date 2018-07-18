@@ -48,43 +48,15 @@ cmd_app() {
     --exclude='./packer-artifacts.json' \
     -zcvf $docker_worker_tgz .
   mv $docker_worker_tgz docker-worker.tgz
-  local git_rev=$(git rev-parse --verify HEAD)
 
   # Configure the deployment if needed...
   make -j100 -C deploy
-
-  packer_run \
-    build \
-    $@ \
-    -var-file $(template_vars app) \
-    -var "templateContents=deploy/deploy.tar.gz" \
-    -var "npmPackage=docker-worker.tgz" \
-    -var "workerRevision=$git_rev" \
-    $(packer_config app)
 }
 
 cmd_base() {
-  local git_rev=$(git rev-parse --verify HEAD)
-
   # build config file
   make target/packer/base.json -C deploy
-
-  packer_run \
-    build \
-    $@ \
-    -var-file $(template_vars base) \
-    -var "workerRevision=$git_rev" \
-    $(packer_config base)
 }
-
-if [ ! -x $(which packer) ];
-then
-  echo "This tool requires packer go download and install it first."
-  cmd_help
-  exit 1
-fi
-
-rm -f packer-artifacts.json
 
 case "$1" in
 "app")
@@ -98,19 +70,3 @@ case "$1" in
   ;;
 esac
 
-# extract only the AMI ids and store in a new json file
-if [ -f packer-artifacts.json ]; then
-  jq '
-    .builds[]
-    | {
-      (.name): [
-        .artifact_id
-        | split(",")
-        | .[]
-        | split(":")
-      ]
-      | flatten
-      | { (.[0]): .[1], (.[2]): .[3], (.[4]): .[5], (.[6]): .[7] }
-    }
-  ' packer-artifacts.json | jq -s add > docker-worker-amis.json
-fi
