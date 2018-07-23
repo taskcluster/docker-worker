@@ -25,7 +25,7 @@ target=$HOME/docker_worker
 mkdir -p $target
 cd $target
 tar xzf $docker_worker_source -C $target --strip-components=1
-sudo chown -R $USER:$USER /home/ubuntu/docker_worker
+sudo chown -R $USER:$USER ~/docker_worker
 
 sudo npm install -g yarn@1.0.2
 
@@ -54,7 +54,7 @@ sudo sh -c 'echo "vm.panic_on_oom=1" >> /etc/sysctl.conf'
 sudo sh -c 'echo "kernel.panic=1" >> /etc/sysctl.conf'
 
 # Export the images as a tarball to load when insances are initialized
-docker save taskcluster/taskcluster-proxy:4.0.1 taskcluster/livelog:v4 taskcluster/dind-service:v4.0 taskcluster/relengapi-proxy:$relengapi_proxy_version > /home/ubuntu/docker_worker/docker_worker_images.tar
+docker save taskcluster/taskcluster-proxy:4.0.1 taskcluster/livelog:v4 taskcluster/dind-service:v4.0 taskcluster/relengapi-proxy:$relengapi_proxy_version > ~/docker_worker/docker_worker_images.tar
 
 # Blow away local docker state because it is never used. On actual workers
 # per-instance storage is initialized and Docker state goes there.
