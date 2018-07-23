@@ -6,10 +6,5 @@ while [ ! -e /var/lib/cloud/instance/boot-finished ]; do
     sleep 1
 done
 
-if [ ! -e /mnt/var/lib/docker ]; then
-    echo "/mnt/var/lib/docker not present; look in cloud-init logs for initialization errors"
-    exit 1
-fi
-
 export TMPDIR="/mnt/docker-tmp"
-export DOCKER_OPTS="--ipv6 --fixed-cidr-v6=fd15:4ba5:5a2b:100a::/64 -g /mnt/var/lib/docker -s overlay2 --icc=false --iptables=true"
+export DOCKER_OPTS="--ipv6 --fixed-cidr-v6=fd15:4ba5:5a2b:100a::/64 -s overlay2 --icc=false --iptables=true"
