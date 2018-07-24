@@ -3,7 +3,7 @@
 set -e -v
 
 DOCKER_VERSION=18.06.0~ce~3-0~ubuntu
-KERNEL_VER=4.4.0-1014-aws
+KERNEL_VER=4.4.0-109-generic
 V4L2LOOPBACK_VERSION=0.10.0
 
 lsb_release -a
@@ -22,12 +22,11 @@ fi
 
 sudo usermod -a -G docker $user
 
+sudo apt-get update -y
+
 [ -e /usr/lib/apt/methods/https ] || {
   apt-get install apt-transport-https
 }
-
-sudo apt-get install -y software-properties-common
-sudo apt-add-repository -y ppa:taskcluster/ppa
 
 # Add docker gpg key and update sources
 sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
@@ -41,6 +40,7 @@ sudo apt-get update -y
 sudo apt-get install -y \
     linux-image-$KERNEL_VER \
     linux-headers-$KERNEL_VER \
+    linux-image-extra-$KERNEL_VER \
     dkms
 
 # Clean up old 3.13 kernel.
@@ -127,17 +127,7 @@ sudo sh -c 'echo "options v4l2loopback devices=100" > /etc/modprobe.d/v4l2loopba
 
 # Install Audio loopback devices
 echo "snd-aloop" | sudo tee --append /etc/modules
-sudo sh -c 'echo "options snd-aloop enable=1,1,1,1,1,1,1,1 index=0,1,2,3,4,5,6,7" > /etc/modprobe.d/snd-aloop.conf'
-
-# For some unknown reason, the kernel doesn't load snd-aloop even with
-# it listed in /etc/modules, with no trace in dmesg. We put it here to make
-# sure it is loaded during system startup.
-sudo bash -c 'cat > /etc/rc.local <<EOF
-#!/bin/sh -e
-modprobe snd-aloop
-exit 0
-EOF'
-sudo chmod +x /etc/rc.local
+sudo sh -c 'echo "options snd-aloop enable=1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 index=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29" > /etc/modprobe.d/snd-aloop.conf'
 
 # Do one final package cleanup, just in case.
 sudo apt-get autoremove -y
