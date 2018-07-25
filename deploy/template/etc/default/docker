@@ -1,4 +1,4 @@
 #!/bin/bash -vex
 
-export TMPDIR="/mnt/docker-tmp"
+#export TMPDIR="/mnt/docker-tmp"
 export DOCKER_OPTS="--ipv6 --fixed-cidr-v6=fd15:4ba5:5a2b:100a::/64 -s overlay2 --icc=false --iptables=true"
