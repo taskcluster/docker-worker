@@ -3,7 +3,7 @@ Return the appropriate configuration defaults when on packet.net.
 */
 
 const Debug = require('debug');
-const got = require('go-promise');
+const got = require('got-promise');
 const { createLogger } = require('../log');
 const { spawn } = require('child_process');
 
