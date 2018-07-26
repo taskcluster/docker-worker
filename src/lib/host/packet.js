@@ -26,6 +26,10 @@ module.exports = {
         .map(addr => addr.address)[0];
 
       const config = {
+        taskcluster: {
+          clientId: process.env.TASKCLUSTER_CLIENT_ID,
+          accessToken: process.env.TASKCLUSTER_ACCESS_TOKEN,
+        },
         host: data.hostname,
         publicIp,
         privateIp,
