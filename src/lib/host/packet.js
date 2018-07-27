@@ -7,6 +7,7 @@ const got = require('got-promise');
 const { createLogger } = require('../log');
 const { spawn } = require('child_process');
 const os = require('os');
+const assert = require('assert');
 
 const debug = Debug('docker-worker:host:packet');
 
@@ -20,11 +21,14 @@ module.exports = {
       const res = await got('https://metadata.packet.net/metadata');
       const data = JSON.parse(res.body);
       const publicIp = data.network.addresses
-        .filter(addr => addr.address_family === 4 && addr.publicIp)
+        .filter(addr => addr.address_family === 4 && addr.public)
         .map(addr => addr.address)[0];
       const privateIp = data.network.addresses
-        .filter(addr => addr.address_family === 4 && !addr.publicIp)
+        .filter(addr => addr.address_family === 4 && !addr.public)
         .map(addr => addr.address)[0];
+
+      assert(publicIp);
+      assert(privateIp);
 
       const config = {
         taskcluster: {

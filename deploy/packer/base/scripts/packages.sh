@@ -47,26 +47,6 @@ sudo apt-get install -y \
 sudo apt-get remove -y linux-image-extra-virtual
 sudo apt-get autoremove -y
 
-if [ -z "${VAGRANT_PROVISION}" ]; then
-    # On paravirtualized instances, PV-GRUB looks at /boot/grub/menu.lst, which is different from the
-    # /boot/grub/grub.cfg that dpkg just updated.  So we have to update menu.list manually.
-    cat <<EOF | sudo tee /boot/grub/menu.lst >&2
-default         0
-timeout         0
-hiddenmenu
-
-title           Ubuntu 14.04.2 LTS, kernel ${KERNEL_VER}
-root            (hd0)
-kernel          /boot/vmlinuz-${KERNEL_VER} root=LABEL=cloudimg-rootfs ro console=hvc0
-initrd          /boot/initrd.img-${KERNEL_VER}
-
-title           Ubuntu 14.04.2 LTS, kernel ${KERNEL_VER} (recovery mode)
-root            (hd0)
-kernel          /boot/vmlinuz-${KERNEL_VER} root=LABEL=cloudimg-rootfs ro  single
-initrd          /boot/initrd.img-${KERNEL_VER}
-EOF
-fi
-
 ## Install all the packages
 sudo apt-get install -y \
     unattended-upgrades \
