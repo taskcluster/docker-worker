@@ -6,6 +6,7 @@ const Debug = require('debug');
 const got = require('got-promise');
 const { createLogger } = require('../log');
 const { spawn } = require('child_process');
+const os = require('os');
 
 const debug = Debug('docker-worker:host:packet');
 
@@ -55,5 +56,8 @@ module.exports = {
   },
   getTerminationTime() {
     return false;
-  }
+  },
+  billingCycleUptime() {
+    return os.uptime();
+  },
 };
