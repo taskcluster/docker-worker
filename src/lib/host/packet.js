@@ -18,10 +18,10 @@ module.exports = {
     try {
       const res = await got('https://metadata.packet.net/metadata');
       const data = JSON.parse(res.body);
-      const publicIp = data.address
+      const publicIp = data.network.addresses
         .filter(addr => addr.address_family === 4 && addr.publicIp)
         .map(addr => addr.address)[0];
-      const privateIp = data.address
+      const privateIp = data.network.addresses
         .filter(addr => addr.address_family === 4 && !addr.publicIp)
         .map(addr => addr.address)[0];
 
@@ -35,13 +35,16 @@ module.exports = {
         privateIp,
         workerNodeType: 'packet.net',
         instanceId: data.id,
-        workerId: data.id,
-        workerGroup: data.facility,
+        workerId: process.env.WORKER_ID,
+        workerGroup: process.env.WORKER_GROUP,
+        provisionerId: process.env.PROVISIONER_ID,
         region: data.facility,
         instanceType: data.plan,
+        capacity: process.env.CAPACITY,
+        workerType: process.env.WORKER_TYPE,
         shutdown: {
           enabled: true,
-          afterIdleSeconds: 15 * 60, // 15 minutes
+          afterIdleSeconds: 100 * 60 * 60, // 100 hours
         },
       };
       return config;
@@ -49,5 +52,8 @@ module.exports = {
       log('[alert-operator] error retrieving secrets', {stack: e.stack});
       spawn('shutdown', ['-h', 'now']);
     }
+  },
+  getTerminationTime() {
+    return false;
   }
 };
