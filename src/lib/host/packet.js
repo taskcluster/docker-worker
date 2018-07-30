@@ -51,6 +51,9 @@ module.exports = {
           enabled: true,
           afterIdleSeconds: 100 * 60 * 60, // 100 hours
         },
+        relengAPIProxy: {
+          token: process.env.RELENG_API_TOKEN,
+        },
       };
       return config;
     } catch (e) {
