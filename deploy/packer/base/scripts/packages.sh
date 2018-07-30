@@ -70,7 +70,6 @@ sudo apt-get install -y \
     jq \
     rsyslog-gnutls \
     openvpn \
-    lxc \
     rng-tools \
     liblz4-tool
 
