@@ -9,7 +9,7 @@ V4L2LOOPBACK_VERSION=0.10.0
 lsb_release -a
 
 # add docker group and add current user to it
-sudo groupadd -f docker
+#sudo groupadd -f docker
 
 # Make sure we use add the calling user to docker
 # group. If the the script itself is called with sudo,
@@ -20,7 +20,7 @@ else
     user=$SUDO_USER
 fi
 
-sudo usermod -a -G docker $user
+#sudo usermod -a -G docker $user
 
 sudo apt-get update -y
 
