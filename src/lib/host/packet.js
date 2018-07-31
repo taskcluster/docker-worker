@@ -54,6 +54,9 @@ module.exports = {
         relengAPIProxy: {
           token: process.env.RELENG_API_TOKEN,
         },
+        statelessHostname: {
+          secret: process.env.STATELESS_HOSTNAME,
+        },
       };
       return config;
     } catch (e) {
