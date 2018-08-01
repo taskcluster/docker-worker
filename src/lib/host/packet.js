@@ -57,6 +57,9 @@ module.exports = {
         statelessHostname: {
           secret: process.env.STATELESS_HOSTNAME,
         },
+        dockerConfig: {
+          allowPrivileged: true,
+        },
       };
       return config;
     } catch (e) {
