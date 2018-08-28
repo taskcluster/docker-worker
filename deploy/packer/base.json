@@ -65,6 +65,16 @@
         "Release":    "Latest",
         "Revision":   "{{user `workerRevision`}}"
       }
+    },
+    {
+      "type": "googlecompute",
+      "project_id": "linux64-builds",
+      "source_image_family": "ubuntu-1404-lts",
+      "ssh_username": "ubuntu",
+      "zone": "us-west1-b",
+      "image_family": "docker-worker-base",
+      "image_name": "docker-worker-base-{{timestamp}}",
+      "instance_name": "docker-worker-base-{{uuid}}"
     }
   ]
 }

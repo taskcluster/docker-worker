@@ -27,7 +27,7 @@ const typedEnvConfig = require('typed-env-config');
 const SchemaSet = require('taskcluster-lib-validate');
 
 // Available target configurations.
-var allowedHosts = ['aws', 'test', 'packet'];
+var allowedHosts = ['aws', 'test', 'packet', 'gcp'];
 let debug = Debug('docker-worker:bin:worker');
 
 // All overridable configuration options from the CLI.
