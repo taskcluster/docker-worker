@@ -3,7 +3,6 @@ const dockerUtils = require('dockerode-process/utils');
 const ImageManager = require('../src/lib/docker/image_manager');
 const Docker = require('../src/lib/docker');
 const {Index} = require('taskcluster-client');
-const base = require('taskcluster-base');
 const {createHash} = require('crypto');
 const slugid = require('slugid');
 const {createLogger} = require('../src/lib/log');

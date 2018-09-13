@@ -12,7 +12,6 @@ const fs = require('fs');
 const os = require('os');
 const program = require('commander');
 const taskcluster = require('taskcluster-client');
-const base = require('taskcluster-base');
 const createLogger = require('../lib/log').createLogger;
 const Debug = require('debug');
 const _ = require('lodash');
@@ -24,6 +23,8 @@ const GarbageCollector = require('../lib/gc');
 const VolumeCache = require('../lib/volume_cache');
 const PrivateKey = require('../lib/private_key');
 const ImageManager = require('../lib/docker/image_manager');
+const typedEnvConfig = require('typed-env-config');
+const validator = require('taskcluster-lib-validate');
 
 // Available target configurations.
 var allowedHosts = ['aws', 'test'];
@@ -111,7 +112,7 @@ program.parse(process.argv);
     return process.exit(1);
   }
 
-  var config = base.config({
+  var config = typedEnvConfig({
     files: [`${__dirname}/../../config.yml`],
     profile: profile,
     env: process.env
@@ -179,7 +180,7 @@ program.parse(process.argv);
     credentials: config.taskcluster
   });
 
-  config.validator = await base.validator({
+  config.validator = await validator({
     prefix: config.schema.path
   });
 

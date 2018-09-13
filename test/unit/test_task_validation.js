@@ -1,5 +1,5 @@
 const assert = require('assert');
-const base = require('taskcluster-base');
+const validator = require('taskcluster-lib-validate');
 const path = require('path');
 const _ = require('lodash');
 
@@ -7,7 +7,7 @@ const { PAYLOAD_SCHEMA } = require('../../src/lib/task.js');
 
 suite('Task validation', async function() {
   before(async function() {
-    this.validator = await base.validator({
+    this.validator = await validator({
       prefix: 'docker-worker/v1/'
     });
   });

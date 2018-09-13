@@ -11,14 +11,13 @@ const States = require('./states');
 const fs = require('mz/fs');
 const child_process = require('mz/child_process');
 const taskcluster = require('taskcluster-client');
-const base = require('taskcluster-base');
 const promiseRetry = require('promise-retry');
 
 const features = require('./features');
 const getHostname = require('./util/hostname');
 const { fmtLog, fmtErrorLog } = require('./log');
 const { hasPrefixedScopes } = require('./util/scopes');
-const { scopeMatch } = require('taskcluster-base/utils');
+const { scopeMatch } = require('taskcluster-lib-scopes');
 const { validatePayload } = require('./util/validate_schema');
 const waitForEvent = require('./wait_for_event');
 const uploadToS3 = require('./upload_to_s3');
