@@ -160,7 +160,8 @@ program.parse(process.argv);
   config.docker = require('../lib/docker')();
 
   let monitor = await monitoring({
-    project: config.monitorProject,
+    rootUrl: config.rootUrl,
+    projectName: config.monitorProject,
     credentials: config.taskcluster,
     mock: profile === 'test',
     reportUsage: false
