@@ -116,6 +116,12 @@ module.exports = {
     let securityToken = userdata.securityToken;
     let provisionerBaseUrl = userdata.provisionerBaseUrl;
 
+    let rootUrl = userdata.rootUrl;
+    if (!rootUrl) {
+      // for backward compatibility, assume the legacy instance if no rootUrl is given
+      rootUrl = 'https://taskcluster.net';
+    }
+
     log('read userdata', { text: userdata });
 
     let provisioner = new taskcluster.AwsProvisioner({
@@ -148,6 +154,7 @@ module.exports = {
     return _.defaultsDeep(
       secrets.data,
       {taskcluster: secrets.credentials},
+      {rootUrl},
       userdata.data,
       {
         capacity: userdata.capacity,
