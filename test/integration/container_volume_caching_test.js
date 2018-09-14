@@ -19,12 +19,8 @@ suite('volume cache tests', () => {
   var purgeCache;
 
   setup(() => {
-    purgeCache = new taskcluster.PurgeCache({
-      credentials: {
-        clientId: process.env.TASKCLUSTER_CLIENT_ID,
-        accessToken: process.env.TASKCLUSTER_ACCESS_TOKEN
-      }
-    });
+    // expects rootUrl, credentials in env vars
+    purgeCache = new taskcluster.PurgeCache();
   });
 
   teardown(() => {

@@ -6,7 +6,6 @@ const slugid = require('slugid');
 const {Transform} = require('stream');
 const path = require('path');
 const tarfs = require('tar-fs');
-const taskcluster = require('taskcluster-client');
 const {scopeMatch} = require('taskcluster-lib-scopes');
 const pipe = require('promisepipe');
 

@@ -12,6 +12,7 @@ const Debug = require('debug');
 const {removeImage} = require('../../src/lib/util/remove_image');
 const pipe = require('promisepipe');
 const testing = require('taskcluster-lib-testing');
+const taskcluster = require('taskcluster-client');
 
 let debug = Debug('docker-worker:test:docker-save-test');
 
@@ -50,7 +51,9 @@ suite('use docker-save', () => {
     let taskId = result.taskId;
     let runId = result.runId;
 
-    let url = `https://queue.taskcluster.net/v1/task/${taskId}/runs/${runId}/artifacts/public/dockerImage.tar`;
+    // expects rootUrl and credentials from env vars
+    let queue = new taskcluster.Queue();
+    let url = queue.buildUrl(queue.getArtifact, taskId, runId, 'public/dockerImage.tar');
 
     let res = got.stream(url);
     const tarStream = fs.createWriteStream('/tmp/dockerload.tar');
@@ -113,7 +116,9 @@ suite('use docker-save', () => {
     let taskId = result.taskId;
     let runId = result.runId;
 
-    let url = `https://queue.taskcluster.net/v1/task/${taskId}/runs/${runId}/artifacts/public/cache/docker-worker-garbage-caches-test-cache.tar`;
+    // expects rootUrl and credentials from env vars
+    let queue = new taskcluster.Queue();
+    let url = queue.buildUrl(queue.getArtifact, taskId, runId, 'public/cache/docker-worker-garbage-caches-test-cache.tar');
 
     let res = got.stream(url);
     let tarStream = tar.extract('/tmp/cacheload');

@@ -114,7 +114,6 @@ module.exports = {
 
     let userdata = await getJsonData(`${baseUrl}/user-data`);
     let securityToken = userdata.securityToken;
-    let provisionerBaseUrl = userdata.provisionerBaseUrl;
 
     let rootUrl = userdata.rootUrl;
     if (!rootUrl) {
@@ -124,9 +123,7 @@ module.exports = {
 
     log('read userdata', { text: userdata });
 
-    let provisioner = new taskcluster.AwsProvisioner({
-      baseUrl: provisionerBaseUrl
-    });
+    let provisioner = new taskcluster.AwsProvisioner({rootUrl});
 
     // Retrieve secrets
     let secrets;

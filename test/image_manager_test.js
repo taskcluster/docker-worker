@@ -2,11 +2,10 @@ const assert = require('assert');
 const dockerUtils = require('dockerode-process/utils');
 const ImageManager = require('../src/lib/docker/image_manager');
 const Docker = require('../src/lib/docker');
-const {Index} = require('taskcluster-client');
 const {createHash} = require('crypto');
 const slugid = require('slugid');
 const {createLogger} = require('../src/lib/log');
-const {NAMESPACE, TASK_ID} = require('./fixtures/image_artifacts');
+const {NAMESPACE, TASK_ID, ROOT_URL} = require('./fixtures/image_artifacts');
 const taskcluster = require('taskcluster-client');
 const monitoring = require('taskcluster-lib-monitor');
 
@@ -24,7 +23,7 @@ suite('Image Manager', () => {
   setup(async () => {
     monitor = await monitoring({
       credentials: {},
-      project: 'docker-worker-tests',
+      projectName: 'docker-worker-tests',
       mock: true
     });
   });
@@ -35,7 +34,8 @@ suite('Image Manager', () => {
       docker: docker,
       dockerConfig: DOCKER_CONFIG,
       log: createLogger(),
-      monitor: monitor
+      monitor: monitor,
+      rootUrl: ROOT_URL,
     };
 
     let im = new ImageManager(runtime);
@@ -64,11 +64,13 @@ suite('Image Manager', () => {
       dockerConfig: DOCKER_CONFIG,
       dockerVolume: '/tmp',
       log: createLogger(),
-      monitor: monitor
+      monitor: monitor,
+      rootUrl: ROOT_URL,
     };
 
     let task = {
       queue: new taskcluster.Queue({
+        rootUrl: ROOT_URL,
         credentials: undefined,
         scopes: [],
       }),
@@ -90,7 +92,9 @@ suite('Image Manager', () => {
       path: 'public/image.tar'
     };
 
-    let index = new Index();
+    let index = new taskcluster.Index({
+      rootUrl: ROOT_URL,
+    });
     let {taskId} = await index.findTask(image.namespace);
     let hashedName = createHash('md5')
       .update(`${taskId}${image.path}`)
@@ -103,11 +107,13 @@ suite('Image Manager', () => {
       dockerConfig: DOCKER_CONFIG,
       dockerVolume: '/tmp',
       log: createLogger(),
-      monitor: monitor
+      monitor: monitor,
+      rootUrl: ROOT_URL,
     };
 
     let task = {
       queue: new taskcluster.Queue({
+        rootUrl: ROOT_URL,
         credentials: undefined,
         scopes: [],
       }),
@@ -127,7 +133,9 @@ suite('Image Manager', () => {
       path: 'private/docker-worker-tests/image.tar'
     };
 
-    let index = new Index();
+    let index = new taskcluster.Index({
+      rootUrl: ROOT_URL,
+    });
     let {taskId} = await index.findTask(image.namespace);
     let hashedName = createHash('md5')
       .update(`${taskId}${image.path}`)
@@ -140,11 +148,13 @@ suite('Image Manager', () => {
       dockerConfig: DOCKER_CONFIG,
       dockerVolume: '/tmp',
       log: createLogger(),
-      monitor: monitor
+      monitor: monitor,
+      rootUrl: ROOT_URL,
     };
 
     let task = {
       queue: new taskcluster.Queue({
+        rootUrl: ROOT_URL,
         credentials: undefined,
         scopes: [],
       }),
@@ -169,7 +179,9 @@ suite('Image Manager', () => {
 
     let scopes = ['queue:get-artifact:private/docker-worker-tests/image.tar'];
 
-    let index = new Index();
+    let index = new taskcluster.Index({
+      rootUrl: ROOT_URL,
+    });
     let {taskId} = await index.findTask(image.namespace);
     let hashedName = createHash('md5')
       .update(`${taskId}${image.path}`)
@@ -182,11 +194,13 @@ suite('Image Manager', () => {
       dockerConfig: DOCKER_CONFIG,
       dockerVolume: '/tmp',
       log: createLogger(),
-      monitor: monitor
+      monitor: monitor,
+      rootUrl: ROOT_URL,
     };
 
     let task = {
       queue: new taskcluster.Queue({
+        rootUrl: ROOT_URL,
         credentials: undefined,
         scopes: [],
       }),
@@ -205,7 +219,9 @@ suite('Image Manager', () => {
       path: 'public/image.tar'
     };
 
-    let index = new Index();
+    let index = new taskcluster.Index({
+      rootUrl: ROOT_URL,
+    });
     let {taskId} = await index.findTask(image.namespace);
     let hashedName = createHash('md5')
       .update(`${taskId}${image.path}`)
@@ -218,11 +234,13 @@ suite('Image Manager', () => {
       dockerConfig: DOCKER_CONFIG,
       dockerVolume: '/tmp',
       log: createLogger(),
-      monitor: monitor
+      monitor: monitor,
+      rootUrl: ROOT_URL,
     };
 
     let task = {
       queue: new taskcluster.Queue({
+        rootUrl: ROOT_URL,
         credentials: undefined,
         scopes: [],
       }),
@@ -247,11 +265,13 @@ suite('Image Manager', () => {
       dockerConfig: DOCKER_CONFIG,
       dockerVolume: '/tmp',
       log: createLogger(),
-      monitor: monitor
+      monitor: monitor,
+      rootUrl: ROOT_URL,
     };
 
     let task = {
       queue: new taskcluster.Queue({
+        rootUrl: ROOT_URL,
         credentials: undefined,
         scopes: [],
       }),
@@ -282,11 +302,13 @@ suite('Image Manager', () => {
       dockerConfig: DOCKER_CONFIG,
       dockerVolume: '/tmp',
       log: createLogger(),
-      monitor: monitor
+      monitor: monitor,
+      rootUrl: ROOT_URL,
     };
 
     let task = {
       queue: new taskcluster.Queue({
+        rootUrl: ROOT_URL,
         credentials: undefined,
         scopes: [],
       }),
@@ -316,11 +338,13 @@ suite('Image Manager', () => {
       dockerConfig: DOCKER_CONFIG,
       dockerVolume: '/tmp',
       log: createLogger(),
-      monitor: monitor
+      monitor: monitor,
+      rootUrl: ROOT_URL,
     };
 
     let task = {
       queue: new taskcluster.Queue({
+        rootUrl: ROOT_URL,
         credentials: undefined,
         scopes: [],
       }),

@@ -178,6 +178,7 @@ program.parse(process.argv);
   config.monitor.count('workerStart');
 
   config.queue = new taskcluster.Queue({
+    rootUrl: config.rootUrl,
     credentials: config.taskcluster
   });
 

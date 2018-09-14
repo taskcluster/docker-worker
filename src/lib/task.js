@@ -138,8 +138,8 @@ Create a list of cached volumes that will be mounted within the docker container
 @param {object} volume cache
 @param {object} volumes to mount in the container
  */
-async function buildVolumeBindings(taskVolumeBindings, volumeCache, taskScopes) {
-  let allowed = await hasPrefixedScopes('docker-worker:cache:', taskVolumeBindings, taskScopes);
+async function buildVolumeBindings(taskVolumeBindings, volumeCache, expandedScopes) {
+  let allowed = await hasPrefixedScopes('docker-worker:cache:', taskVolumeBindings, expandedScopes);
   if (!allowed) {
     throw new Error('Insufficient scopes to attach cache volumes.  The task must ' +
     'have scope `docker-worker:cache:<cache-name>` for each cache in `payload.caches`.');
@@ -179,8 +179,8 @@ function runAsPrivileged(task, allowPrivilegedTasks) {
   return true;
 }
 
-async function buildDeviceBindings(devices, taskScopes) {
-  let allowed = await hasPrefixedScopes('docker-worker:capability:device:', devices, taskScopes);
+async function buildDeviceBindings(devices, expandedScopes) {
+  let allowed = await hasPrefixedScopes('docker-worker:capability:device:', devices, expandedScopes);
 
   if (!allowed) {
     throw new Error('Insufficient scopes to attach devices to task container.  The ' +
@@ -410,8 +410,15 @@ class Task extends EventEmitter {
       procConfig.create.HostConfig.CpusetCpus = this.options.cpusetCpus;
     }
 
+    // expand the task's scopes for access checks
+    let auth = new taskcluster.Auth({
+      rootUrl: this.runtime.rootUrl,
+      credentials: this.runtime.taskcluster,
+    });
+    let expandedScopes = (await auth.expandScopes({scopes: this.task.scopes})).scopes;
+
     if (this.options.devices) {
-      let bindings = await buildDeviceBindings(this.options.devices, this.task.scopes);
+      let bindings = await buildDeviceBindings(this.options.devices, expandedScopes);
       procConfig.create.HostConfig['Devices'] = bindings;
     }
 
@@ -432,7 +439,7 @@ class Task extends EventEmitter {
 
     if (this.task.payload.cache) {
       let bindings = await buildVolumeBindings(this.task.payload.cache,
-        this.runtime.volumeCache, this.task.scopes);
+        this.runtime.volumeCache, expandedScopes);
       this.volumeCaches = bindings[0];
       binds = _.union(binds, bindings[1]);
     }
@@ -1085,6 +1092,7 @@ class Task extends EventEmitter {
   */
   createQueue(credentials) {
     return new taskcluster.Queue({
+      rootUrl: this.runtime.rootUrl,
       credentials: credentials,
     });
   }
