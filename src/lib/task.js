@@ -23,6 +23,7 @@ const waitForEvent = require('./wait_for_event');
 const uploadToS3 = require('./upload_to_s3');
 const _ = require('lodash');
 const EventEmitter = require('events');
+const libUrls = require('taskcluster-lib-urls');
 
 const APP_ARMOR_TEMPLATE = `
 #include <tunables/global>
@@ -66,9 +67,6 @@ profile docker-default flags=(attach_disconnected,mediate_deleted) {
 `;
 
 let debug = new Debug('runTask');
-
-const PAYLOAD_SCHEMA =
-  'http://schemas.taskcluster.net/docker-worker/v1/payload.json#';
 
 // TODO probably a terrible error message, look at making it better later
 const CANCEL_ERROR = 'Task was canceled by another entity. This can happen using ' +
@@ -905,7 +903,8 @@ class Task extends EventEmitter {
       return await this.abortRun();
     }
 
-    let payloadErrors = validatePayload(this.runtime.validator, this.task.payload, this.status, PAYLOAD_SCHEMA);
+    const schema = libUrls.schema(this.runtime.rootUrl, 'docker-worker', 'v1/payload.json#');
+    let payloadErrors = validatePayload(this.runtime.validator, this.task.payload, this.status, schema);
 
     if (payloadErrors.length) {
       // Inform the user that this task has failed due to some configuration
@@ -1092,7 +1091,6 @@ class Task extends EventEmitter {
 }
 
 module.exports = {
-  PAYLOAD_SCHEMA,
   Reclaimer,
   Task
 };

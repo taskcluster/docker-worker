@@ -24,7 +24,7 @@ const VolumeCache = require('../lib/volume_cache');
 const PrivateKey = require('../lib/private_key');
 const ImageManager = require('../lib/docker/image_manager');
 const typedEnvConfig = require('typed-env-config');
-const validator = require('taskcluster-lib-validate');
+const SchemaSet = require('taskcluster-lib-validate');
 
 // Available target configurations.
 var allowedHosts = ['aws', 'test'];
@@ -180,9 +180,11 @@ program.parse(process.argv);
     credentials: config.taskcluster
   });
 
-  config.validator = await validator({
-    prefix: config.schema.path
+  const schemaset = new SchemaSet({
+    serviceName: 'docker-worker',
+    publish: false,
   });
+  config.validator = await schemaset.validator(config.rootUrl);
 
   setInterval(
     reportHostMetrics.bind(this, {
