@@ -29,6 +29,8 @@ tasks:
       features:
         taskclusterProxy:
           true
+      env:
+        TASKCLUSTER_ROOT_URL: https://taskcluster.net
       command:
         - /bin/bash
         - '--login'
@@ -69,6 +71,7 @@ tasks:
           loopbackVideo: true
       env:
         WORKER_CI: '1'
+        TASKCLUSTER_ROOT_URL: https://taskcluster.net
       features:
         taskclusterProxy: true
     metadata:
@@ -111,6 +114,7 @@ tasks:
       env:
         WORKER_CI: '1'
         DEBUG: '*docker-worker*'
+        TASKCLUSTER_ROOT_URL: https://taskcluster.net
       features:
         taskclusterProxy: true
     metadata:
@@ -153,6 +157,7 @@ tasks:
       env:
         WORKER_CI: '1'
         DEBUG: '*docker-worker*'
+        TASKCLUSTER_ROOT_URL: https://taskcluster.net
       features:
         taskclusterProxy: true
     metadata:
@@ -195,6 +200,7 @@ tasks:
       env:
         WORKER_CI: '1'
         DEBUG: '*docker-worker*'
+        TASKCLUSTER_ROOT_URL: https://taskcluster.net
       features:
         taskclusterProxy: true
     metadata:
@@ -237,6 +243,7 @@ tasks:
       env:
         WORKER_CI: '1'
         DEBUG: '*docker-worker*'
+        TASKCLUSTER_ROOT_URL: https://taskcluster.net
       features:
         taskclusterProxy: true
     metadata:
@@ -279,6 +286,7 @@ tasks:
       env:
         WORKER_CI: '1'
         DEBUG: '*docker-worker*'
+        TASKCLUSTER_ROOT_URL: https://taskcluster.net
       features:
         taskclusterProxy: true
     metadata:
