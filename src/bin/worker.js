@@ -143,7 +143,7 @@ program.parse(process.argv);
     config[field] = program[field];
   });
 
-  // If restrict CPU is set override capacity (as long as capacity is > 0
+  // If restrict CPU is set override capacity (as long as capacity is > 0)
   // Capacity could be set to zero by the host configuration if the credentials and
   // other necessary information could not be retrieved from the meta/user/secret-data
   // endpoints.  We set capacity to zero so no tasks are claimed and wait out the billng
@@ -290,5 +290,8 @@ program.parse(process.argv);
       taskListener.once('idle', halt);
     });
   }
-})();
+})().catch(err => {
+  console.error(err.stack);
+  process.exit(1);
+});
 
