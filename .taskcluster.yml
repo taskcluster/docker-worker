@@ -52,6 +52,7 @@ tasks:
     workerType: worker-ci-test
     retries: 0
     scopes:
+      - 'docker-worker:cache:garbage-test-*'
       - 'docker-worker:capability:privileged'
       - 'docker-worker:capability:device:loopbackAudio'
       - 'docker-worker:capability:device:loopbackVideo'
@@ -93,6 +94,7 @@ tasks:
     workerType: worker-ci-test
     retries: 3
     scopes:
+      - 'docker-worker:cache:garbage-test-*'
       - 'docker-worker:capability:privileged'
       - 'docker-worker:capability:device:loopbackAudio'
       - 'docker-worker:capability:device:loopbackVideo'
@@ -136,6 +138,7 @@ tasks:
     workerType: worker-ci-test
     retries: 3
     scopes:
+      - 'docker-worker:cache:garbage-test-*'
       - 'docker-worker:capability:privileged'
       - 'docker-worker:capability:device:loopbackAudio'
       - 'docker-worker:capability:device:loopbackVideo'
@@ -179,6 +182,7 @@ tasks:
     workerType: worker-ci-test
     retries: 3
     scopes:
+      - 'docker-worker:cache:garbage-test-*'
       - 'docker-worker:capability:privileged'
       - 'docker-worker:capability:device:loopbackAudio'
       - 'docker-worker:capability:device:loopbackVideo'
@@ -222,6 +226,7 @@ tasks:
     workerType: worker-ci-test
     retries: 3
     scopes:
+      - 'docker-worker:cache:garbage-test-*'
       - 'docker-worker:capability:privileged'
       - 'docker-worker:capability:device:loopbackAudio'
       - 'docker-worker:capability:device:loopbackVideo'
@@ -265,6 +270,7 @@ tasks:
     workerType: worker-ci-test
     retries: 3
     scopes:
+      - 'docker-worker:cache:garbage-test-*'
       - 'docker-worker:capability:privileged'
       - 'docker-worker:capability:device:loopbackAudio'
       - 'docker-worker:capability:device:loopbackVideo'
