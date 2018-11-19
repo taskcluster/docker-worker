@@ -120,7 +120,9 @@ class TaskclusterProxy {
 
     return {
       links: [{name, alias: ALIAS}],
-      env: {}
+      env: {
+        TASKCLUSTER_PROXY_URL: `http://${ALIAS}`,
+      }
     };
   }
 
