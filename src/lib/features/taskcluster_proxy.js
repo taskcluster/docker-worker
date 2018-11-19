@@ -38,6 +38,8 @@ class TaskclusterProxy {
       cmd.push('--certificate=' + task.claim.credentials.certificate);
     }
 
+    cmd.push('--root-url=' + task.runtime.rootUrl);
+
     // supply the task's scopes, limiting what can be done via the proxy
     cmd = cmd.concat(task.task.scopes);
 
