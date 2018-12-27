@@ -43,6 +43,10 @@ class TaskclusterProxy {
     // supply the task's scopes, limiting what can be done via the proxy
     cmd = cmd.concat(task.task.scopes);
 
+    // ..and include the scope to create artifacts on this task, which cannot
+    // be represented in task.scopes (since it contains a taskId)
+    cmd.push(`queue:create-artifact:${task.status.taskId}/${task.runId}`);
+
     // create the container.
     this.container = await docker.createContainer({
       Image: imageId,

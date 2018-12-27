@@ -95,7 +95,9 @@ References:
 #### Feature: `taskclusterProxy`
 
 The taskcluster proxy provides an easy and safe way to make authenticated
-taskcluster requests within the scope(s) of a particular task.
+taskcluster requests within the scope(s) of a particular task.  The proxy
+accepts un-authenticated requests and attaches credentials to them
+corresponding to `task.scopes` as well as scopes to upload artifacts.
 
 For example lets say we have a task like this:
 
