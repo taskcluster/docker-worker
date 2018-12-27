@@ -114,12 +114,7 @@ module.exports = {
 
     let userdata = await getJsonData(`${baseUrl}/user-data`);
     let securityToken = userdata.securityToken;
-
-    let rootUrl = userdata.rootUrl;
-    if (!rootUrl) {
-      // for backward compatibility, assume the legacy instance if no rootUrl is given
-      rootUrl = 'https://taskcluster.net';
-    }
+    let rootUrl = userdata.taskclusterRootUrl;
 
     log('read userdata', { text: userdata });
 
