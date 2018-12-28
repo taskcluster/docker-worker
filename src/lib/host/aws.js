@@ -115,6 +115,11 @@ module.exports = {
     let userdata = await getJsonData(`${baseUrl}/user-data`);
     let securityToken = userdata.securityToken;
     let rootUrl = userdata.taskclusterRootUrl;
+    if (!rootUrl) {
+      // Without a rootUrl, there's no way to claim tasks, so bail out..
+      log('[alert-operator] no rootUrl provided');
+      spawn('shutdown', ['-h', 'now']);
+    }
 
     log('read userdata', { text: userdata });
 
