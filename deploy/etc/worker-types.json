@@ -41,6 +41,11 @@
     "gecko-t-linux-xlarge",
     "github-worker",
     "hg-worker",
+    "mobile-1-b-andrcmp",
+    "mobile-1-b-fenix",
+    "mobile-1-b-ref-browser",
+    "mobile-1-decision",
+    "mobile-1-images",
     "mulet-debug",
     "mulet-opt",
     "opt-linux32",
@@ -68,6 +73,11 @@
     "gecko-decision",
     "gecko-3-images",
     "gecko-images",
+    "mobile-3-b-andrcmp",
+    "mobile-3-b-fenix",
+    "mobile-3-b-ref-browser",
+    "mobile-3-decision",
+    "mobile-3-images",
     "taskcluster-images"
   ]
 }
