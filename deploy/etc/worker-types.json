@@ -40,6 +40,7 @@
     "gecko-t-linux-large",
     "gecko-t-linux-xlarge",
     "github-worker",
+    "hg-push",
     "hg-worker",
     "mobile-1-b-andrcmp",
     "mobile-1-b-fenix",
