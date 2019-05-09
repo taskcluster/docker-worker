@@ -17,8 +17,12 @@ template_source=$1
 # docker_worker_source that needs to be untar'ed
 docker_worker_source=$2
 
+sudo apt-get install -yq cpufrequtils
+
 # install the system configuration
 sudo tar xzf $template_source -C / --strip-components=1
+
+sudo /etc/init.d/cpufrequtils start
 
 # install the node app.
 target=$HOME/docker_worker
