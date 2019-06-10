@@ -47,6 +47,19 @@ docker pull taskcluster/livelog:v4
 docker pull taskcluster/dind-service:v4.0
 docker pull taskcluster/relengapi-proxy:$relengapi_proxy_version
 
+# install and configure taskcluster-worker-runner
+sudo curl --fail -L -o /usr/local/bin/start-worker https://github.com/taskcluster/taskcluster-worker-runner/releases/download/v0.2.1/start-worker-linux-amd64
+file /usr/local/bin/start-worker
+sudo chmod +x /usr/local/bin/start-worker
+sudo bash -c 'cat > /etc/start-worker.yml <<EOF
+provider:
+    providerType: aws-provisioner
+worker:
+    implementation: docker-worker
+    path: /home/ubuntu/docker_worker
+    configPath: /home/ubuntu/worker.cfg
+EOF'
+
 # Reboot the machine on OOM
 # Ref: http://www.oracle.com/technetwork/articles/servers-storage-dev/oom-killer-1911807.html
 sudo sh -c 'echo "vm.panic_on_oom=1" >> /etc/sysctl.conf'
