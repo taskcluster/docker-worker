@@ -1,8 +1,25 @@
 const assert = require('assert');
+const {EventEmitter} = require('events');
 const {Readable, PassThrough} = require('stream');
-const {StreamTransport} = require('../src/lib/worker-runner-protocol');
+const {StreamTransport, Protocol} = require('../src/lib/worker-runner-protocol');
 
 const endEvent = emitter => new Promise(resolve => emitter.on('end', resolve));
+
+class TestTransport extends EventEmitter {
+  constructor() {
+    super();
+
+    this.sent = [];
+  }
+
+  send(message) {
+    this.sent.push(message);
+  }
+
+  fakeReceive(message) {
+    this.emit('message', message);
+  }
+}
 
 suite('worker-runner-protocol', function() {
   suite('transport', function() {
@@ -67,6 +84,41 @@ suite('worker-runner-protocol', function() {
 
       assert.deepEqual(leftMessages, [{type: 'from-right'}]);
       assert.deepEqual(rightMessages, [{type: 'from-left'}]);
+    });
+  });
+
+  suite('protocol', function() {
+    test('caps negotiation', async function() {
+      const transp = new TestTransport();
+      const prot = new Protocol(transp, new Set(['worker-only', 'shared']));
+
+      assert.equal(prot.capable('worker-only'), false);
+      assert.equal(prot.capable('shared'), false);
+      assert.equal(prot.capable('runner-only'), false);
+
+      transp.fakeReceive({type: 'welcome', capabilities: ['shared', 'runner-only']});
+
+      assert.equal(prot.capable('worker-only'), false);
+      assert.equal(prot.capable('shared'), true);
+      assert.equal(prot.capable('runner-only'), false);
+    });
+
+    test('sending', async function() {
+      const transp = new TestTransport();
+      const prot = new Protocol(transp, new Set([]));
+      prot.send({type: 'test'});
+      assert.deepEqual(transp.sent, [{type: 'test'}]);
+    });
+
+    test('receiving', async function() {
+      const transp = new TestTransport();
+      const prot = new Protocol(transp, new Set([]));
+      const received = [];
+
+      prot.on('test-msg', msg => received.push(msg));
+      transp.fakeReceive({type: 'test'});
+
+      assert.deepEqual(received, [{type: 'test'}]);
     });
   });
 });

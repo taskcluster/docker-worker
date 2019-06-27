@@ -49,3 +49,60 @@ class StreamTransport extends EventEmitter {
 }
 
 exports.StreamTransport = StreamTransport;
+
+/**
+ * Given a transport, Protocol implements the higher levels -- specifically, the
+ * capability negotiation.  It implements only the worker side of that negotiation.
+ *
+ * It emits each message from the transport as event `<type>-msg`.  For example, a
+ * "welcome" message is emitted as a `welcome-msg` event.
+ */
+class Protocol extends EventEmitter {
+  /**
+   * Construct a new protocol, given the underlying transport and a Set defining the
+   * supported capabilities.  Note that a smaller set of capabilties might be
+   * negotiated, and that the initial set of capabilities is empty.
+   */
+  constructor(transport, supportedCapabilities) {
+    super();
+
+    this.transport = transport;
+    this.capabilities = new Set();
+    this.supportedCapabilities = supportedCapabilities;
+
+    this.transport.on('message', msg => {
+      const event = `${msg.type}-msg`;
+      this.emit(event, msg);
+    });
+
+    this.on('welcome-msg', msg => this._handleWelcome(msg));
+  }
+
+  /**
+   * Send a message
+   */
+  send(message) {
+    this.transport.send(message);
+  }
+
+  /**
+   * Check whether a particular capability is available
+   */
+  capable(cap) {
+    return this.capabilities.has(cap);
+  }
+
+  _handleWelcome(msg) {
+    const remoteCapabilities = new Set(msg.capabilities);
+    this.capabilities = new Set();
+    for (let c of remoteCapabilities) {
+      if (this.supportedCapabilities.has(c)) {
+        this.capabilities.add(c);
+      }
+    }
+
+    this.send({type: 'hello', capabilities: [...this.capabilities]});
+  }
+}
+
+exports.Protocol = Protocol;
