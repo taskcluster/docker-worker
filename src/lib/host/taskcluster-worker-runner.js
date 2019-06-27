@@ -5,12 +5,20 @@ const {StreamTransport, Protocol} = require('../worker-runner-protocol');
 // This module is imported as an "object", so the only place we have to store
 // persistent state is as module-level globals.
 let protocol;
+let gracefulTermination = false;
 
 module.exports = {
   setup() {
     const transp = new StreamTransport(process.stdin, process.stdout);
     protocol = new Protocol(transp, new Set([
+      'graceful-termination',
     ]));
+
+    // docker-worker doesn't support a finish-your-tasks-first termination,
+    // so we ignore that portion of the message
+    protocol.on('graceful-termination-msg', () => {
+      gracefulTermination = true;
+    });
   },
 
   billingCycleUptime() {
@@ -18,7 +26,9 @@ module.exports = {
   },
 
   getTerminationTime() {
-    return '';
+    // This method name would make you think it returns a time, but it really just
+    // returns a boolean.
+    return gracefulTermination;
   },
 
   configure() {
