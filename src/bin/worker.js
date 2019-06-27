@@ -123,6 +123,10 @@ program.parse(process.argv);
 
     host = require('../lib/host/' + program.host);
 
+    if (host.setup) {
+      host.setup();
+    }
+
     // execute the configuration helper and merge the results
     var targetConfig = await host.configure();
     config = _.defaultsDeep(targetConfig, config);
