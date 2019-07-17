@@ -17,9 +17,6 @@ template_source=$1
 # docker_worker_source that needs to be untar'ed
 docker_worker_source=$2
 
-# Host config
-host_config=${3=packet}
-
 # install the system configuration
 sudo tar xzf $template_source -C / --strip-components=1
 sudo npm install -g yarn@1.0.2
@@ -58,7 +55,7 @@ sudo sh -c 'echo "kernel.panic=1" >> /etc/sysctl.conf'
 # Export the images as a tarball to load when insances are initialized
 docker save taskcluster/taskcluster-proxy:5.1.0 taskcluster/livelog:v4 taskcluster/dind-service:v4.0 taskcluster/relengapi-proxy:$relengapi_proxy_version > /home/ubuntu/docker_worker/docker_worker_images.tar
 
-sudo bash -c "cat > /lib/systemd/system/docker-worker.service <<EOF
+sudo bash -c 'cat > /lib/systemd/system/docker-worker.service <<EOF
 [Unit]
 Description=Taskcluster docker worker
 After=side-containers.service
@@ -67,11 +64,11 @@ After=side-containers.service
 Type=simple
 ExecStart=/usr/local/bin/start-docker-worker
 User=root
-Environment=\"HOST=$host_config\"
+Environment="HOST=aws"
 
 [Install]
 RequiredBy=graphical.target
-EOF"
+EOF'
 
 sudo systemctl enable docker-worker.service
 sudo systemctl enable side-containers.service
