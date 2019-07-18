@@ -70,7 +70,7 @@
     {
       "type": "googlecompute",
       "project_id": "{{user `gcpProjectId`}}",
-      "source_image_family": "ubuntu-1404-lts",
+      "source_image_family": "ubuntu-1804-lts",
       "ssh_username": "ubuntu",
       "zone": "us-west1-b",
       "image_family": "docker-worker-base",
