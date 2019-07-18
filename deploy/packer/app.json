@@ -113,6 +113,7 @@
       "project_id": "{{user `gcpProjectId`}}",
       "source_image": "{{user `gcpSourceImage`}}",
       "ssh_username": "ubuntu",
+      "disk_size": 20,
       "zone": "us-west1-b",
       "image_family": "docker-worker-base",
       "image_name": "docker-worker-app-{{timestamp}}",
