@@ -138,6 +138,7 @@ esac
 if [ -f packer-artifacts.json ]; then
   jq '
     .builds[]
+    | select(.builder_type == "amazon-ebs")
     | {
       (.name): [
         .artifact_id
