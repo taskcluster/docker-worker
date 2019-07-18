@@ -66,6 +66,7 @@ if [ $? != 0 ]; then
     echo 'Try `gcloud auth login` or check your gcp account permissions'
     exit 1
 fi
+echo "Using GCP project $GCP_PROJECT_ID" >&2
 
 NODE_VERSION_MAJOR=$(node --version | tr -d v | awk -F. '{print $1}')
 NODE_VERSION_MINOR=$(node --version | tr -d v | awk -F. '{print $2}')
