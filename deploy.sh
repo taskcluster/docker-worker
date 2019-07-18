@@ -51,6 +51,22 @@ if ! $found; then
 fi
 echo "Using AWS account $AWS_ACCOUNT" >&2
 
+export GCP_PROJECT_ID
+case "$DEPLOYMENT" in
+    #taskcluster-net) GCP_PROJECT_ID=linux64-builds;;
+    dustin-dev) GCP_PROJECT_ID=dustin-dev-3;;
+    *)
+        echo "No GCP project defined for this environment" >&2
+        exit 1;;
+esac
+
+gcloud projects describe $GCP_PROJECT_ID >/dev/null
+if [ $? != 0 ]; then
+    echo "You do not have access to GCP project $GCP_PROJECT_ID"
+    echo 'Try `gcloud auth login` or check your gcp account permissions'
+    exit 1
+fi
+
 NODE_VERSION_MAJOR=$(node --version | tr -d v | awk -F. '{print $1}')
 NODE_VERSION_MINOR=$(node --version | tr -d v | awk -F. '{print $2}')
 if [ 0$NODE_VERSION_MAJOR -lt 8 -o 0$NODE_VERSION_MAJOR -eq 8 -a 0$NODE_VERSION_MINOR -lt 15 ]; then

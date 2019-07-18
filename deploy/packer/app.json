@@ -5,8 +5,9 @@
     "npmPackage":          "",
     "templateContents":    "",
     "hvmSourceAMI":        "",
-    "gceSourceImage":      "",
-    "workerRevision":      ""
+    "gcpSourceImage":      "",
+    "workerRevision":      "",
+    "gcpProjectId":        ""
   },
   "provisioners": [
     {
@@ -63,7 +64,7 @@
       "inline": [
         "/tmp/deploy.sh /tmp/deploy.tar.gz /tmp/docker-worker.tgz aws"
       ],
-      "only":           ["hvm-build-trusted", "hvm-build"]
+      "only":           ["hvm-builder-trusted", "hvm-builder"]
     },
     {
       "type":           "shell",
@@ -109,8 +110,8 @@
     {
       "type": "googlecompute",
       "name": "gce",
-      "project_id": "linux64-builds",
-      "source_image": "{{user `gceSourceImage`}}",
+      "project_id": "{{user `gcpProjectId`}}",
+      "source_image": "{{user `gcpSourceImage`}}",
       "ssh_username": "ubuntu",
       "zone": "us-west1-b",
       "image_family": "docker-worker-base",

@@ -4,7 +4,8 @@
     "papertrail":             "",
     "privateKeyLocation":     "",
     "sslKeyLocation":         "",
-    "workerRevision":         ""
+    "workerRevision":         "",
+    "gcpProjectId":           ""
   },
   "provisioners": [
     { "type": "file",
@@ -68,7 +69,7 @@
     },
     {
       "type": "googlecompute",
-      "project_id": "linux64-builds",
+      "project_id": "{{user `gcpProjectId`}}",
       "source_image_family": "ubuntu-1404-lts",
       "ssh_username": "ubuntu",
       "zone": "us-west1-b",
