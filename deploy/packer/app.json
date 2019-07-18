@@ -43,7 +43,7 @@
         "./gen-ed25519-key.js",
         "rm -rf node_modules package.json"
       ],
-      "only":           ["hvm-builder", "gce"]
+      "only":           ["hvm-builder", "gcp"]
     },
     {
       "type":           "file",
@@ -69,9 +69,9 @@
     {
       "type":           "shell",
       "inline": [
-        "/tmp/deploy.sh /tmp/deploy.tar.gz /tmp/docker-worker.tgz gce"
+        "/tmp/deploy.sh /tmp/deploy.tar.gz /tmp/docker-worker.tgz gcp"
       ],
-      "only":           ["gce"]
+      "only":           ["gcp"]
     }
   ],
   "builders": [
@@ -109,7 +109,7 @@
     },
     {
       "type": "googlecompute",
-      "name": "gce",
+      "name": "gcp",
       "project_id": "{{user `gcpProjectId`}}",
       "source_image": "{{user `gcpSourceImage`}}",
       "ssh_username": "ubuntu",

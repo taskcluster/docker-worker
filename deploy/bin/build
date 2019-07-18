@@ -68,7 +68,7 @@ cmd_app() {
       # the next person is not surprised by using an old base
       dustin-dev-3) gcpSourceImage=docker-worker-base-1563484547;;
       *)
-          echo "No base AMI defined for GCP project $GCP_PROJECT_ID; create one" >&2
+          echo "No base image defined for GCP project $GCP_PROJECT_ID; create one" >&2
           echo "  ./deploy/bin/build base" >&2
           echo "and then edit 'deploy/bin/base' to include that image name" >&2
           exit 1;;
@@ -86,7 +86,7 @@ cmd_app() {
     -var "workerRevision=$git_rev" \
     -var "hvmSourceAMI=$hvmSourceAMI" \
     -var "gcpProjectId=$GCP_PROJECT_ID" \
-    -var "gcpSourceImage=$gceSourceImage" \
+    -var "gcpSourceImage=$gcpSourceImage" \
     $(packer_config app)
 }
 

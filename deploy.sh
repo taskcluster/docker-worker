@@ -2,14 +2,19 @@
 
 export BUILD_TARGET=$1
 if [ -z "$BUILD_TARGET" ]; then
-    echo "USAGE: ./deploy.sh <target>   (base, app, etc.)" >&2
+    echo "USAGE: ./deploy.sh <target> [options]  (base, app, etc.)" >&2
+    echo " --test -- (for legacy deployment only) only deploy to ami-test, not all workers"
+    ehco " --only='..' -- only build these packer builders"
     exit 1
 fi
+shift
 
-if [ "$TASKCLUSTER_CLIENT_ID" == "" -o "$TASKCLUSTER_ACCESS_TOKEN" == "" ]; then
-    echo "You don't seem to have proper Taskcluster credentials, please run 'taskcluster-cli signin' command" >&2
-    exit 1
-fi
+export ONLY
+for arg in "${*}"; do
+    if [[ "x$arg" == x--only* ]]; then
+        ONLY=${arg#-}
+    fi
+done
 
 if [ "$TASKCLUSTER_ROOT_URL" == "" ]; then
     echo "TASKCLUSTER_ROOT_URL must be set" >&2
@@ -26,6 +31,18 @@ case "$TASKCLUSTER_ROOT_URL" in
         echo "Unrecognized TASKCLUSTER_ROOT_URL" >&2
         exit 1;;
 esac
+
+UPDATE_WORKER_TYPES=false
+if [ "$DEPLOYMENT" == "taskcluster-net" -a "$BUILD_TARGET" == "app" ]; then
+    UPDATE_WORKER_TYPES=true
+fi
+
+if $UPDATE_WORKER_TYPES; then
+    if [ "$TASKCLUSTER_CLIENT_ID" == "" -o "$TASKCLUSTER_ACCESS_TOKEN" == "" ]; then
+        echo "You don't seem to have proper Taskcluster credentials, please run 'taskcluster-cli signin' command" >&2
+        exit 1
+    fi
+fi
 
 echo "Configuring TC environment ${DEPLOYMENT}" >&2
 
@@ -89,8 +106,9 @@ fi
 
 deploy/bin/import-docker-worker-secrets
 trap 'rm -rf /tmp/docker-worker*' EXIT
-deploy/bin/build $BUILD_TARGET
-if [ "$DEPLOYMENT" == "taskcluster-net" -a "$BUILD_TARGET" == "app" ]; then
+deploy/bin/build $BUILD_TARGET "$ONLY"
+
+if $UPDATE_WORKER_TYPES; then
     deploy/bin/update-worker-types.js $*
 else
     echo "Not deploying worker-types as this is not the taskcluster-net app deployment"

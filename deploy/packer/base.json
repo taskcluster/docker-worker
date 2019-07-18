@@ -69,6 +69,7 @@
     },
     {
       "type": "googlecompute",
+      "name": "gcp",
       "project_id": "{{user `gcpProjectId`}}",
       "source_image_family": "ubuntu-1804-lts",
       "ssh_username": "ubuntu",
