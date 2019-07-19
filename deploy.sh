@@ -2,19 +2,34 @@
 
 export BUILD_TARGET=$1
 if [ -z "$BUILD_TARGET" ]; then
-    echo "USAGE: ./deploy.sh <target> [options]  (base, app, etc.)" >&2
+    echo "USAGE: ./deploy.sh <target> [options]"
+    echo " <target> -- one of base, app"
     echo " --test -- (for legacy deployment only) only deploy to ami-test, not all workers"
-    ehco " --only='..' -- only build these packer builders"
+    echo " --cloud=.. -- only build this cloud (aws or gcp)"
     exit 1
 fi
 shift
 
-export ONLY
+export CLOUD
 for arg in "${*}"; do
-    if [[ "x$arg" == x--only* ]]; then
-        ONLY=${arg#-}
-    fi
+    case $arg in
+        --cloud=*) CLOUD=${arg#--cloud=};;
+        --cloud)
+            echo "Use --cloud=.."
+            exit 1;;
+    esac
 done
+
+export BUILD_AWS=false
+export BUILD_GCP=false
+case $CLOUD in
+    aws) BUILD_AWS=true;;
+    gcp) BUILD_GCP=true;;
+    "") BUILD_AWS=true BUILD_GCP=true;;
+    *)
+        echo "Invalid value for --cloud" >&2
+        exit 1
+esac
 
 if [ "$TASKCLUSTER_ROOT_URL" == "" ]; then
     echo "TASKCLUSTER_ROOT_URL must be set" >&2
@@ -33,7 +48,7 @@ case "$TASKCLUSTER_ROOT_URL" in
 esac
 
 UPDATE_WORKER_TYPES=false
-if [ "$DEPLOYMENT" == "taskcluster-net" -a "$BUILD_TARGET" == "app" ]; then
+if $BUILD_AWS && [ "$DEPLOYMENT" == "taskcluster-net" -a "$BUILD_TARGET" == "app" ]; then
     UPDATE_WORKER_TYPES=true
 fi
 
@@ -44,46 +59,51 @@ if $UPDATE_WORKER_TYPES; then
     fi
 fi
 
+$BUILD_AWS && echo "Building for AWS"
+$BUILD_GCP && echo "Building for GCP"
 echo "Configuring TC environment ${DEPLOYMENT}" >&2
 
 export AWS_ACCOUNT
-case "$DEPLOYMENT" in
-    taskcluster-net) AWS_ACCOUNT=mozilla-taskcluster;;
-    taskcluster-staging-net) AWS_ACCOUNT=taskcluster-aws-staging;;
-    *-dev) AWS_ACCOUNT=taskcluster-aws-staging;;
-    *)
-        echo "No AWS account defined for this environment" >&2
-        exit 1;;
-esac
+if $BUILD_AWS; then
+    case "$DEPLOYMENT" in
+        taskcluster-net) AWS_ACCOUNT=mozilla-taskcluster;;
+        taskcluster-staging-net) AWS_ACCOUNT=taskcluster-aws-staging;;
+        *-dev) AWS_ACCOUNT=taskcluster-aws-staging;;
+        *)
+            echo "No AWS account defined for this environment" >&2
+            exit 1;;
+    esac
 
-found=false
-for alias in `aws iam list-account-aliases | jq -r '.AccountAliases[]'`; do
-    if [ "$alias" == "$AWS_ACCOUNT" ]; then
-        found=true
+    found=false
+    for alias in `aws iam list-account-aliases | jq -r '.AccountAliases[]'`; do
+        if [ "$alias" == "$AWS_ACCOUNT" ]; then
+            found=true
+        fi
+    done
+    if ! $found; then
+        echo "Not signed into AWS account $AWS_ACCOUNT - sign in and try again" >&2
+        exit 1
     fi
-done
-if ! $found; then
-    echo "Not signed into AWS account $AWS_ACCOUNT - sign in and try again" >&2
-    exit 1
+    echo "Using AWS account $AWS_ACCOUNT" >&2
 fi
-echo "Using AWS account $AWS_ACCOUNT" >&2
 
 export GCP_PROJECT_ID
-case "$DEPLOYMENT" in
-    #taskcluster-net) GCP_PROJECT_ID=linux64-builds;;
-    dustin-dev) GCP_PROJECT_ID=dustin-dev-3;;
-    *)
-        echo "No GCP project defined for this environment" >&2
-        exit 1;;
-esac
+if $BUILD_GCP; then
+    case "$DEPLOYMENT" in
+        taskcluster-net) GCP_PROJECT_ID=linux64-builds;;
+        dustin-dev) GCP_PROJECT_ID=dustin-dev-3;;
+        *)
+            echo "No GCP project defined for this environment" >&2
+            exit 1;;
+    esac
 
-gcloud projects describe $GCP_PROJECT_ID >/dev/null
-if [ $? != 0 ]; then
-    echo "You do not have access to GCP project $GCP_PROJECT_ID"
-    echo 'Try `gcloud auth login` or check your gcp account permissions'
-    exit 1
+    if ! gcloud projects describe $GCP_PROJECT_ID >/dev/null; then
+        echo "You do not have access to GCP project $GCP_PROJECT_ID"
+        echo 'Try `gcloud auth login` or check your gcp account permissions'
+        exit 1
+    fi
+    echo "Using GCP project $GCP_PROJECT_ID" >&2
 fi
-echo "Using GCP project $GCP_PROJECT_ID" >&2
 
 NODE_VERSION_MAJOR=$(node --version | tr -d v | awk -F. '{print $1}')
 NODE_VERSION_MINOR=$(node --version | tr -d v | awk -F. '{print $2}')
@@ -106,10 +126,10 @@ fi
 
 deploy/bin/import-docker-worker-secrets
 trap 'rm -rf /tmp/docker-worker*' EXIT
-deploy/bin/build $BUILD_TARGET "$ONLY"
+deploy/bin/build $BUILD_TARGET
 
 if $UPDATE_WORKER_TYPES; then
     deploy/bin/update-worker-types.js $*
 else
-    echo "Not deploying worker-types as this is not the taskcluster-net app deployment"
+    echo "Not deploying worker-types as this is not the AWS / taskcluster-net / app deployment"
 fi
