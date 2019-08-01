@@ -47,7 +47,7 @@ module.exports = {
         instanceType: data.plan,
         capacity: process.env.CAPACITY,
         capacityManagement: {
-          diskspaceThreshold: 100000000000,
+          diskspaceThreshold: 30000000000,
         },
         workerType: process.env.WORKER_TYPE,
         shutdown: {
