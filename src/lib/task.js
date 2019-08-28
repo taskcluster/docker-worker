@@ -339,6 +339,7 @@ class Task extends EventEmitter {
     env.TASKCLUSTER_WORKER_GROUP = this.runtime.workerGroup;
     env.TASKCLUSTER_PUBLIC_IP = this.runtime.publicIp;
     env.TASKCLUSTER_ROOT_URL = this.runtime.rootUrl;
+    env.TASKCLUSTER_WORKER_LOCATION = this.runtime.workerLocation;
 
     let privilegedTask = runAsPrivileged(
       this.task, this.runtime.dockerConfig.allowPrivileged
@@ -893,7 +894,7 @@ class Task extends EventEmitter {
     } catch (e) {
       let error = fmtErrorLog('Docker configuration could not be ' +
         'created.  This may indicate an authentication error when validating ' +
-        'scopes necessary for running the task. \n %s', e);
+        'scopes necessary for running the task. \n %s', e.stack);
       return await this.abortRun(error);
     }
 

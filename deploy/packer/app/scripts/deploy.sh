@@ -16,7 +16,7 @@ relengapi_proxy_version=2.3.1
 taskcluster_proxy_version=5.1.0
 livelog_version=4
 dind_service_version=4.0
-worker_runner_version=0.3.2
+worker_runner_version=0.5.3
 
 ## Get recent CA bundle for papertrail
 sudo curl -o /etc/papertrail-bundle.pem https://papertrailapp.com/tools/papertrail-bundle.pem
@@ -64,7 +64,7 @@ sudo chmod +x /usr/local/bin/start-worker
 if [ "$deployment" = "taskcluster-net" ]; then
     providerType=aws-provisioner
 elif [ "$cloud" = "aws" ]; then
-    providerType=amazon
+    providerType=aws
 elif [ "$cloud" = "gcp" ]; then
     providerType=google
 fi
