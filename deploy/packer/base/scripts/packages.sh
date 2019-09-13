@@ -71,7 +71,15 @@ sudo apt-get install -y \
     rsyslog-gnutls \
     openvpn \
     rng-tools \
+    python3 \
+    python3-dev \
+    python-dev \
+    python-pip \
+    python3-pip \
     liblz4-tool
+
+sudo pip install zstandard
+sudo pip3 install zstandard
 
 # Remove apport because it prevents obtaining crashes from containers
 # and because it may send data to Canonical.
