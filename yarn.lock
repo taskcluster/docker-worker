@@ -3034,7 +3034,7 @@ slice-ansi@1.0.0:
   dependencies:
     is-fullwidth-code-point "^2.0.0"
 
-slugid@^1.0.2, slugid@^1.1.0:
+slugid@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/slugid/-/slugid-1.1.0.tgz#e09f00899c09f5a7058edc36dd49f046fd50a82a"
   dependencies:
@@ -3406,13 +3406,6 @@ taskcluster-lib-validate@^11.0.1:
     rimraf "^2.6.2"
     taskcluster-lib-urls "^1.1.0"
     walk "^2.3.9"
-
-taskcluster-task-factory@^0.6.4:
-  version "0.6.4"
-  resolved "https://registry.yarnpkg.com/taskcluster-task-factory/-/taskcluster-task-factory-0.6.4.tgz#76c510d37a464a52f7ce5f3673fa112d1f71135a"
-  dependencies:
-    object-factory "^0.1.2"
-    slugid "^1.0.2"
 
 temporary@^0.0.8:
   version "0.0.8"
