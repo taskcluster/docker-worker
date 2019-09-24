@@ -21,6 +21,7 @@ const DOCKER_CONFIG = {
 
 suite('Image Manager', () => {
   setup(async () => {
+    taskcluster.config(taskcluster.fromEnvVars());
     monitor = await monitoring({
       credentials: {},
       projectName: 'docker-worker-tests',

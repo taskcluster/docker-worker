@@ -137,6 +137,11 @@ program.parse(process.argv);
     config[field] = program[field];
   });
 
+  taskcluster.config({
+    rootUrl: config.rootUrl,
+    credentials: config.taskcluster,
+  });
+
   // If restrict CPU is set override capacity (as long as capacity is > 0)
   // Capacity could be set to zero by the host configuration if the credentials and
   // other necessary information could not be retrieved from the meta/user/secret-data

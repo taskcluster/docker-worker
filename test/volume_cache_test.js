@@ -13,6 +13,7 @@ const rmrf = require('rimraf');
 const cmd = require('./integration/helper/cmd');
 const monitoring = require('taskcluster-lib-monitor');
 const pipe = require('promisepipe');
+const taskcluster = require('taskcluster-client');
 
 let debug = Debug('volumeCacheTest');
 let docker = Docker();
@@ -34,6 +35,7 @@ suite('volume cache test', function () {
   var monitor;
 
   setup(async () => {
+    taskcluster.config(taskcluster.fromEnvVars());
     monitor = await monitoring({
       credentials: {},
       projectName: 'docker-worker-tests',

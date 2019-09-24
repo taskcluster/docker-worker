@@ -1,3 +1,4 @@
+const taskcluster = require('taskcluster-client');
 const ImageManager = require('../src/lib/docker/image_manager');
 const sleep = require('../src/lib/util/sleep');
 const VolumeCache = require('../src/lib/volume_cache');
@@ -37,6 +38,8 @@ suite('garbage collection tests', () => {
 
 
   setup(async () => {
+    taskcluster.config(taskcluster.fromEnvVars());
+
     monitor = await monitoring({
       credentials: {},
       projectName: 'docker-worker-tests',
