@@ -23,7 +23,7 @@ const GarbageCollector = require('../lib/gc');
 const VolumeCache = require('../lib/volume_cache');
 const ImageManager = require('../lib/docker/image_manager');
 const typedEnvConfig = require('typed-env-config');
-const SchemaSet = require('taskcluster-lib-validate');
+const SchemaSet = require('../lib/validate');
 
 // Available target configurations.
 var allowedHosts = ['aws', 'test', 'packet', 'taskcluster-worker-runner'];
