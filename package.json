@@ -73,7 +73,6 @@
     "tar-stream": "^1.2.1",
     "taskcluster-client": "^16.2.0",
     "taskcluster-lib-monitor": "^10.0.0",
-    "taskcluster-lib-scopes": "^10.0.1",
     "taskcluster-lib-urls": "^12.0.0",
     "temporary": "^0.0.8",
     "tweetnacl": "^1.0.0",
