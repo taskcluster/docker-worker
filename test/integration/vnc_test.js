@@ -11,7 +11,7 @@ const slugid = require('slugid');
 const URL = require('url');
 const got = require('got');
 const WebSocket = require('ws');
-const testing = require('taskcluster-lib-testing');
+const poll = require('./helper/poll');
 
 suite('interactive vnc', () => {
   let debug = Debug('docker-worker:test:vnc');
@@ -59,7 +59,7 @@ suite('interactive vnc', () => {
       'private/docker-worker-tests/display.html',
       {expiration: 60 * 5});
 
-    return testing.poll(() => getWithoutRedirect(signedUrl), 45, 1000);
+    return poll(() => getWithoutRedirect(signedUrl), 45, 1000);
   }
 
   test('cat', async () => {
@@ -82,7 +82,7 @@ suite('interactive vnc', () => {
     debug('info from url: %j', info);
     assert(info.displaysUrl, 'missing displaysUrl');
     assert(info.socketUrl, 'missing socketUrl');
-    let displays = await testing.poll(async () => {
+    let displays = await poll(async () => {
       let res = await got(info.displaysUrl, {
         rejectUnauthorized: false,
         json: true,
