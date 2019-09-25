@@ -2,6 +2,7 @@ const TaskListener = require('../src/lib/task_listener');
 const assert = require('assert');
 const nock = require('nock');
 const Debug = require('debug');
+const monitor = require('./fixtures/monitor');
 
 var fakeLog = Debug('fakeRuntime.log');
 
@@ -32,9 +33,8 @@ suite('TaskListener.applySuperseding', function() {
       task: {
         dequeueCount: 5
       },
-      workerTypeMonitor: {
-        prefix: () => { }
-      },
+      monitor: monitor,
+      workerTypeMonitor: monitor,
       deviceManagement: {enabled: false},
       queue: {
         claimTask: async function(taskId, runId, claimConfig) {
