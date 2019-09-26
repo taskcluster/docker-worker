@@ -209,7 +209,7 @@ suite('volume cache test', function () {
     cache.purge(cacheName, futurePurgeDate);
 
     var instance3 = await cache.get(cacheName);
-    assert.notEqual(instance3.key !== instance1.key);
+    assert.notEqual(instance3.key, instance1.key);
 
     await cache.release(instance2.key);
     await cache.release(instance3.key);
@@ -218,8 +218,8 @@ suite('volume cache test', function () {
 
     var instance4 = await cache.get(cacheName);
 
-    assert.notEqual(instance4.key !== instance3.key);
-    assert.ok(instance4.key !== instance2.key);
+    assert.notEqual(instance4.key, instance3.key);
+    assert.notEqual(instance4.key, instance2.key);
 
     instance1 = await cache.get(cacheName);
     cache.purge(cacheName, futurePurgeDate);
@@ -227,7 +227,7 @@ suite('volume cache test', function () {
 
     // Cannot return a volume marked for purge
     instance2 = await cache.get(cacheName);
-    assert.ok(instance1.key !== instance2.key);
+    assert.notEqual(instance1.key, instance2.key);
   });
 
   test('purge volume cache instance', async () => {
@@ -249,6 +249,6 @@ suite('volume cache test', function () {
     await cache.release(purgedInstance.key);
 
     var freshInstance = await cache.get(cacheName);
-    assert.notEqual(freshInstance.key !== purgedInstance.key);
+    assert.notEqual(freshInstance.key, purgedInstance.key);
   });
 });

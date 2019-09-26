@@ -11,6 +11,9 @@ const slugid = require('slugid');
 const URL = require('url');
 const poll = require('./helper/poll');
 const sleep = require('./helper/sleep');
+const util = require('util');
+
+const pseudoRandomBytes = util.promisify(crypto.pseudoRandomBytes);
 
 suite('use docker exec websocket server', () => {
   let debug = Debug('docker-worker:test:interactive');
@@ -242,7 +245,7 @@ suite('use docker exec websocket server', () => {
 
     const TEST_BUF_SIZE = 1024 * 1024;
 
-    let buf = await Promise.denodeify(crypto.pseudoRandomBytes)(TEST_BUF_SIZE);
+    let buf = await crypto.pseudoRandomBytes(TEST_BUF_SIZE);
     client.stdin.write(buf);
     client.stdin.end();
     let buffers = [];
