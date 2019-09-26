@@ -63,7 +63,7 @@
     "promise-retry": "^1.1.1",
     "promisepipe": "^3.0.0",
     "query-string": "^6.1.0",
-    "request": "^2.65.0",
+    "request": "^2.88.0",
     "request-promise-native": "^1.0.7",
     "rimraf": "^2.2.8",
     "serialize-error": "^5.0.0",
