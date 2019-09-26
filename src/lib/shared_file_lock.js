@@ -1,7 +1,6 @@
 const assert = require('assert');
 const Debug = require('debug');
 const fs = require('fs-ext');
-const Promise = require('promise');
 
 let debug = Debug('docker-worker:lib:shared_file_lock');
 

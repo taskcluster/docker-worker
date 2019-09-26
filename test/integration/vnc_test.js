@@ -5,7 +5,6 @@ const Debug = require('debug');
 const DockerWorker = require('../dockerworker');
 const https = require('https');
 const TestWorker = require('../testworker');
-const Promise = require('promise');
 const settings = require('../settings');
 const slugid = require('slugid');
 const URL = require('url');

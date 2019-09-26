@@ -14,7 +14,6 @@ const Graph = require('./graph');
 const LocalWorker = require('./localworker');
 const taskcluster = require('taskcluster-client');
 const typedEnvConfig = require('typed-env-config');
-const Promise = require('promise');
 const {EventEmitter} = require('events');
 const getLogsLocationsFromTask = require('../src/lib/features/logs_location.js');
 

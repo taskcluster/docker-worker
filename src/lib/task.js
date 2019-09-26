@@ -73,6 +73,7 @@ function buildStateHandlers(task, monitor) {
   let featureFlags = task.payload.features || {};
 
   // performs a set difference (featureFlags - features) to get the set of non supported requested features
+  // eslint-disable-next-line no-prototype-builtins
   let diff = _.keys(featureFlags).filter(x => !features.hasOwnProperty(x));
 
   if (diff.length) {
