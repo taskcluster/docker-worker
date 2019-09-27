@@ -81,7 +81,7 @@
     "uuid": "^2.0.0",
     "walk": "^2.3.14",
     "websocket-stream": "^3.3.0",
-    "ws": "^1.1.1"
+    "ws": "^7.1.2"
   },
   "devDependencies": {
     "github": "^13.1.0"
