@@ -15,16 +15,15 @@ const taskcluster = require('taskcluster-client');
 const createLogger = require('../lib/log').createLogger;
 const Debug = require('debug');
 const _ = require('lodash');
-const monitoring = require('taskcluster-lib-monitor');
+const {defaultMonitorManager} = require('../lib/monitor');
 const Runtime = require('../lib/runtime');
 const TaskListener = require('../lib/task_listener');
 const ShutdownManager = require('../lib/shutdown_manager');
 const GarbageCollector = require('../lib/gc');
 const VolumeCache = require('../lib/volume_cache');
-const PrivateKey = require('../lib/private_key');
 const ImageManager = require('../lib/docker/image_manager');
 const typedEnvConfig = require('typed-env-config');
-const SchemaSet = require('taskcluster-lib-validate');
+const SchemaSet = require('../lib/validate');
 
 // Available target configurations.
 var allowedHosts = ['aws', 'test', 'packet', 'taskcluster-worker-runner'];
@@ -138,6 +137,11 @@ program.parse(process.argv);
     config[field] = program[field];
   });
 
+  taskcluster.config({
+    rootUrl: config.rootUrl,
+    credentials: config.taskcluster,
+  });
+
   // If restrict CPU is set override capacity (as long as capacity is > 0)
   // Capacity could be set to zero by the host configuration if the credentials and
   // other necessary information could not be retrieved from the meta/user/secret-data
@@ -154,20 +158,15 @@ program.parse(process.argv);
   // level docker-worker components.
   config.docker = require('../lib/docker')();
 
-  let monitor = await monitoring({
-    rootUrl: config.rootUrl,
-    projectName: config.monitorProject,
-    enable: false,
-    mock: profile === 'test',
-    reportUsage: false
+  let monitor = await defaultMonitorManager.configure({
+    serviceName: config.monitorProject || 'docker-worker',
+  }).setup({
+    processName: 'docker-worker',
+    fake: profile === 'test',
   });
 
-  config.workerTypeMonitor = monitor.prefix(
-    `${config.provisionerId}.${config.workerType}`
-  );
-  config.monitor = config.workerTypeMonitor.prefix(
-    `${config.workerNodeType.replace('.', '')}`
-  );
+  config.workerTypeMonitor = monitor.childMonitor(`${config.provisionerId}.${config.workerType}`);
+  config.monitor = config.workerTypeMonitor.childMonitor(`${config.workerNodeType.replace('.', '')}`);
 
   config.monitor.measure('workerStart', Date.now()-os.uptime());
   config.monitor.count('workerStart');
@@ -224,14 +223,6 @@ program.parse(process.argv);
 
   runtime.hostManager = host;
   runtime.imageManager = new ImageManager(runtime);
-
-  // Instantiate PrivateKey object for decrypting secure data
-  // (currently encrypted environment variables)
-  try {
-    runtime.privateKey = new PrivateKey(runtime.dockerWorkerPrivateKey);
-  } catch (err) {
-    runtime.log(`Running with no support for encrypted environment variables: ${err}`);
-  }
 
   // Billing cycle logic is host specific so we cannot handle shutdowns without
   // both the host and the configuration to shutdown.
