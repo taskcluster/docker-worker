@@ -1,12 +1,11 @@
 const assert = require('assert');
-const slugid = require('slugid');
 
 const cmd = require('./helper/cmd');
 const expires = require('./helper/expires');
 const DockerWorker = require('../dockerworker');
 const TestWorker = require('../testworker');
 
-suite('use dind-service', () => {
+suite.skip('use dind-service', () => {
   let worker;
   setup(async () => {
     worker = new TestWorker(DockerWorker);
