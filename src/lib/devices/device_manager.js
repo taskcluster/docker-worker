@@ -3,6 +3,7 @@ const Debug = require('debug');
 const VideoDeviceManager = require('./video_device_manager');
 const AudioDeviceManager = require('./audio_device_manager');
 const CpuDeviceManager = require('./cpu_device_manager');
+const SharedMemoryDeviceManager = require('./shared_memory_device_manager');
 
 let debug = Debug('taskcluster-docker-worker:deviceManager');
 
@@ -10,6 +11,7 @@ const DEVICE_MANAGERS = {
   'loopbackVideo': VideoDeviceManager,
   'loopbackAudio': AudioDeviceManager,
   'cpu': CpuDeviceManager,
+  'hostSharedMemory': SharedMemoryDeviceManager
 };
 
 
