@@ -44,6 +44,9 @@ class DeviceManager {
 
   async getAvailableCapacity() {
     let devices = await Promise.all(Object.keys(this.managers).map(async (manager) => {
+      if (this.managers[manager].unlimitedDevices) {
+        return Infinity;
+      }
       let availableDevices = await this.managers[manager].getAvailableDevices();
       return availableDevices.length;
     }));
