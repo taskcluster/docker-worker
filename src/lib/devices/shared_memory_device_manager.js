@@ -5,7 +5,7 @@ let debug = Debug('taskcluster-docker-worker:devices:sharedMemoryManager');
 
 class SharedMemoryDeviceManager {
   constructor() {
-    this.devices = [new SharedMemoryDevice("/dev/shm")];
+    this.devices = [new SharedMemoryDevice()];
     this.unlimitedDevices = true;
   }
 
@@ -25,13 +25,7 @@ class SharedMemoryDeviceManager {
 }
 
 class SharedMemoryDevice {
-  constructor(path) {
-    this.path = path;
-
-    if (path !== "/dev/shm") {
-      throw new Error('SharedMemoryDevice only operates on /dev/shm');
-    }
-
+  constructor() {
     this.mountPoints = [
       "/dev/shm"
     ];
@@ -40,7 +34,7 @@ class SharedMemoryDevice {
   acquire() {}
 
   release() {
-    debug(`Device: ${this.path} released`);
+    debug("Device: /dev/shm released");
   }
 
 }
