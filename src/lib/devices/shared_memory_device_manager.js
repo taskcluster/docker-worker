@@ -1,5 +1,4 @@
 const Debug = require('debug');
-const fs = require('fs');
 
 let debug = Debug('taskcluster-docker-worker:devices:sharedMemoryManager');
 
@@ -27,14 +26,14 @@ class SharedMemoryDeviceManager {
 class SharedMemoryDevice {
   constructor() {
     this.mountPoints = [
-      "/dev/shm"
+      '/dev/shm'
     ];
   }
 
   acquire() {}
 
   release() {
-    debug("Device: /dev/shm released");
+    debug('Device: /dev/shm released');
   }
 
 }
