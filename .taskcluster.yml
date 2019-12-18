@@ -17,6 +17,7 @@ tasks:
       - 'docker-worker:capability:privileged'
       - 'docker-worker:capability:device:loopbackAudio'
       - 'docker-worker:capability:device:loopbackVideo'
+      - 'docker-worker:capability:device:hostSharedMemory'
       - 'secrets:get:project/taskcluster/testing/docker-worker/ci-creds'
       - 'secrets:get:project/taskcluster/testing/docker-worker/pulse-creds'
     payload:
@@ -31,6 +32,7 @@ tasks:
         devices:
           loopbackAudio: true
           loopbackVideo: true
+          hostSharedMemory: true
       env:
         WORKER_CI: '1'
         TASKCLUSTER_ROOT_URL: https://community-tc.services.mozilla.com
@@ -59,6 +61,7 @@ tasks:
       - 'docker-worker:capability:privileged'
       - 'docker-worker:capability:device:loopbackAudio'
       - 'docker-worker:capability:device:loopbackVideo'
+      - 'docker-worker:capability:device:hostSharedMemory'
       - 'secrets:get:project/taskcluster/testing/docker-worker/ci-creds'
       - 'secrets:get:project/taskcluster/testing/docker-worker/pulse-creds'
     payload:
@@ -74,6 +77,7 @@ tasks:
         devices:
           loopbackAudio: true
           loopbackVideo: true
+          hostSharedMemory: true
       env:
         WORKER_CI: '1'
         TASKCLUSTER_ROOT_URL: https://community-tc.services.mozilla.com
@@ -102,6 +106,7 @@ tasks:
       - 'docker-worker:capability:privileged'
       - 'docker-worker:capability:device:loopbackAudio'
       - 'docker-worker:capability:device:loopbackVideo'
+      - 'docker-worker:capability:device:hostSharedMemory'
       - 'secrets:get:project/taskcluster/testing/docker-worker/ci-creds'
       - 'secrets:get:project/taskcluster/testing/docker-worker/pulse-creds'
     payload:
@@ -117,6 +122,7 @@ tasks:
         devices:
           loopbackAudio: true
           loopbackVideo: true
+          hostSharedMemory: true
       env:
         WORKER_CI: '1'
         TASKCLUSTER_ROOT_URL: https://community-tc.services.mozilla.com
@@ -145,6 +151,7 @@ tasks:
       - 'docker-worker:capability:privileged'
       - 'docker-worker:capability:device:loopbackAudio'
       - 'docker-worker:capability:device:loopbackVideo'
+      - 'docker-worker:capability:device:hostSharedMemory'
       - 'secrets:get:project/taskcluster/testing/docker-worker/ci-creds'
       - 'secrets:get:project/taskcluster/testing/docker-worker/pulse-creds'
     payload:
@@ -160,6 +167,7 @@ tasks:
         devices:
           loopbackAudio: true
           loopbackVideo: true
+          hostSharedMemory: true
       env:
         WORKER_CI: '1'
         TASKCLUSTER_ROOT_URL: https://community-tc.services.mozilla.com
@@ -188,6 +196,7 @@ tasks:
       - 'docker-worker:capability:privileged'
       - 'docker-worker:capability:device:loopbackAudio'
       - 'docker-worker:capability:device:loopbackVideo'
+      - 'docker-worker:capability:device:hostSharedMemory'
       - 'secrets:get:project/taskcluster/testing/docker-worker/ci-creds'
       - 'secrets:get:project/taskcluster/testing/docker-worker/pulse-creds'
     payload:
@@ -203,6 +212,7 @@ tasks:
         devices:
           loopbackAudio: true
           loopbackVideo: true
+          hostSharedMemory: true
       env:
         WORKER_CI: '1'
         TASKCLUSTER_ROOT_URL: https://community-tc.services.mozilla.com
@@ -231,6 +241,7 @@ tasks:
       - 'docker-worker:capability:privileged'
       - 'docker-worker:capability:device:loopbackAudio'
       - 'docker-worker:capability:device:loopbackVideo'
+      - 'docker-worker:capability:device:hostSharedMemory'
       - 'secrets:get:project/taskcluster/testing/docker-worker/ci-creds'
       - 'secrets:get:project/taskcluster/testing/docker-worker/pulse-creds'
     payload:
@@ -246,6 +257,7 @@ tasks:
         devices:
           loopbackAudio: true
           loopbackVideo: true
+          hostSharedMemory: true
       env:
         WORKER_CI: '1'
         TASKCLUSTER_ROOT_URL: https://community-tc.services.mozilla.com
