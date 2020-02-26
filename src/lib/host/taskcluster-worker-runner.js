@@ -12,6 +12,7 @@ module.exports = {
     const transp = new StreamTransport(process.stdin, process.stdout);
     protocol = new Protocol(transp, new Set([
       'graceful-termination',
+      'shutdown',
     ]));
 
     // docker-worker doesn't support a finish-your-tasks-first termination,
@@ -38,5 +39,12 @@ module.exports = {
     }
     const content = fs.readFileSync(configFile, 'utf8');
     return JSON.parse(content);
-  }
+  },
+
+  async shutdown() {
+    if (!await protocol.capable('shutdown')) {
+      throw new Error('Shutdown called but worker-runner doesn\'t support this capability');
+    }
+    protocol.send({type: 'shutdown'});
+  },
 };
