@@ -1,3 +1,4 @@
+const assert = require('assert');
 const {EventEmitter} = require('events');
 const split2 = require('split2');
 
@@ -65,16 +66,14 @@ exports.StreamTransport = StreamTransport;
  */
 class Protocol extends EventEmitter {
   /**
-   * Construct a new protocol, given the underlying transport and a Set defining the
-   * supported capabilities.  Note that a smaller set of capabilties might be
-   * negotiated, and that the initial set of capabilities is empty.
+   * Construct a new protocol, given the underlying transport.
    */
-  constructor(transport, supportedCapabilities) {
+  constructor(transport) {
     super();
 
     this.transport = transport;
     this.remoteCapabilities = new Set();
-    this.localCapabilities = supportedCapabilities;
+    this.localCapabilities = new Set();
 
     this.transport.on('message', msg => {
       const event = `${msg.type}-msg`;
@@ -88,6 +87,8 @@ class Protocol extends EventEmitter {
         this._handleWelcome(msg);
         resolve();
       }));
+
+    this.started = false;
   }
 
   /**
@@ -95,13 +96,24 @@ class Protocol extends EventEmitter {
    */
   start() {
     this.transport.start();
+    this.started = true;
   }
 
   /**
    * Send a message
    */
   send(message) {
+    assert(this.started);
     this.transport.send(message);
+  }
+
+  /**
+   * Add a capability to this protocol.  This can only be called before start,
+   * before the capability negotiation takes place.
+   */
+  addCapability(cap) {
+    assert(!this.started);
+    this.localCapabilities.add(cap);
   }
 
   /**

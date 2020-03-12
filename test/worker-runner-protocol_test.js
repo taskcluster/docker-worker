@@ -104,7 +104,9 @@ suite('worker-runner-protocol', function() {
   suite('protocol', function() {
     test('caps negotiation', async function() {
       const transp = new TestTransport();
-      const prot = new Protocol(transp, new Set(['worker-only', 'shared']));
+      const prot = new Protocol(transp);
+      prot.addCapability('worker-only');
+      prot.addCapability('shared');
       prot.start();
 
       // `capable` doesn't return yet..
@@ -121,7 +123,7 @@ suite('worker-runner-protocol', function() {
 
     test('sending', async function() {
       const transp = new TestTransport();
-      const prot = new Protocol(transp, new Set([]));
+      const prot = new Protocol(transp);
       prot.start();
 
       prot.send({type: 'test'});
@@ -130,7 +132,7 @@ suite('worker-runner-protocol', function() {
 
     test('receiving', async function() {
       const transp = new TestTransport();
-      const prot = new Protocol(transp, new Set([]));
+      const prot = new Protocol(transp);
       const received = [];
       prot.start();
 
