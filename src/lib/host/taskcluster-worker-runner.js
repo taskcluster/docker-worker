@@ -19,6 +19,8 @@ module.exports = {
     protocol.on('graceful-termination-msg', () => {
       gracefulTermination = true;
     });
+
+    protocol.start();
   },
 
   billingCycleUptime() {

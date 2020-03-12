@@ -12,14 +12,22 @@ const split2 = require('split2');
  * implements only the worker side of the protocol, invalid lines are
  * simply ignored.
  *
+ * Messages are not delivered and consuming from the input does not begin
+ * until the start method has been called.
+ *
  * StreamTransport implements this interface using Node streams.
  */
 class StreamTransport extends EventEmitter {
   constructor(input, output) {
     super();
 
+    this.input = input;
+    this.output = output;
+  }
+
+  start() {
     // line-buffer the input and react to individual messages
-    const lines = input.pipe(split2());
+    const lines = this.input.pipe(split2());
 
     lines.on('data', line => {
       if (!line.startsWith('~{') || !line.endsWith('}')) {
@@ -39,8 +47,6 @@ class StreamTransport extends EventEmitter {
 
     // emit end as well when the input closes, for testing purposes
     lines.on('end', () => this.emit('end'));
-
-    this.output = output;
   }
 
   send(message) {
@@ -67,8 +73,8 @@ class Protocol extends EventEmitter {
     super();
 
     this.transport = transport;
-    this.capabilities = new Set();
-    this.supportedCapabilities = supportedCapabilities;
+    this.remoteCapabilities = new Set();
+    this.localCapabilities = supportedCapabilities;
 
     this.transport.on('message', msg => {
       const event = `${msg.type}-msg`;
@@ -85,6 +91,13 @@ class Protocol extends EventEmitter {
   }
 
   /**
+   * Start the protocol and its underlying transport
+   */
+  start() {
+    this.transport.start();
+  }
+
+  /**
    * Send a message
    */
   send(message) {
@@ -96,19 +109,12 @@ class Protocol extends EventEmitter {
    */
   async capable(cap) {
     await this._welcomedPromise;
-    return this.capabilities.has(cap);
+    return this.localCapabilities.has(cap) && this.remoteCapabilities.has(cap);
   }
 
   _handleWelcome(msg) {
-    const remoteCapabilities = new Set(msg.capabilities);
-    this.capabilities = new Set();
-    for (let c of remoteCapabilities) {
-      if (this.supportedCapabilities.has(c)) {
-        this.capabilities.add(c);
-      }
-    }
-
-    this.send({type: 'hello', capabilities: [...this.capabilities]});
+    this.remoteCapabilities = new Set(msg.capabilities);
+    this.send({type: 'hello', capabilities: [...this.localCapabilities]});
   }
 }
 
