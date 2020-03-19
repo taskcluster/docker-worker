@@ -106,6 +106,11 @@ class TaskListener extends EventEmitter {
     let hostCapacity = Math.min(runningCapacity, deviceCapacity);
     this.lastKnownCapacity = hostCapacity;
 
+    this.runtime.log('Worker capacity', {
+      runtimeCapacity: this.runtime.capacity,
+      runningCapacity, hostCapacity, deviceCapacity,
+    });
+
     if (hostCapacity < runningCapacity) {
       this.runtime.log('[info] host capacity adjusted',
         {
