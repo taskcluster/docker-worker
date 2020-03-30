@@ -24,6 +24,7 @@ const VolumeCache = require('../lib/volume_cache');
 const ImageManager = require('../lib/docker/image_manager');
 const typedEnvConfig = require('typed-env-config');
 const SchemaSet = require('../lib/validate');
+const { spawn } = require('child_process');
 
 // Available target configurations.
 var allowedHosts = ['aws', 'test', 'packet', 'taskcluster-worker-runner'];
@@ -82,10 +83,6 @@ program.parse(process.argv);
 
 // Main.
 (async () => {
-  process.on('unhandledRejection', (reason, p) => {
-    console.error(`Unhandled rejection at ${p}.\n${reason.stack || reason}`);
-  });
-
   var profile = program.args[0];
 
   if (!profile) {
@@ -121,6 +118,16 @@ program.parse(process.argv);
     var targetConfig = await host.configure();
     config = _.defaultsDeep(targetConfig, config);
   }
+
+  process.on('unhandledRejection', async (reason, p) => {
+    console.error(`Unhandled rejection at ${p}.\n${reason.stack || reason}`);
+    if (host && host.shutdown) {
+      await host.shutdown();
+    } else {
+      spawn('shutdown', ['-h', 'now']);
+    }
+  });
+
 
   // process CLI specific overrides
   overridableFields.forEach(function(field) {
