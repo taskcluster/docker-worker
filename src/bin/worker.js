@@ -124,7 +124,7 @@ program.parse(process.argv);
     if (host && host.shutdown) {
       await host.shutdown();
     } else {
-      spawn('shutdown', ['-h', 'now']);
+      spawn('shutdown', ['-h', 'now', `docker-worker shutdown due to unhandled rejection ${reason}`]);
     }
   });
 
@@ -282,4 +282,3 @@ program.parse(process.argv);
   console.error(err.stack);
   process.exit(1);
 });
-
