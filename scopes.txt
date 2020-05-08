@@ -1,2 +1,0 @@
---scopes assume:repo:github.com/taskcluster/docker-worker:*
-
